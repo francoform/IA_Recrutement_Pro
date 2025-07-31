@@ -14,7 +14,7 @@ export function Hero() {
       </h1>
       
       <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed mb-8">
-        Transformez votre processus de recrutement avec l'IA. 
+        Transformez votre processus de recrutement avec l&apos;IA. 
         Analysez, classez et sélectionnez les meilleurs candidats en quelques secondes.
       </p>
       
@@ -23,7 +23,7 @@ export function Hero() {
           href="/services/ia" 
           className="bg-gradient-to-r from-cyan-400 to-cyan-600 text-white px-8 py-4 rounded-xl font-semibold hover:shadow-xl transition-all duration-300"
         >
-          Commencer l'analyse
+          Commencer l&apos;analyse
         </a>
         <a 
           href="/about" 

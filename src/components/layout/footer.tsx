@@ -6,7 +6,7 @@ export function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4 text-cyan-400">IA Recrutement Pro</h3>
             <p className="text-gray-400 text-sm">
-              Transformez votre processus de recrutement avec l'intelligence artificielle.
+              Transformez votre processus de recrutement avec l&apos;intelligence artificielle.
             </p>
           </div>
           <div>

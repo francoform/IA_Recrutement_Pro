@@ -25,7 +25,7 @@ export function Features() {
             <Zap className="w-6 h-6 text-white" />
           </div>
           <h3 className="text-xl font-semibold mb-2">Gain de Temps</h3>
-          <p className="text-gray-400">Réduisez de 90% le temps d'analyse manuelle des candidatures</p>
+          <p className="text-gray-400">Réduisez de 90% le temps d&apos;analyse manuelle des candidatures</p>
         </div>
       </div>
     </section>

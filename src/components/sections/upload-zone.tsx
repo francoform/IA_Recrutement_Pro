@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import { Upload, FileText, Trash2, AlertTriangle, CheckCircle, Briefcase, Heart, User, Loader2, Clock, Zap } from 'lucide-react'
+import { Upload, FileText, Trash2, AlertTriangle, CheckCircle, Briefcase, Heart, User, Clock, Zap } from 'lucide-react'
 
 interface FileValidationResult {
   isValid: boolean
@@ -21,7 +21,6 @@ export function UploadZone() {
     cvs: []
   })
   const [isUploading, setIsUploading] = useState(false)
-  const [results, setResults] = useState(null)
   const [validationErrors, setValidationErrors] = useState<string[]>([])
   const [showErrorPopup, setShowErrorPopup] = useState(false)
   const [dragOverZone, setDragOverZone] = useState<string | null>(null)
@@ -263,7 +262,7 @@ export function UploadZone() {
     type: keyof FilesByType
     title: string
     description: string
-    icon: any
+    icon: React.ElementType
     accept: string
     multiple?: boolean
     colorScheme: {
@@ -401,9 +400,9 @@ export function UploadZone() {
           <div className="bg-blue-900/20 border border-blue-500/30 rounded-xl p-4 mb-8">
             <h3 className="font-medium text-blue-200 mb-2">📋 Instructions importantes :</h3>
             <ul className="text-sm text-blue-100 space-y-1">
-              <li>• <strong>Nommage des fichiers :</strong> Incluez le nom et prénom du candidat dans le nom des fichiers (ex: "CV_Jean_Dupont.pdf", "LM_Jean_Dupont.txt")</li>
+              <li>• <strong>Nommage des fichiers :</strong> Incluez le nom et prénom du candidat dans le nom des fichiers (ex: &quot;CV_Jean_Dupont.pdf&quot;, &quot;LM_Jean_Dupont.txt&quot;)</li>
               <li>• <strong>Un candidat = 1 CV + 1 lettre de motivation</strong></li>
-              <li>• <strong>Une seule fiche de poste</strong> pour l'ensemble des candidatures</li>
+              <li>• <strong>Une seule fiche de poste</strong> pour l&apos;ensemble des candidatures</li>
               <li>• <strong>Pas de doublons :</strong> Chaque fichier doit être unique</li>
               <li>• Formats acceptés : PDF, DOC, DOCX, TXT (max 10MB par fichier)</li>
             </ul>

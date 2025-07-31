@@ -1,4 +1,5 @@
 import { Brain } from 'lucide-react'
+import Link from 'next/link';
 
 export function Header() {
   return (
@@ -14,18 +15,18 @@ export function Header() {
             </h1>
           </div>
           <nav className="hidden md:flex space-x-6">
-            <a href="/" className="text-gray-300 hover:text-white transition-colors">
+            <Link href="/" className="text-gray-300 hover:text-white transition-colors">
               Accueil
-            </a>
-            <a href="/services/ia" className="text-gray-300 hover:text-white transition-colors">
+            </Link>
+            <Link href="/services/ia" className="text-gray-300 hover:text-white transition-colors">
               Services IA
-            </a>
-            <a href="/about" className="text-gray-300 hover:text-white transition-colors">
+            </Link>
+            <Link href="/about" className="text-gray-300 hover:text-white transition-colors">
               À propos
-            </a>
-            <a href="/contact" className="text-gray-300 hover:text-white transition-colors">
+            </Link>
+            <Link href="/contact" className="text-gray-300 hover:text-white transition-colors">
               Contact
-            </a>
+            </Link>
           </nav>
         </div>
       </div>

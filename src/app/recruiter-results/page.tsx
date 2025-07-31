@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -12,7 +13,6 @@ import {
 } from "recharts";
 import {
   CheckCircle,
-  XCircle,
   TrendingUp,
   AlertCircle,
   Home,
@@ -36,7 +36,7 @@ type Candidate = {
   location: string;
   "education-level": string;
   "years-of-experience": number;
-  "salary-expectation": string;
+  "salary-expectation": string | null; // <-- CORRECTION APPLIQUÉE ICI
   verdict: string;
   "final-score": number;
   // Critères de scoring détaillés
@@ -112,139 +112,42 @@ export default function RecruiterResultsPage() {
           throw new Error('ID d\'analyse manquant')
         }
         
-        // Utiliser les données du fichier json.md
         const fallbackData = [
           {
-            "full-name": "ANNE MOREAU",
-            "email": "help@enhancv.com",
-            "location": "Bordeaux, FR",
-            "education-level": "Master en Finance",
-            "years-of-experience": 12,
-            "salary-expectation": null,
+            "full-name": "ANNE MOREAU", "email": "help@enhancv.com", "location": "Bordeaux, FR", "education-level": "Master en Finance", "years-of-experience": 12, "salary-expectation": null,
             "verdict": "Bonne candidate avec plus de 5 ans d'expérience en analyse financière et contrôle de gestion, très compétente en business partnering, maîtrise Power BI, SAP et Excel avancé. Forte en optimisation et recommandations stratégiques, elle a réduit significativement les écarts budgétaires et amélioré la marge.",
-            "final-score": 39,
-            "analyse-financiere": 2,
-            "reporting": 2,
-            "suivi-indicateurs-performance-kpis": 2,
-            "modélisation-financière": 2,
-            "prévisions-financières": 2,
-            "evaluation-projets-investissement": 1,
-            "cloture-mensuelle": 2,
-            "pilotage-cycles-budgetaires": 2,
-            "suivi-budgets-sg&a-opex": 2,
-            "business-partnering": 2,
-            "optimisation-structure-couts": 2,
-            "recommandations-strategiques": 2,
-            "amelioration-processus-financiers": 2,
-            "automatisation-processus": 2,
-            "outil-bi": 2,
-            "maitrise-excel": 2,
-            "maitrise-vba-macros": 1,
-            "erp-sap": 2,
-            "outil-bi-power-bi": 2,
-            "connaissance-bloomberg": 0,
-            "francais-courant": 2,
-            "anglais-professionnel": 1
+            "final-score": 39, "analyse-financiere": 2, "reporting-financier": 2, "modelisation-financiere": 2, "previsions-financieres": 2, "cloture-comptable": 2, "pilotage-budgetaire": 2,
+            "business-partnering-financier": 2, "optimisation-structure-couts": 2, "strategie-financiere": 2, "amelioration-processus-financiers": 2, "automatisation-outils-financiers": 2,
+            "utilisation-outils-bi": 2, "maitrise-excel-fonctions-avancees": 2, "maitrise-excel-vba-macros": 1, "erp-sap": 2, "outil-bi-power-bi": 2, "connaissance-bloomberg": 0, "anglais-professionnel": 1, "francais-courant": 2,
+            "formation-bac-plus-5-finance-ecole-commerce-equivalent": 2, "experience-minimum-5-ans-analyse-financiere-ou-controle-de-gestion-ou-business-partner-financier": 2
           },
           {
-            "full-name": "YANN GARNIER",
-            "email": "yann.garnier@mail.com",
-            "location": "Bordeaux, France",
-            "education-level": "Master 2 Finance d'Entreprise",
-            "years-of-experience": 3,
-            "salary-expectation": null,
+            "full-name": "YANN GARNIER", "email": "yann.garnier@mail.com", "location": "Bordeaux, France", "education-level": "Master 2 Finance d'Entreprise", "years-of-experience": 3, "salary-expectation": null,
             "verdict": "Candidat junior avec 3 ans d'expérience, maîtrise Excel avancé avec VBA, Power BI, SAP et Bloomberg, bon en contrôle budgétaire et reporting. Moins d'expérience dans la clôture mensuelle et pilotage complet des budgets Sg&A, ce qui limite sa capacité à être pleinement opérationnel sur un poste senior.",
-            "final-score": 35,
-            "analyse-financiere": 2,
-            "reporting": 2,
-            "suivi-indicateurs-performance-kpis": 2,
-            "modélisation-financière": 2,
-            "prévisions-financières": 1,
-            "evaluation-projets-investissement": 1,
-            "cloture-mensuelle": 0,
-            "pilotage-cycles-budgetaires": 1,
-            "suivi-budgets-sg&a-opex": 1,
-            "business-partnering": 1,
-            "optimisation-structure-couts": 1,
-            "recommandations-strategiques": 1,
-            "amelioration-processus-financiers": 2,
-            "automatisation-processus": 2,
-            "outil-bi": 2,
-            "maitrise-excel": 2,
-            "maitrise-vba-macros": 2,
-            "erp-sap": 2,
-            "outil-bi-power-bi": 2,
-            "connaissance-bloomberg": 2,
-            "francais-courant": 2,
-            "anglais-professionnel": 2
+            "final-score": 35, "analyse-financiere": 2, "reporting-financier": 2, "modelisation-financiere": 2, "previsions-financieres": 1, "cloture-comptable": 0, "pilotage-budgetaire": 1,
+            "business-partnering-financier": 1, "optimisation-structure-couts": 1, "strategie-financiere": 1, "amelioration-processus-financiers": 2, "automatisation-outils-financiers": 2,
+            "utilisation-outils-bi": 2, "maitrise-excel-fonctions-avancees": 2, "maitrise-excel-vba-macros": 2, "erp-sap": 2, "outil-bi-power-bi": 2, "connaissance-bloomberg": 2, "anglais-professionnel": 2, "francais-courant": 2,
+            "formation-bac-plus-5-finance-ecole-commerce-equivalent": 2, "experience-minimum-5-ans-analyse-financiere-ou-controle-de-gestion-ou-business-partner-financier": 0
           },
           {
-            "full-name": "Paul MARTIN",
-            "email": "paul.martin@email.com",
-            "location": "Lyon, France",
-            "education-level": "Master en Finance",
-            "years-of-experience": 6,
-            "salary-expectation": null,
+            "full-name": "Paul MARTIN", "email": "paul.martin@email.com", "location": "Lyon, France", "education-level": "Master en Finance", "years-of-experience": 6, "salary-expectation": null,
             "verdict": "Profil solide avec plus de 5 ans d'expérience en analyse financière dans des grandes institutions, expertise avancée en modélisation, VBA, Bloomberg, maîtrise Excel avancé et connaissance SAP. Très bon en reporting et recommandations stratégiques, mais suivi des budgets Sg&A moins explicité.",
-            "final-score": 30,
-            "analyse-financiere": 2,
-            "reporting": 2,
-            "suivi-indicateurs-performance-kpis": 1,
-            "modélisation-financière": 2,
-            "prévisions-financières": 2,
-            "evaluation-projets-investissement": 1,
-            "cloture-mensuelle": 1,
-            "pilotage-cycles-budgetaires": 1,
-            "suivi-budgets-sg&a-opex": 0,
-            "business-partnering": 2,
-            "optimisation-structure-couts": 2,
-            "recommandations-strategiques": 2,
-            "amelioration-processus-financiers": 1,
-            "automatisation-processus": 0,
-            "outil-bi": 0,
-            "maitrise-excel": 2,
-            "maitrise-vba-macros": 2,
-            "erp-sap": 1,
-            "outil-bi-power-bi": 0,
-            "connaissance-bloomberg": 2,
-            "francais-courant": 2,
-            "anglais-professionnel": 2
+            "final-score": 30, "analyse-financiere": 2, "reporting-financier": 2, "modelisation-financiere": 2, "previsions-financieres": 2, "cloture-comptable": 1, "pilotage-budgetaire": 1,
+            "business-partnering-financier": 2, "optimisation-structure-couts": 2, "strategie-financiere": 2, "amelioration-processus-financiers": 1, "automatisation-outils-financiers": 0,
+            "utilisation-outils-bi": 0, "maitrise-excel-fonctions-avancees": 2, "maitrise-excel-vba-macros": 2, "erp-sap": 1, "outil-bi-power-bi": 0, "connaissance-bloomberg": 2, "anglais-professionnel": 2, "francais-courant": 2,
+            "formation-bac-plus-5-finance-ecole-commerce-equivalent": 2, "experience-minimum-5-ans-analyse-financiere-ou-controle-de-gestion-ou-business-partner-financier": 2
           },
           {
-            "full-name": "Raoul ROBILLARD",
-            "email": "r.robillard@eemail.com",
-            "location": "Metz",
-            "education-level": "Master 2 spécialisé en Analyse financière internationale",
-            "years-of-experience": 5,
-            "salary-expectation": null,
+            "full-name": "Raoul ROBILLARD", "email": "r.robillard@eemail.com", "location": "Metz", "education-level": "Master 2 spécialisé en Analyse financière internationale", "years-of-experience": 5, "salary-expectation": null,
             "verdict": "Bon profil avec une expertise en modélisation financière, évaluation de projets et reporting, maîtrise confirmée d'Excel, Bloomberg et SQL, ainsi qu'anglais courant. Expérience en gestion de portefeuille et recommandations stratégiques solides, mais peu d'éléments sur le suivi des budgets Sg&A ou Power BI.",
-            "final-score": 28,
-            "analyse-financiere": 2,
-            "reporting": 2,
-            "suivi-indicateurs-performance-kpis": 2,
-            "modélisation-financière": 2,
-            "prévisions-financières": 2,
-            "evaluation-projets-investissement": 2,
-            "cloture-mensuelle": 1,
-            "pilotage-cycles-budgetaires": 1,
-            "suivi-budgets-sg&a-opex": 0,
-            "business-partnering": 1,
-            "optimisation-structure-couts": 1,
-            "recommandations-strategiques": 2,
-            "amelioration-processus-financiers": 1,
-            "automatisation-processus": 0,
-            "outil-bi": 0,
-            "maitrise-excel": 2,
-            "maitrise-vba-macros": 1,
-            "erp-sap": 0,
-            "outil-bi-power-bi": 0,
-            "connaissance-bloomberg": 2,
-            "francais-courant": 2,
-            "anglais-professionnel": 2
+            "final-score": 28, "analyse-financiere": 2, "reporting-financier": 2, "modelisation-financiere": 2, "previsions-financieres": 2, "cloture-comptable": 1, "pilotage-budgetaire": 1,
+            "business-partnering-financier": 1, "optimisation-structure-couts": 1, "strategie-financiere": 2, "amelioration-processus-financiers": 1, "automatisation-outils-financiers": 0,
+            "utilisation-outils-bi": 0, "maitrise-excel-fonctions-avancees": 2, "maitrise-excel-vba-macros": 1, "erp-sap": 0, "outil-bi-power-bi": 0, "connaissance-bloomberg": 2, "anglais-professionnel": 2, "francais-courant": 2,
+            "formation-bac-plus-5-finance-ecole-commerce-equivalent": 2, "experience-minimum-5-ans-analyse-financiere-ou-controle-de-gestion-ou-business-partner-financier": 2
           }
         ];
 
-        const processedFallback = fallbackData.map((c: any, idx) => ({
+        const processedFallback = fallbackData.map((c: Candidate, idx) => ({
           ...c,
           color: candidateColors[idx % candidateColors.length]
         }));
@@ -261,7 +164,7 @@ export default function RecruiterResultsPage() {
   }, []);
 
   const calculateScore = (c: Candidate) =>
-    c["final-score"] ?? Number(String(c["final-score"]).replace(/\/.*/, "")) || 0;
+    (c["final-score"] ?? Number(String(c["final-score"]).replace(/\/.*/, ""))) || 0;
 
   const sorted = [...data].sort((a, b) => calculateScore(b) - calculateScore(a));
 
@@ -559,7 +462,13 @@ export default function RecruiterResultsPage() {
                 <button onClick={closeDocumentPopup} className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-all duration-300 border border-white/10">Fermer</button>
                 <button
                   onClick={() => {
-                    documentPopup.type === 'cv' ? handleDownloadCV(documentPopup.candidate!) : handleDownloadMotivationLetter(documentPopup.candidate!);
+                    if (documentPopup.candidate) {
+                      if (documentPopup.type === 'cv') {
+                        handleDownloadCV(documentPopup.candidate);
+                      } else {
+                        handleDownloadMotivationLetter(documentPopup.candidate);
+                      }
+                    }
                   }}
                   style={{ backgroundColor: documentPopup.candidate.color?.primary }}
                   className="hover:opacity-90 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center"
