@@ -24,7 +24,7 @@ export function Hero() {
         Analysez, classez et sélectionnez les meilleurs candidats en quelques secondes.
       </p>
       
-      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+      <div className="flex flex-col sm:flex-row gap-4 justify-center mb-4 md:mb-6">
         <a 
           href="/services/ia" 
           className="bg-gradient-to-r from-cyan-400 to-cyan-600 text-white px-8 py-4 rounded-xl font-semibold hover:shadow-xl transition-all duration-300"

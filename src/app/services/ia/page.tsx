@@ -1,9 +1,28 @@
 import { Metadata } from 'next'
 import { UploadZone } from '@/components/sections/upload-zone'
+import { Footer } from '@/components/layout/footer'
 import Image from 'next/image'
+
 export const metadata: Metadata = {
-  title: 'IA Recrutement - Analyse automatique de CV',
-  description: 'Analysez et classez vos candidats automatiquement avec notre IA',
+  title: 'Service IA - Analyse automatique de CV et lettres de motivation | IA Recrutement Pro',
+  description: 'Uploadez vos CV et lettres de motivation pour une analyse automatique par IA. Scoring intelligent, classement des candidats et gain de temps de 90% dans votre processus de recrutement.',
+  
+  keywords: [
+    "upload CV IA",
+    "analyse lettre motivation automatique",
+    "service recrutement IA",
+    "scoring candidats intelligent",
+    "tri automatique CV",
+    "évaluation candidatures IA",
+    "matching profil poste",
+    "analyse compétences IA"
+  ].join(", "),
+
+  openGraph: {
+    title: 'Service IA - Analyse automatique de CV et lettres de motivation',
+    description: 'Uploadez vos CV et lettres de motivation pour une analyse automatique par IA. Scoring intelligent et classement des candidats.',
+    url: 'https://ia-recrutement-pro.com/services/ia',
+  },
 }
 
 export default function IAServicePage() {
@@ -38,12 +57,8 @@ export default function IAServicePage() {
           </div>
         </div>
         
-        {/* Footer */}
-        <footer className="flex-shrink-0 py-6">
-          <div className="container mx-auto px-6 text-center">
-            <p className="text-gray-400 text-sm">&copy; 2014 be2web. Tous droits réservés. Made with ❤️</p>
-          </div>
-        </footer>
+        {/* Footer avec composant */}
+        <Footer />
       </div>
     </div>
   )
