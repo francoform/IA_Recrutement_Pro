@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import { UploadZone } from '@/components/sections/upload-zone'
-
+import Image from 'next/image'
 export const metadata: Metadata = {
   title: 'IA Recrutement - Analyse automatique de CV',
   description: 'Analysez et classez vos candidats automatiquement avec notre IA',
@@ -12,6 +12,17 @@ export default function IAServicePage() {
       <div className="min-h-full flex flex-col">
         {/* Header de la page */}
         <div className="flex-shrink-0 text-center py-8">
+           <div className="flex justify-center items-center mb-6">
+        <div className="bg-gradient-to-r from-cyan-400 to-blue-500 p-3 rounded-xl shadow-lg">
+          <Image 
+            src="/IARecrutPRO.ico" 
+            alt="IA Recrutement Pro" 
+            width={32} 
+            height={32} 
+            className="w-8 h-8"
+          />
+        </div>
+      </div>
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-cyan-600 bg-clip-text text-transparent px-4">
             Service IA de Recrutement
           </h1>

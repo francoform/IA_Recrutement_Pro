@@ -391,9 +391,9 @@ export function UploadZone() {
   }
 
   return (
-    <section className="container mx-auto px-6 py-16">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/10">
+    <section className="w-full px-0 py-16 md:container md:mx-auto md:px-6">
+      <div className="max-w-4xl mx-auto px-4 md:px-0">
+        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-4 md:p-8 border border-white/10 mx-2 md:mx-0">
           <h2 className="text-2xl font-semibold mb-6 text-center">Uploadez vos fichiers de recrutement</h2>
           
           {/* Instructions */}
@@ -410,7 +410,7 @@ export function UploadZone() {
 
           <div className="space-y-8">
             {/* Zone fiche de poste - Couleur Ambre/Orange */}
-            <div className="bg-amber-900/10 border border-amber-500/20 rounded-xl p-6">
+            <div className="bg-amber-900/10 border border-amber-500/20 rounded-xl p-4 md:p-6">
               <FileUploadZone
                 type="jobDescription"
                 title=" Fiche de poste"
@@ -422,9 +422,9 @@ export function UploadZone() {
               />
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Zone CV - Couleur Bleue */}
-              <div className="bg-blue-900/10 border border-blue-500/20 rounded-xl p-6">
+              <div className="bg-blue-900/10 border border-blue-500/20 rounded-xl p-4 md:p-6">
                 <FileUploadZone
                   type="cvs"
                   title=" CV des candidats"
@@ -436,7 +436,7 @@ export function UploadZone() {
               </div>
 
               {/* Zone lettres de motivation - Couleur Verte */}
-              <div className="bg-emerald-900/10 border border-emerald-500/20 rounded-xl p-6">
+              <div className="bg-emerald-900/10 border border-emerald-500/20 rounded-xl p-4 md:p-6">
                 <FileUploadZone
                   type="motivationLetters"
                   title=" Lettres de motivation"

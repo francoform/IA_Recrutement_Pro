@@ -22,15 +22,15 @@ export function Footer() {
               Email: contact@ia-recrutement-pro.com<br />
               Téléphone: +33 1 23 45 67 89
             </p>
-            {/* Nouveau bouton glassmorphism be2web */}
+            {/* Bouton glassmorphism be2web - CORRIGÉ */}
             <div className="mt-4">
               <a 
                 href="https://be2web-agence.francoform.com/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500/20 to-blue-600/20 backdrop-blur-md border border-cyan-400/30 text-cyan-300 hover:from-cyan-400/30 hover:to-blue-500/30 hover:border-cyan-300/50 hover:text-white transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 text-sm font-medium"
+                className="inline-flex items-center px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500/20 to-blue-600/20 backdrop-blur-md border border-cyan-400/30 hover:from-cyan-400/30 hover:to-blue-500/30 hover:border-cyan-300/50 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 text-sm font-medium"
               >
-                <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent font-semibold">✨ Powered by be2web</span>
+                <span className="text-cyan-300 hover:text-white transition-colors font-semibold">✨ Powered by be2web</span>
               </a>
             </div>
           </div>
