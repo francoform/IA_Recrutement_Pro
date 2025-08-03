@@ -3,7 +3,7 @@ import { Features } from '@/components/sections/features'
 
 export default function HomePage() {
   return (
-    <main className="h-screen overflow-hidden relative">
+    <main className="min-h-screen overflow-auto relative md:h-screen md:overflow-hidden">
       {/* Background animé avec particules */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Gradient de base - Bleu foncé */}
@@ -37,8 +37,8 @@ export default function HomePage() {
       </div>
       
       {/* Contenu centré */}
-      <div className="relative z-10 h-full flex flex-col justify-center">
-        <div className="flex-1 flex flex-col justify-center">
+      <div className="relative z-10 min-h-screen flex flex-col justify-center md:h-full">
+        <div className="flex-1 flex flex-col justify-center py-8 md:py-0">
           <Hero />
           <div className="mt-8">
             <Features />
@@ -46,7 +46,7 @@ export default function HomePage() {
         </div>
         
         {/* Footer fixé en bas */}
-        <footer className="py-6">
+        <footer className="py-6 mt-auto">
           <div className="container mx-auto px-6 text-center">
             <p className="text-gray-400 text-sm">&copy; 2014 be2web. Tous droits réservés. Made with ❤️</p>
           </div>
