@@ -30,7 +30,7 @@ export default function IAServicePage() {
         {/* Footer */}
         <footer className="flex-shrink-0 py-6">
           <div className="container mx-auto px-6 text-center">
-            <p className="text-gray-400 text-sm">&copy; 2024 IA Recrutement Pro. Tous droits réservés.</p>
+            <p className="text-gray-400 text-sm">&copy; 2014 be2web. Tous droits réservés. Made with ❤️</p>
           </div>
         </footer>
       </div>

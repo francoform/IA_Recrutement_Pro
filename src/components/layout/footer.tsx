@@ -25,7 +25,7 @@ export function Footer() {
           </div>
         </div>
         <div className="border-t border-white/10 mt-8 pt-8 text-center text-sm text-gray-400">
-          <p>&copy; © 2014 be2web. Tous droits réservés.</p>
+          <p>&copy; 2014 be2web. Tous droits réservés. Made with ❤️</p>
         </div>
       </div>
     </footer>

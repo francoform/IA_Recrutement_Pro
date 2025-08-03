@@ -480,8 +480,8 @@ export function UploadZone() {
 
       {/* Popup de chargement glassmorphism */}
       {showLoadingPopup && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 max-w-md w-full shadow-2xl">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-white/15 backdrop-blur-xl border border-white/30 rounded-3xl p-8 max-w-md w-full shadow-2xl">
             <div className="text-center">
               {/* Icône animée */}
               <div className="relative mx-auto w-20 h-20 mb-6">

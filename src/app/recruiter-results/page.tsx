@@ -21,13 +21,14 @@ import {
   Users,
   Target,
   Star,
-  Eye,
+  // Eye, // <- Supprimer cette ligne
   Download,
   Mail,
   Calendar,
-  FileText,
-  User,
-  X
+  // FileText, // <- Supprimer cette ligne
+  // User, // <- Supprimer cette ligne
+  X,
+  Send
 } from "lucide-react";
 
 type Candidate = {
@@ -100,7 +101,46 @@ export default function RecruiterResultsPage() {
     fileName: string;
     candidateColor: string;
   }>({ isVisible: false, fileName: '', candidateColor: '' });
-
+  
+  // États pour les popups
+  const [emailPopup, setEmailPopup] = useState<{
+    isOpen: boolean;
+    candidate: Candidate | null;
+  }>({ isOpen: false, candidate: null });
+  
+  const [emailForm, setEmailForm] = useState({
+    from: '',
+    cc: '',
+    message: 'Bonjour,\n\nNous avons examiné votre candidature avec attention et votre profil nous intéresse vivement.\n\nNous aimerions organiser un entretien pour discuter plus en détail de vos compétences et de nos opportunités.\n\nSeriez-vous disponible pour un échange dans les prochains jours ?\n\nCordialement,\nL\'équipe de recrutement'
+  });
+const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) => {
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: candidate.email,
+          from: form.from,
+          cc: form.cc,
+          subject: `Candidature - ${candidate["full-name"]}`,
+          message: form.message,
+          candidateName: candidate["full-name"]
+        })
+      });
+      
+      if (response.ok) {
+        alert('Email envoyé avec succès !');
+        setEmailPopup({ isOpen: false, candidate: null });
+        setEmailForm({ from: '', cc: '', message: emailForm.message });
+      } else {
+        throw new Error('Erreur lors de l\'envoi');
+      }
+    } catch {
+      alert('Erreur lors de l\'envoi de l\'email. Veuillez réessayer.');
+    }
+  };
   useEffect(() => {
     const fetchResults = async () => {
       try {
@@ -174,6 +214,10 @@ export default function RecruiterResultsPage() {
     color: c.color?.primary || candidateColors[idx % candidateColors.length].primary
   }));
 
+  // Calculer le score maximum dynamiquement
+  const maxScore = Math.max(...chartData.map(c => c.score), 40);
+  const yAxisMax = Math.ceil(maxScore / 10) * 10;
+
   const scrollToCandidate = (name: string) => {
     const id = `candidate-${name.replace(/\s+/g, '-').toLowerCase()}`;
     const el = document.getElementById(id);
@@ -184,17 +228,11 @@ export default function RecruiterResultsPage() {
     }
   };
 
-  const handleViewCV = (c: Candidate) =>
-    setDocumentPopup({ isOpen: true, type: 'cv', candidate: c, content: c.cvContent || 'Contenu du CV non disponible' });
-
-  const handleDownloadCV = (c: Candidate) => {
+   const handleDownloadCV = (c: Candidate) => {
     const fileName = c.cvFile || `${c["full-name"]}_CV.pdf`;
     setDownloadNotification({ isVisible: true, fileName, candidateColor: c.color?.primary || '#06b6d4' });
     setTimeout(() => setDownloadNotification(prev => ({ ...prev, isVisible: false })), 3000);
   };
-
-  const handleViewMotivationLetter = (c: Candidate) =>
-    setDocumentPopup({ isOpen: true, type: 'motivation', candidate: c, content: c.motivationContent || 'Lettre non disponible' });
 
   const handleDownloadMotivationLetter = (c: Candidate) => {
     const fileName = c.motivationLetterFile || `${c["full-name"]}_Lettre.pdf`;
@@ -202,10 +240,9 @@ export default function RecruiterResultsPage() {
     setTimeout(() => setDownloadNotification(prev => ({ ...prev, isVisible: false })), 3000);
   };
 
+  // Remplacer l'ancienne fonction handleSendEmail (ligne 218-222) par :
   const handleSendEmail = (c: Candidate) => {
-    const subject = encodeURIComponent(`Candidature - Premier contact`);
-    const body = encodeURIComponent(`Bonjour ${c["full-name"]},\n\nNous avons examiné votre candidature et souhaitons vous contacter pour discuter de votre profil.\n\nCordialement,\nL'équipe de recrutement`);
-    window.open(`mailto:${c.email}?subject=${subject}&body=${body}`);
+  setEmailPopup({ isOpen: true, candidate: c });
   };
 
   const handleScheduleMeeting = (c: Candidate) =>
@@ -250,7 +287,7 @@ export default function RecruiterResultsPage() {
     );
     
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 px-4 py-8 sm:px-8">
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <header className="relative">
@@ -282,8 +319,8 @@ export default function RecruiterResultsPage() {
         {/* KPI Cards */}
         <section className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <KpiCard icon={<Users />} label="Candidats analysés" value={data.length.toString()} color="from-blue-500 to-cyan-500" />
-          <KpiCard icon={<Target />} label="Meilleur score" value={sorted.length ? `${calculateScore(sorted[0])}/100` : "-"} color="from-emerald-500 to-teal-500" />
-          <KpiCard icon={<Star />} label="Score moyen" value={sorted.length ? `${Math.round(sorted.reduce((acc, c) => acc + calculateScore(c), 0) / sorted.length)}/100` : "-"} color="from-amber-500 to-orange-500" />
+          <KpiCard icon={<Target />} label="Meilleur score" value={sorted.length ? `${calculateScore(sorted[0])}/${yAxisMax}` : "-"} color="from-emerald-500 to-teal-500" />
+          <KpiCard icon={<Star />} label="Score moyen" value={sorted.length ? `${Math.round(sorted.reduce((acc, c) => acc + calculateScore(c), 0) / sorted.length)}/${yAxisMax}` : "-"} color="from-amber-500 to-orange-500" />
         </section>
 
         {/* Chart */}
@@ -297,14 +334,47 @@ export default function RecruiterResultsPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <XAxis dataKey="full-name" tick={{ fill: '#fff', fontSize: 12 }} angle={-45} textAnchor="end" height={80} />
-                  <YAxis tick={{ fill: '#fff', fontSize: 12 }} domain={[0, 100]} />
+                  <YAxis tick={{ fill: '#fff', fontSize: 12 }} domain={[0, yAxisMax]} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: "rgba(0, 0, 0, 0.8)", border: "1px solid rgba(255, 255, 255, 0.2)", borderRadius: "8px", color: "#fff", backdropFilter: "blur(10px)" }}
-                    formatter={(value) => [`${value}/100`, "Score"]}
-                    labelFormatter={(label) => `Candidat: ${label}`}
+                    contentStyle={{ 
+                      backgroundColor: "transparent !important", 
+                      border: "1px solid rgba(6, 182, 212, 0.3)", 
+                      borderRadius: "12px", 
+                      color: "#fff", 
+                      backdropFilter: "blur(20px)",
+                      boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)"
+                    }}
+                    wrapperStyle={{
+                      backgroundColor: "transparent !important",
+                      border: "none",
+                      outline: "none"
+                    }}
+                    cursor={{ fill: "transparent" }}
+                    itemStyle={{
+                      backgroundColor: "transparent !important",
+                      border: "none"
+                    }}
+                    labelStyle={{
+                      backgroundColor: "transparent !important",
+                      color: "#fff"
+                    }}
                   />
-                  <Bar dataKey="score" radius={[8, 8, 0, 0]} style={{ cursor: 'pointer' }} onClick={(_, idx) => scrollToCandidate(chartData[idx]["full-name"])}>
-                    {chartData.map((entry, idx) => <Cell key={`cell-${idx}`} fill={entry.color} />)}
+                  <Bar 
+                    dataKey="score" 
+                    radius={[8, 8, 0, 0]} 
+                    style={{ cursor: 'pointer' }} 
+                    onClick={(_, idx) => scrollToCandidate(chartData[idx]["full-name"])}
+                  >
+                    {chartData.map((entry, idx) => (
+                      <Cell 
+                        key={`cell-${idx}`} 
+                        fill={entry.color}
+                        style={{
+                          filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
+                          transition: 'all 0.3s ease'
+                        }}
+                      />
+                    ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -341,7 +411,7 @@ export default function RecruiterResultsPage() {
                           </div>
                         </div>
                       </div>
-                      <div className="text-right"><div className="bg-gradient-to-r from-yellow-500 to-amber-500 rounded-full px-4 py-2 shadow-lg"><span className="text-white font-bold text-lg">{calculateScore(sorted[0])}/100</span></div></div>
+                      <div className="text-right"><div className="bg-gradient-to-r from-yellow-500 to-amber-500 rounded-full px-4 py-2 shadow-lg"><span className="text-white font-bold text-lg">{calculateScore(sorted[0])}/{yAxisMax}</span></div></div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
@@ -351,22 +421,7 @@ export default function RecruiterResultsPage() {
                       <div className="bg-white/5 rounded-lg p-3"><span className="text-yellow-400 text-sm font-medium">Email:</span><p className="text-white font-semibold truncate">{sorted[0].email}</p></div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                      <div className="bg-white/5 rounded-lg p-4">
-                        <div className="flex items-center space-x-2 mb-3"><FileText className="w-5 h-5 text-cyan-400" /><span className="text-white font-medium">CV</span></div>
-                        <div className="flex space-x-3 justify-center">
-                          <div className="relative group"><button onClick={() => handleViewCV(sorted[0])} className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 transition-all duration-300 border border-cyan-500/30"><Eye className="w-4 h-4 text-cyan-400" /><span className="text-cyan-400 text-sm font-medium">Voir</span></button></div>
-                          <div className="relative group"><button onClick={() => handleDownloadCV(sorted[0])} className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 transition-all duration-300 border border-cyan-500/30"><Download className="w-4 h-4 text-cyan-400" /><span className="text-cyan-400 text-sm font-medium">Télécharger</span></button></div>
-                        </div>
-                      </div>
-                      <div className="bg-white/5 rounded-lg p-4">
-                        <div className="flex items-center space-x-2 mb-3"><User className="w-5 h-5 text-emerald-400" /><span className="text-white font-medium">Lettre de motivation</span></div>
-                        <div className="flex space-x-3 justify-center">
-                          <div className="relative group"><button onClick={() => handleViewMotivationLetter(sorted[0])} className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 transition-all duration-300 border border-emerald-500/30"><Eye className="w-4 h-4 text-emerald-400" /><span className="text-emerald-400 text-sm font-medium">Voir</span></button></div>
-                          <div className="relative group"><button onClick={() => handleDownloadMotivationLetter(sorted[0])} className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 transition-all duration-300 border border-emerald-500/30"><Download className="w-4 h-4 text-emerald-400" /><span className="text-emerald-400 text-sm font-medium">Télécharger</span></button></div>
-                        </div>
-                      </div>
-                    </div>
+                    
 
                     <div className="bg-gradient-to-r from-yellow-500/10 to-amber-500/10 rounded-lg p-4 border border-yellow-500/20">
                       <h5 className="text-yellow-400 font-semibold mb-2 flex items-center"><Star className="w-4 h-4 mr-2 fill-yellow-400" />Pourquoi ce candidat est le meilleur choix :</h5>
@@ -376,12 +431,85 @@ export default function RecruiterResultsPage() {
                 </div>
               </div>
             )}
-
+        {emailPopup.isOpen && emailPopup.candidate && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+            <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 max-w-md w-full">
+              <div className="p-6 border-b border-white/20" style={{ backgroundColor: `${emailPopup.candidate.color?.primary}20` }}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: emailPopup.candidate.color?.primary }}>
+                      <Mail className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-white">Envoyer un email</h3>
+                      <p className="text-slate-300">{emailPopup.candidate["full-name"]}</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setEmailPopup({ isOpen: false, candidate: null })} 
+                    className="text-white hover:text-slate-300 transition-colors"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">De (votre email)</label>
+                  <input
+                    type="email"
+                    value={emailForm.from}
+                    onChange={(e) => setEmailForm(prev => ({ ...prev, from: e.target.value }))}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    placeholder="votre.email@entreprise.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">CC (optionnel)</label>
+                  <input
+                    type="email"
+                    value={emailForm.cc}
+                    onChange={(e) => setEmailForm(prev => ({ ...prev, cc: e.target.value }))}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    placeholder="cc@entreprise.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Message</label>
+                  <textarea
+                    value={emailForm.message}
+                    onChange={(e) => setEmailForm(prev => ({ ...prev, message: e.target.value }))}
+                    rows={6}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none text-sm"
+                    placeholder="Votre message..."
+                  />
+                </div>
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    onClick={() => setEmailPopup({ isOpen: false, candidate: null })}
+                    className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-300 border border-white/20"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    onClick={() => emailPopup.candidate && sendEmailViaSMTP(emailPopup.candidate, emailForm)}
+                    disabled={!emailForm.from || !emailForm.message}
+                    className="relative overflow-hidden bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-cyan-500/20 hover:from-purple-500/30 hover:via-pink-500/30 hover:to-cyan-500/30 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg transition-all duration-300 flex items-center backdrop-blur-sm border border-white/20 group"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 via-pink-600/10 to-cyan-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <Send className="w-4 h-4 mr-2 relative z-10" /> 
+                    <span className="relative z-10">Envoyer</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
             {/* Autres candidats */}
             {sorted.length > 1 && (
               <div>
                 <h4 className="text-lg font-semibold text-white mb-4 flex items-center"><Users className="w-5 h-5 mr-2" />Autres candidats</h4>
-                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                   {sorted.slice(1).map((c, idx) => {
                     const score = calculateScore(c);
                     return (
@@ -395,36 +523,33 @@ export default function RecruiterResultsPage() {
                             <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs" style={{ backgroundColor: c.color?.primary }}>#{idx + 2}</div>
                             <div className="flex-1 min-w-0"><h4 className="text-base font-semibold text-white truncate">{c["full-name"]}</h4></div>
                           </div>
-                          <div className="inline-flex items-center px-2 py-1 rounded-full text-white font-bold text-xs" style={{ backgroundColor: c.color?.primary }}>{score}/100</div>
+                          <div className="inline-flex items-center px-2 py-1 rounded-full text-white font-bold text-xs" style={{ backgroundColor: c.color?.primary }}>{score}/{yAxisMax}</div>
                         </div>
 
-                        <div className="flex items-center justify-center space-x-2 mb-3">
+                        <div className="flex items-center justify-center space-x-2 mb-4">
                           <div className="relative group"><button onClick={() => handleSendEmail(c)} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-300 border border-white/10"><Mail className="w-4 h-4 text-white" /></button></div>
                           <div className="relative group"><button onClick={() => handleScheduleMeeting(c)} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-300 border border-white/10"><Calendar className="w-4 h-4 text-white" /></button></div>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-2 text-xs mb-3">
-                          <div><span className="text-slate-400">Expérience:</span><p className="text-white">{c["years-of-experience"]} ans</p></div>
-                          <div><span className="text-slate-400">Formation:</span><p className="text-white truncate">{c["education-level"]}</p></div>
-                          <div><span className="text-slate-400">Localisation:</span><p className="text-white truncate">{c.location}</p></div>
-                        </div>
-
-                        <div className="mb-3">
-                          <div className="flex items-center justify-between space-x-4">
-                            <div className="flex-1 text-center">
-                              <div className="flex items-center justify-center space-x-1 mb-2"><FileText className="w-3 h-3 text-cyan-400" /><span className="text-white font-medium text-xs">CV</span></div>
-                              <div className="relative group inline-block"><button onClick={() => handleViewCV(c)} className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-300 border border-white/10"><Eye className="w-3 h-3 text-white" /></button></div>
-                            </div>
-                            <div className="flex-1 text-center">
-                              <div className="flex items-center justify-center space-x-1 mb-2"><User className="w-3 h-3 text-emerald-400" /><span className="text-white font-medium text-xs">Lettre</span></div>
-                              <div className="relative group inline-block"><button onClick={() => handleViewMotivationLetter(c)} className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-300 border border-white/10"><Eye className="w-3 h-3 text-white" /></button></div>
-                            </div>
+                        {/* Informations en ligne comme le meilleur candidat */}
+                        <div className="grid grid-cols-3 gap-2 mb-4">
+                          <div className="bg-white/5 rounded-lg p-2 text-center">
+                            <span className="text-slate-400 text-xs font-medium block mb-1">Expérience</span>
+                            <p className="text-white font-semibold text-sm">{c["years-of-experience"]} ans</p>
+                          </div>
+                          <div className="bg-white/5 rounded-lg p-2 text-center">
+                            <span className="text-slate-400 text-xs font-medium block mb-1">Formation</span>
+                            <p className="text-white font-semibold text-xs truncate" title={c["education-level"]}>{c["education-level"]}</p>
+                          </div>
+                          <div className="bg-white/5 rounded-lg p-2 text-center">
+                            <span className="text-slate-400 text-xs font-medium block mb-1">Localisation</span>
+                            <p className="text-white font-semibold text-xs truncate" title={c.location}>{c.location}</p>
                           </div>
                         </div>
 
                         <div className="pt-3 border-t border-white/10 mt-auto">
                           <span className="text-slate-400 text-xs font-medium">Verdict:</span>
-                          <p className="text-slate-200 mt-1 text-xs leading-relaxed line-clamp-3">{c.verdict}</p>
+                          <p className="text-slate-200 text-xs leading-relaxed mt-1 line-clamp-3">{c.verdict}</p>
                         </div>
                       </div>
                     );
@@ -438,12 +563,12 @@ export default function RecruiterResultsPage() {
         {/* Popup Document */}
         {documentPopup.isOpen && documentPopup.candidate && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 max-w-4xl w-full max-h-[80vh] overflow-hidden">
+            <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 max-w-md w-full">
               <div className="p-6 border-b border-white/20" style={{ backgroundColor: `${documentPopup.candidate.color?.primary}20` }}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: documentPopup.candidate.color?.primary }}>
-                      {documentPopup.type === 'cv' ? <FileText className="w-5 h-5" /> : <User className="w-5 h-5" />}
+                      <Mail className="w-5 h-5" />
                     </div>
                     <div>
                       <h3 className="text-xl font-semibold text-white">{documentPopup.type === 'cv' ? 'Curriculum Vitae' : 'Lettre de motivation'}</h3>

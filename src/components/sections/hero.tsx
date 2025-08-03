@@ -1,11 +1,17 @@
-import { Brain } from 'lucide-react'
+import Image from 'next/image'
 
 export function Hero() {
   return (
     <section className="container mx-auto px-6 py-20 text-center">
       <div className="flex justify-center items-center mb-6">
         <div className="bg-gradient-to-r from-cyan-400 to-blue-500 p-3 rounded-xl shadow-lg">
-          <Brain className="w-8 h-8 text-white" />
+          <Image 
+            src="/IARecrutPRO.ico" 
+            alt="IA Recrutement Pro" 
+            width={32} 
+            height={32} 
+            className="w-8 h-8"
+          />
         </div>
       </div>
       
