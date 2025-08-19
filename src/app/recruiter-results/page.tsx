@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   BarChart,
   Bar,
@@ -67,6 +68,7 @@ const candidateColors = [
 ];
 
 export default function RecruiterResultsPage() {
+  const router = useRouter();
   const [data, setData] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -979,13 +981,18 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-wrap gap-3 pt-4 border-t border-white/20 justify-center">
+                <div className="flex flex-wrap gap-3 pt-4 justify-center">
                   <button
                     onClick={() => {
                       closeCandidatePopup();
                       handleSendEmail(candidatePopup.candidate!);
                     }}
-                    className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+                    className="backdrop-blur-xl border text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center space-x-2 shadow-lg hover:shadow-xl hover:scale-105"
+                    style={{
+                      backgroundColor: `${candidatePopup.candidate.color?.primary}20`,
+                      borderColor: `${candidatePopup.candidate.color?.primary}50`,
+                      background: `linear-gradient(135deg, ${candidatePopup.candidate.color?.primary}20, ${candidatePopup.candidate.color?.primary}10)`
+                    }}
                   >
                     <Mail className="w-5 h-5" />
                     <span>Envoyer un email</span>
@@ -1013,6 +1020,33 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
             </div>
           </div>
         )}
+
+        {/* Boutons d'action en bas de page */}
+        <div className="mt-16 mb-8 flex flex-col sm:flex-row gap-4 justify-center items-center px-4">
+          <button
+            onClick={() => router.push('/services/ia')}
+            className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30 backdrop-blur-xl border border-blue-500/30 text-white px-8 py-4 rounded-2xl transition-all duration-300 flex items-center space-x-3 shadow-lg hover:shadow-xl hover:scale-105 group"
+          >
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <span className="font-semibold text-lg">Nouvelle analyse</span>
+          </button>
+          
+          <button
+            onClick={() => router.push('/')}
+            className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 hover:from-emerald-500/30 hover:to-green-500/30 backdrop-blur-xl border border-emerald-500/30 text-white px-8 py-4 rounded-2xl transition-all duration-300 flex items-center space-x-3 shadow-lg hover:shadow-xl hover:scale-105 group"
+          >
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 flex items-center justify-center group-hover:-rotate-12 transition-transform duration-300">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+            </div>
+            <span className="font-semibold text-lg">Retour à l'accueil</span>
+          </button>
+        </div>
 
         {/* Footer original */}
         <Footer />
