@@ -177,27 +177,93 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
       
       // Lire directement les résultats depuis sessionStorage
       const analysisResults = sessionStorage.getItem('analysisResults')
+      console.log('🔍 Données brutes du sessionStorage:', analysisResults)
+      
       if (!analysisResults) {
         throw new Error('Résultats d\'analyse manquants')
       }
       
       const webhookData = JSON.parse(analysisResults)
+      console.log('📊 Données parsées du webhook:', webhookData)
+      console.log('📊 Type des données:', typeof webhookData)
+      console.log('📊 Est-ce un array?', Array.isArray(webhookData))
       
       // Vérifier si webhookData est un array ou un objet
       let candidatesArray: Record<string, unknown>[] = []
       
       if (Array.isArray(webhookData)) {
         candidatesArray = webhookData
-      } else if (webhookData && typeof webhookData === 'object') {
-        // Si c'est un objet, chercher la propriété qui contient l'array de candidats
-        candidatesArray = webhookData.candidates || webhookData.results || webhookData.data || []
+        console.log('✅ Données directement en array, nombre de candidats:', candidatesArray.length)
         
-        // Si aucune propriété standard trouvée, prendre la première propriété qui est un array
-        if (!Array.isArray(candidatesArray)) {
-          const values = Object.values(webhookData)
-          candidatesArray = values.find(val => Array.isArray(val)) as Record<string, unknown>[] || []
+        // Vérifier que le premier élément a les propriétés attendues d'un candidat
+        if (candidatesArray.length > 0) {
+          const firstCandidate = candidatesArray[0]
+          const hasExpectedProps = firstCandidate && 
+            typeof firstCandidate === 'object' && 
+            ('full-name' in firstCandidate || 'email' in firstCandidate || 'final-score' in firstCandidate)
+          
+          if (hasExpectedProps) {
+            console.log('✅ Array de candidats valide détecté avec propriétés attendues')
+          } else {
+            console.log('⚠️ Array détecté mais structure de candidat non reconnue, recherche dans l\'objet...')
+            candidatesArray = [] // Reset pour chercher ailleurs
+          }
         }
       }
+      
+      if ((!Array.isArray(candidatesArray) || candidatesArray.length === 0) && webhookData && typeof webhookData === 'object') {
+        console.log('🔍 Recherche de candidats dans l\'objet...')
+        console.log('🔍 Propriétés disponibles:', Object.keys(webhookData))
+        console.log('🔍 Structure complète de l\'objet:', JSON.stringify(webhookData, null, 2))
+        
+        // Essayer différentes propriétés possibles pour les candidats
+        const possibleKeys = ['candidates', 'results', 'data', 'items', 'list', 'output', 'response']
+        
+        for (const key of possibleKeys) {
+          if (webhookData[key] && Array.isArray(webhookData[key])) {
+            candidatesArray = webhookData[key] as Record<string, unknown>[]
+            console.log(`✅ Candidats trouvés dans la propriété '${key}':`, candidatesArray.length)
+            break
+          }
+        }
+        
+        // Si aucune propriété standard trouvée, chercher récursivement dans l'objet
+        if (!Array.isArray(candidatesArray) || candidatesArray.length === 0) {
+          console.log('🔍 Recherche récursive d\'arrays dans l\'objet...')
+          
+          const findArraysRecursively = (obj: unknown, path = ''): unknown[] => {
+             const arrays: unknown[] = []
+            
+            if (Array.isArray(obj)) {
+              console.log(`🔍 Array trouvé à ${path}:`, obj.length, 'éléments')
+              arrays.push(obj)
+            } else if (obj && typeof obj === 'object') {
+              for (const [key, value] of Object.entries(obj)) {
+                const newPath = path ? `${path}.${key}` : key
+                arrays.push(...findArraysRecursively(value, newPath))
+              }
+            }
+            
+            return arrays
+          }
+          
+          const foundArrays = findArraysRecursively(webhookData)
+          console.log('🔍 Arrays trouvés:', foundArrays.length)
+          
+          // Prendre le premier array non-vide qui contient des objets
+           for (const arr of foundArrays) {
+             if (Array.isArray(arr) && arr.length > 0 && typeof arr[0] === 'object' && arr[0] !== null) {
+               candidatesArray = arr as Record<string, unknown>[]
+               console.log('✅ Array de candidats sélectionné:', candidatesArray.length, 'éléments')
+               console.log('🔍 Premier élément:', JSON.stringify(arr[0], null, 2))
+               break
+             }
+           }
+        }
+      }
+      
+      console.log('📊 Array final de candidats:', candidatesArray)
+      console.log('📊 Nombre de candidats:', candidatesArray?.length || 0)
       
       if (!Array.isArray(candidatesArray) || candidatesArray.length === 0) {
         throw new Error('Aucun candidat trouvé dans les résultats')

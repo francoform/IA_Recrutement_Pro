@@ -1,5 +1,6 @@
 import { Brain } from 'lucide-react'
-import Link from 'next/link';
+import Link from 'next/link'
+import Image from 'next/image'
 
 export function Header() {
   return (
@@ -13,6 +14,17 @@ export function Header() {
             <h1 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-cyan-600 bg-clip-text text-transparent">
               IA Recrutement Pro
             </h1>
+            <div className="flex items-center space-x-2 ml-4">
+              <span className="text-gray-400 text-sm">Powered by</span>
+              <Image 
+                src="/be2web-icon-transparent.png" 
+                alt="Be2Web" 
+                width={24} 
+                height={24} 
+                className="opacity-80 hover:opacity-100 transition-opacity cursor-pointer"
+                onClick={() => window.open('https://be2web-agence.francoform.com/', '_blank')}
+              />
+            </div>
           </div>
           <nav className="hidden md:flex space-x-6">
             <Link href="/" className="text-gray-300 hover:text-white transition-colors">
