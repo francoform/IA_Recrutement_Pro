@@ -253,14 +253,26 @@ export function UploadZone() {
 
       // Parser la réponse JSON
       const resultsData = await res.json();
-      console.log('✅ Données reçues du proxy:', resultsData);
+      console.log('✅ Données reçues du webhook n8n:', resultsData);
+      console.log('📊 Type des données:', typeof resultsData);
+      console.log('📊 Est-ce un array?', Array.isArray(resultsData));
+      console.log('📊 Nombre d\'éléments si array:', Array.isArray(resultsData) ? resultsData.length : 'N/A');
+      console.log('📊 Clés de l\'objet si objet:', typeof resultsData === 'object' && !Array.isArray(resultsData) ? Object.keys(resultsData) : 'N/A');
       
       // Finaliser le progrès
       clearInterval(progressInterval)
       setAnalysisProgress(100)
       
-      // Stocker les résultats JSON dans sessionStorage
-      sessionStorage.setItem('analysisResults', JSON.stringify(resultsData));
+      // Stocker les résultats JSON dans sessionStorage avec logs détaillés
+      const dataToStore = JSON.stringify(resultsData);
+      console.log('💾 Données à stocker dans sessionStorage:', dataToStore);
+      console.log('💾 Longueur des données:', dataToStore.length);
+      sessionStorage.setItem('analysisResults', dataToStore);
+      
+      // Vérifier que les données ont bien été stockées
+      const storedData = sessionStorage.getItem('analysisResults');
+      console.log('✅ Vérification stockage - données récupérées:', storedData ? 'OK' : 'ERREUR');
+      console.log('✅ Longueur des données stockées:', storedData?.length || 0);
       
       // Attendre un peu pour montrer 100% puis rediriger
       setTimeout(() => {

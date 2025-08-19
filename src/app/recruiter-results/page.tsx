@@ -17,6 +17,7 @@ import {
   AlertCircle,
   Home,
   ArrowLeft,
+  ArrowRight,
   Award,
   Users,
   Target,
@@ -25,8 +26,10 @@ import {
   Mail,
   Calendar,
   X,
-  Send
+  Send,
+  FileText
 } from "lucide-react";
+import { Footer } from '@/components/layout/footer';
 
 // Interface dynamique pour les candidats - accepte n'importe quelles propriétés de compétences
 type Candidate = {
@@ -90,6 +93,12 @@ export default function RecruiterResultsPage() {
     cc: '',
     message: 'Bonjour,\n\nNous avons examiné votre candidature avec attention et votre profil nous intéresse vivement.\n\nNous aimerions organiser un entretien pour discuter plus en détail de vos compétences et de nos opportunités.\n\nSeriez-vous disponible pour un échange dans les prochains jours ?\n\nCordialement,\nL\'équipe de recrutement'
   });
+  
+  // État pour la popup candidat
+  const [candidatePopup, setCandidatePopup] = useState<{
+    isOpen: boolean;
+    candidate: Candidate | null;
+  }>({ isOpen: false, candidate: null });
 const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) => {
     try {
       const response = await fetch('/api/send-email', {
@@ -117,6 +126,15 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
     } catch {
       alert('Erreur lors de l\'envoi de l\'email. Veuillez réessayer.');
     }
+  };
+  
+  // Fonctions pour gérer la popup candidat
+  const openCandidatePopup = (candidate: Candidate) => {
+    setCandidatePopup({ isOpen: true, candidate });
+  };
+  
+  const closeCandidatePopup = () => {
+    setCandidatePopup({ isOpen: false, candidate: null });
   };
   
   // Fonction pour détecter automatiquement les compétences (propriétés numériques entre 0 et 2)
@@ -177,65 +195,87 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
       
       // Lire directement les résultats depuis sessionStorage
       const analysisResults = sessionStorage.getItem('analysisResults')
-      console.log('🔍 Données brutes du sessionStorage:', analysisResults)
+      console.log('🔍 [DEBUG] Données brutes du sessionStorage:', analysisResults)
+      console.log('🔍 [DEBUG] Type:', typeof analysisResults)
+      console.log('🔍 [DEBUG] Longueur:', analysisResults?.length)
       
       if (!analysisResults) {
         throw new Error('Résultats d\'analyse manquants')
       }
       
       const webhookData = JSON.parse(analysisResults)
-      console.log('📊 Données parsées du webhook:', webhookData)
-      console.log('📊 Type des données:', typeof webhookData)
-      console.log('📊 Est-ce un array?', Array.isArray(webhookData))
+      console.log('📊 [DEBUG] Données parsées du webhook:', webhookData)
+      console.log('📊 [DEBUG] Type des données:', typeof webhookData)
+      console.log('📊 [DEBUG] Est-ce un array?', Array.isArray(webhookData))
       
       // Vérifier si webhookData est un array ou un objet
       let candidatesArray: Record<string, unknown>[] = []
       
       if (Array.isArray(webhookData)) {
         candidatesArray = webhookData
-        console.log('✅ Données directement en array, nombre de candidats:', candidatesArray.length)
+        console.log('✅ [DEBUG] Données directement en array, nombre de candidats:', candidatesArray.length)
         
         // Vérifier que le premier élément a les propriétés attendues d'un candidat
         if (candidatesArray.length > 0) {
           const firstCandidate = candidatesArray[0]
+          console.log('🔍 [DEBUG] Premier candidat:', firstCandidate)
+          console.log('🔍 [DEBUG] Clés du premier candidat:', Object.keys(firstCandidate || {}))
           const hasExpectedProps = firstCandidate && 
             typeof firstCandidate === 'object' && 
             ('full-name' in firstCandidate || 'email' in firstCandidate || 'final-score' in firstCandidate)
           
           if (hasExpectedProps) {
-            console.log('✅ Array de candidats valide détecté avec propriétés attendues')
+            console.log('✅ [DEBUG] Array de candidats valide détecté avec propriétés attendues')
           } else {
-            console.log('⚠️ Array détecté mais structure de candidat non reconnue, recherche dans l\'objet...')
+            console.log('⚠️ [DEBUG] Array détecté mais structure de candidat non reconnue, recherche dans l\'objet...')
             candidatesArray = [] // Reset pour chercher ailleurs
           }
         }
       }
       
       if ((!Array.isArray(candidatesArray) || candidatesArray.length === 0) && webhookData && typeof webhookData === 'object') {
-        console.log('🔍 Recherche de candidats dans l\'objet...')
-        console.log('🔍 Propriétés disponibles:', Object.keys(webhookData))
-        console.log('🔍 Structure complète de l\'objet:', JSON.stringify(webhookData, null, 2))
+        console.log('🔍 [DEBUG] Recherche de candidats dans l\'objet...')
+        console.log('🔍 [DEBUG] Propriétés disponibles:', Object.keys(webhookData))
+        console.log('🔍 [DEBUG] Structure complète de l\'objet:', JSON.stringify(webhookData, null, 2))
         
-        // Essayer différentes propriétés possibles pour les candidats
-        const possibleKeys = ['candidates', 'results', 'data', 'items', 'list', 'output', 'response']
-        
-        for (const key of possibleKeys) {
-          if (webhookData[key] && Array.isArray(webhookData[key])) {
-            candidatesArray = webhookData[key] as Record<string, unknown>[]
-            console.log(`✅ Candidats trouvés dans la propriété '${key}':`, candidatesArray.length)
-            break
+        // NOUVEAU: Vérifier si webhookData est un objet candidat unique
+        if ((!Array.isArray(candidatesArray) || candidatesArray.length === 0) && 
+            webhookData && 
+            typeof webhookData === 'object' && 
+            !Array.isArray(webhookData)) {
+          
+          // Vérifier si c'est un objet candidat avec les propriétés attendues
+          const hasExpectedProps = ('full-name' in webhookData || 'email' in webhookData || 'final-score' in webhookData)
+          
+          if (hasExpectedProps) {
+            console.log('✅ [DEBUG] Objet candidat unique détecté, conversion en array')
+            candidatesArray = [webhookData as Record<string, unknown>]
+            console.log('✅ [DEBUG] Candidat unique ajouté à l\'array:', candidatesArray.length)
+          } else {
+            console.log('🔍 [DEBUG] Objet détecté mais pas de propriétés candidat, recherche dans les propriétés...')
+            
+            // Essayer différentes propriétés possibles pour les candidats
+            const possibleKeys = ['candidates', 'results', 'data', 'items', 'list', 'output', 'response']
+            
+            for (const key of possibleKeys) {
+              if (webhookData[key] && Array.isArray(webhookData[key])) {
+                candidatesArray = webhookData[key] as Record<string, unknown>[]
+                console.log(`✅ [DEBUG] Candidats trouvés dans la propriété '${key}':`, candidatesArray.length)
+                break
+              }
+            }
           }
         }
         
         // Si aucune propriété standard trouvée, chercher récursivement dans l'objet
         if (!Array.isArray(candidatesArray) || candidatesArray.length === 0) {
-          console.log('🔍 Recherche récursive d\'arrays dans l\'objet...')
+          console.log('🔍 [DEBUG] Recherche récursive d\'arrays dans l\'objet...')
           
           const findArraysRecursively = (obj: unknown, path = ''): unknown[] => {
              const arrays: unknown[] = []
             
             if (Array.isArray(obj)) {
-              console.log(`🔍 Array trouvé à ${path}:`, obj.length, 'éléments')
+              console.log(`🔍 [DEBUG] Array trouvé à ${path}:`, obj.length, 'éléments')
               arrays.push(obj)
             } else if (obj && typeof obj === 'object') {
               for (const [key, value] of Object.entries(obj)) {
@@ -248,38 +288,51 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
           }
           
           const foundArrays = findArraysRecursively(webhookData)
-          console.log('🔍 Arrays trouvés:', foundArrays.length)
+          console.log('🔍 [DEBUG] Arrays trouvés:', foundArrays.length)
           
           // Prendre le premier array non-vide qui contient des objets
            for (const arr of foundArrays) {
              if (Array.isArray(arr) && arr.length > 0 && typeof arr[0] === 'object' && arr[0] !== null) {
                candidatesArray = arr as Record<string, unknown>[]
-               console.log('✅ Array de candidats sélectionné:', candidatesArray.length, 'éléments')
-               console.log('🔍 Premier élément:', JSON.stringify(arr[0], null, 2))
+               console.log('✅ [DEBUG] Array de candidats sélectionné:', candidatesArray.length, 'éléments')
+               console.log('🔍 [DEBUG] Premier élément:', JSON.stringify(arr[0], null, 2))
                break
              }
            }
         }
       }
       
-      console.log('📊 Array final de candidats:', candidatesArray)
-      console.log('📊 Nombre de candidats:', candidatesArray?.length || 0)
+      console.log('📊 [DEBUG] Array final de candidats:', candidatesArray)
+      console.log('📊 [DEBUG] Nombre de candidats:', candidatesArray?.length || 0)
       
       if (!Array.isArray(candidatesArray) || candidatesArray.length === 0) {
+        console.log('❌ [DEBUG] ERREUR: Aucun candidat trouvé')
         throw new Error('Aucun candidat trouvé dans les résultats')
       }
       
-      // Mapper les données du webhook vers l'interface Candidate et ajouter les couleurs
-      const processedData = candidatesArray.map((webhookCandidate: Record<string, unknown>, idx: number) => ({
-        ...mapWebhookToCandidate(webhookCandidate),
-        color: candidateColors[idx % candidateColors.length]
-      }))
+      // Limiter le nombre de candidats à 10 maximum
+      const limitedCandidatesArray = candidatesArray.slice(0, 10)
+      console.log(`🔄 [DEBUG] Limitation à 10 candidats: ${candidatesArray.length} -> ${limitedCandidatesArray.length}`)
       
+      // Mapper les données du webhook vers l'interface Candidate et ajouter les couleurs
+      console.log('🔄 [DEBUG] Début du mapping des candidats...')
+      const processedData = limitedCandidatesArray.map((webhookCandidate: Record<string, unknown>, idx: number) => {
+        console.log(`🔄 [DEBUG] Mapping candidat ${idx + 1}:`, webhookCandidate)
+        const mapped = {
+          ...mapWebhookToCandidate(webhookCandidate),
+          color: candidateColors[idx % candidateColors.length]
+        }
+        console.log(`🔄 [DEBUG] Candidat mappé:`, mapped)
+        return mapped
+      })
+      
+      console.log('✅ [DEBUG] Tous les candidats mappés:', processedData)
       setData(processedData)
       setLoading(false)
       
     } catch (err) {
-      console.error('Erreur lors du chargement des résultats:', err)
+      console.error('❌ [DEBUG] Erreur lors du chargement des résultats:', err)
+      console.error('❌ [DEBUG] Stack trace:', err instanceof Error ? err.stack : 'Pas de stack trace')
       
       // EN CAS D'ERREUR, UTILISER DES DONNÉES DE FALLBACK GÉNÉRIQUES
       const fallbackData = [
@@ -371,7 +424,8 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
   const closeDocumentPopup = () =>
     setDocumentPopup({ isOpen: false, type: null, candidate: null, content: '' });
 
-  if (loading)
+  if (loading) {
+    console.log('🔄 [DEBUG] Affichage du loader - loading est true')
     return (
       <main className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
         <div className="text-center max-w-md">
@@ -386,8 +440,10 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
         </div>
       </main>
     );
+  }
 
-  if (error)
+  if (error) {
+    console.log('❌ [DEBUG] Affichage de l\'erreur:', error)
     return (
       <main className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
         <div className="text-center max-w-md">
@@ -405,6 +461,11 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
         </div>
       </main>
     );
+  }
+  
+  console.log('🎨 [DEBUG] Rendu du composant principal')
+  console.log('🎨 [DEBUG] Nombre de candidats à afficher:', data.length)
+  console.log('🎨 [DEBUG] Liste des candidats:', data)
     
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900/30 to-slate-900 text-white relative">
@@ -421,6 +482,14 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
             <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
             <Home className="w-5 h-5" />
             <span className="ml-2 text-sm font-medium">Accueil</span>
+          </button>
+          <button
+            onClick={() => (window.location.href = '/services/ia')}
+            className="absolute right-0 top-0 flex items-center text-emerald-400 hover:text-emerald-300 transition-all duration-300 group bg-white/5 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10 hover:bg-white/10"
+          >
+            <FileText className="w-5 h-5 mr-2" />
+            <span className="text-sm font-medium">Nouvelle analyse</span>
+            <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
           </button>
           <div className="text-center pt-16 sm:pt-0">
             <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-2xl">
@@ -668,7 +737,8 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
                       <div
                         key={idx}
                         id={`candidate-${c["full-name"].replace(/\s+/g, '-').toLowerCase()}`}
-                        className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4 hover:bg-white/10 transition-all duration-300 flex flex-col"
+                        className="bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 p-4 hover:bg-white/10 transition-all duration-300 flex flex-col cursor-pointer hover:border-white/30"
+                        onClick={() => openCandidatePopup(c)}
                       >
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center space-x-3">
@@ -679,8 +749,8 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
                         </div>
 
                         <div className="flex items-center justify-center space-x-2 mb-4">
-                          <div className="relative group"><button onClick={() => handleSendEmail(c)} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-300 border border-white/10"><Mail className="w-4 h-4 text-white" /></button></div>
-                          <div className="relative group"><button onClick={() => handleScheduleMeeting(c)} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-300 border border-white/10"><Calendar className="w-4 h-4 text-white" /></button></div>
+                          <div className="relative group"><button onClick={(e) => { e.stopPropagation(); handleSendEmail(c); }} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-300 border border-white/10"><Mail className="w-4 h-4 text-white" /></button></div>
+                          <div className="relative group"><button onClick={(e) => { e.stopPropagation(); handleScheduleMeeting(c); }} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-300 border border-white/10"><Calendar className="w-4 h-4 text-white" /></button></div>
                         </div>
 
                         {/* Informations en ligne comme le meilleur candidat */}
@@ -732,6 +802,10 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
                         <div className="pt-3 border-t border-white/10 mt-auto">
                           <span className="text-slate-400 text-xs font-medium">Verdict:</span>
                           <p className="text-slate-200 text-xs leading-relaxed mt-1 line-clamp-3">{c.verdict}</p>
+                        </div>
+                        
+                        <div className="mt-3 text-center">
+                          <div className="text-xs text-slate-400">Cliquez pour voir tous les détails</div>
                         </div>
                       </div>
                     );
@@ -808,51 +882,140 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
         )}
       </div>
 
-        {/* Section promotionnelle be2web */}
-        <div className="mt-16 mb-8">
-          <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-cyan-500/20 text-center">
-            <div className="flex justify-center items-center mb-6">
-              <div className="bg-gradient-to-r from-cyan-400 to-blue-500 p-4 rounded-xl shadow-lg">
-                <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">B2W</span>
+        {/* Popup candidat détaillé */}
+         {candidatePopup.isOpen && candidatePopup.candidate && (
+           <div 
+             className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4"
+             onClick={closeCandidatePopup}
+           >
+            <div 
+               className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 max-w-4xl w-full max-h-[90vh] overflow-y-auto scrollbar-hide"
+               onClick={(e) => e.stopPropagation()}
+               style={{
+                 scrollbarWidth: 'none',
+                 msOverflowStyle: 'none'
+               }}
+             >
+              <div className="p-6 border-b border-white/20" style={{ backgroundColor: `${candidatePopup.candidate.color?.primary}20` }}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold" style={{ backgroundColor: candidatePopup.candidate.color?.primary }}>
+                      <Users className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-white">{candidatePopup.candidate["full-name"]}</h3>
+                      <p className="text-slate-300">{candidatePopup.candidate.email}</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={closeCandidatePopup} 
+                    className="text-white hover:text-slate-300 transition-colors"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="p-6 space-y-6">
+                {/* Informations générales */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-white/5 rounded-lg p-4">
+                     <span className="text-slate-400 text-sm font-medium">Score final</span>
+                     <p className="text-white font-bold text-xl">{candidatePopup.candidate["final-score"]}/40</p>
+                   </div>
+                   <div className="bg-white/5 rounded-lg p-4">
+                     <span className="text-slate-400 text-sm font-medium">Expérience</span>
+                     <p className="text-white font-semibold">{candidatePopup.candidate["years-of-experience"] ? `${candidatePopup.candidate["years-of-experience"]} ans` : 'Non spécifiée'}</p>
+                   </div>
+                   <div className="bg-white/5 rounded-lg p-4">
+                     <span className="text-slate-400 text-sm font-medium">Formation</span>
+                     <p className="text-white font-semibold">{candidatePopup.candidate["education-level"] || 'Non spécifiée'}</p>
+                   </div>
+                   <div className="bg-white/5 rounded-lg p-4">
+                     <span className="text-slate-400 text-sm font-medium">Localisation</span>
+                     <p className="text-white font-semibold">{candidatePopup.candidate.location || 'Non spécifiée'}</p>
+                   </div>
+                </div>
+
+                {/* Compétences détaillées */}
+                {(() => {
+                  const skills = detectSkills(candidatePopup.candidate);
+                  if (skills.length > 0) {
+                    return (
+                      <div>
+                        <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
+                          <Star className="w-5 h-5 mr-2 fill-yellow-400 text-yellow-400" />
+                          Toutes les compétences évaluées
+                        </h4>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                          {skills.map(([skillName, skillValue]) => {
+                            const displayName = skillName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                            const scoreColor = skillValue === 2 ? 'bg-green-500/20 text-green-300 border-green-500/30' : 
+                                             skillValue === 1 ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30' : 
+                                             'bg-red-500/20 text-red-300 border-red-500/30';
+                            return (
+                              <div key={skillName} className={`${scoreColor} rounded-lg px-4 py-3 border flex justify-between items-center`}>
+                                <span className="font-medium" title={displayName}>{displayName}</span>
+                                <span className="font-bold text-xl">{skillValue}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
+                {/* Verdict détaillé */}
+                <div>
+                  <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
+                    <CheckCircle className="w-5 h-5 mr-2 text-green-400" />
+                    Analyse détaillée
+                  </h4>
+                  <div className="bg-white/5 rounded-lg p-6 border border-white/10">
+                    <p className="text-slate-200 leading-relaxed">{candidatePopup.candidate.verdict}</p>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-wrap gap-3 pt-4 border-t border-white/20 justify-center">
+                  <button
+                    onClick={() => {
+                      closeCandidatePopup();
+                      handleSendEmail(candidatePopup.candidate!);
+                    }}
+                    className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+                  >
+                    <Mail className="w-5 h-5" />
+                    <span>Envoyer un email</span>
+                  </button>
+                  {candidatePopup.candidate.cvFile && (
+                    <button
+                      onClick={() => handleDownloadCV(candidatePopup.candidate!)}
+                      className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+                    >
+                      <Download className="w-5 h-5" />
+                      <span>Télécharger CV</span>
+                    </button>
+                  )}
+                  {candidatePopup.candidate.motivationLetterFile && (
+                    <button
+                      onClick={() => handleDownloadMotivationLetter(candidatePopup.candidate!)}
+                      className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+                    >
+                      <Download className="w-5 h-5" />
+                      <span>Télécharger Lettre</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
-            <h3 className="text-2xl font-bold text-white mb-4">
-              Découvrez tous nos services digitaux
-            </h3>
-            <p className="text-slate-300 mb-6 max-w-2xl mx-auto">
-              be2web vous accompagne dans votre transformation digitale avec des solutions sur mesure : 
-              développement web, applications mobiles, IA, marketing digital et bien plus encore.
-            </p>
-            <button 
-              onClick={() => window.open('https://be2web-agence.francoform.com/', '_blank')}
-              className="inline-flex items-center px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 text-white font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105"
-            >
-              <span className="mr-2">🚀</span>
-              Découvrir be2web
-            </button>
           </div>
-        </div>
+        )}
 
-        {/* Footer be2web */}
-        <footer className="mt-12 mb-8">
-          <div className="text-center">
-            <div className="inline-flex items-center px-6 py-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:border-white/40 transition-all duration-300">
-              <span className="mr-2">❤️</span>
-              <span>
-                © 2014 
-                <button 
-                  onClick={() => window.open('https://be2web-agence.francoform.com/', '_blank')}
-                  className="mx-1 font-semibold hover:text-cyan-400 transition-colors duration-200 underline"
-                >
-                  be2web
-                </button>
-                . Tous droits réservés. Made with ❤️
-              </span>
-            </div>
-          </div>
-        </footer>
+        {/* Footer original */}
+        <Footer />
     </main>
   );
 }
