@@ -28,6 +28,7 @@ import {
   Send
 } from "lucide-react";
 
+// Interface dynamique pour les candidats - accepte n'importe quelles propriétés de compétences
 type Candidate = {
   "full-name": string;
   email: string;
@@ -37,30 +38,6 @@ type Candidate = {
   "salary-expectation": string | null;
   verdict: string;
   "final-score": number;
-  "analyse-financiere": number;
-  "reporting": number;
-  "indicateurs-de-performance-kpis": number;
-  "preparation-de-rapports-mensuels-et-trimestriels": number;
-  "modelisation-financiere": number;
-  "previsions-financieres-forecasts": number;
-  "evaluation-des-projets-d-investissement": number;
-  "gestion-de-cloture-mensuelle": number;
-  "pilotage-des-cycles-budgetaires": number;
-  "suivi-des-budgets-sg&a-opex": number;
-  "business-partnering-financier": number;
-  "analyse-des-ecarts": number;
-  "proposition-d-actions-correctives": number;
-  "recommandations-strategiques": number;
-  "optimisation-de-la-structure-de-couts": number;
-  "amelioration-des-outils-et-processus-financiers": number;
-  "automatisation-des-processus-financiers": number;
-  "utilisation-d-outils-de-bi-power-bi": number;
-  "excellente-maitrise-de-microsoft-excel": number;
-  "maitrise-de-vba-macros": number;
-  "maitrise-d-un-erp-sap": number;
-  "connaissance-de-bloomberg": number;
-  "langues-francais-courant": number;
-  "langues-anglais-professionnel-courant": number;
   color?: {
     primary: string;
     light: string;
@@ -71,7 +48,8 @@ type Candidate = {
   motivationLetterFile?: string;
   cvContent?: string;
   motivationContent?: string;
-  [k: string]: unknown;
+  // Toutes les autres propriétés sont dynamiques (compétences)
+  [k: string]: string | number | object | null | undefined;
 };
 
 const candidateColors = [
@@ -141,6 +119,56 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
     }
   };
   
+  // Fonction pour détecter automatiquement les compétences (propriétés numériques entre 0 et 2)
+  const detectSkills = (candidate: Candidate): [string, number][] => {
+    const skills: [string, number][] = [];
+    const baseProperties = [
+      'full-name', 'email', 'location', 'education-level', 
+      'years-of-experience', 'salary-expectation', 'verdict', 'final-score',
+      'color', 'cvFile', 'motivationLetterFile', 'cvContent', 'motivationContent'
+    ];
+    
+    for (const [key, value] of Object.entries(candidate)) {
+      // Ignorer les propriétés de base
+      if (baseProperties.includes(key)) continue;
+      
+      // Vérifier si c'est une compétence (valeur numérique entre 0 et 2)
+      if (typeof value === 'number' && value >= 0 && value <= 2) {
+        skills.push([key, value]);
+      }
+    }
+    
+    return skills.sort((a, b) => b[1] - a[1]); // Trier par score décroissant
+  };
+
+  // Fonction pour mapper dynamiquement les données du webhook vers l'interface Candidate
+  const mapWebhookToCandidate = (webhookCandidate: Record<string, unknown>): Candidate => {
+    const baseCandidate: Candidate = {
+      "full-name": String(webhookCandidate["full-name"] || ''),
+      email: String(webhookCandidate.email || ''),
+      location: String(webhookCandidate.location || ''),
+      "education-level": String(webhookCandidate["education-level"] || ''),
+      "years-of-experience": Number(webhookCandidate["years-of-experience"]) || 0,
+      "salary-expectation": webhookCandidate["salary-expectation"] ? String(webhookCandidate["salary-expectation"]) : null,
+      verdict: String(webhookCandidate.verdict || ''),
+      "final-score": Number(webhookCandidate["final-score"]) || 0,
+      cvFile: webhookCandidate.cvFile ? String(webhookCandidate.cvFile) : undefined,
+      motivationLetterFile: webhookCandidate.motivationLetterFile ? String(webhookCandidate.motivationLetterFile) : undefined,
+      cvContent: webhookCandidate.cvContent ? String(webhookCandidate.cvContent) : undefined,
+      motivationContent: webhookCandidate.motivationContent ? String(webhookCandidate.motivationContent) : undefined
+    };
+    
+    // Ajouter dynamiquement toutes les autres propriétés (compétences)
+    const result = { ...baseCandidate };
+    for (const [key, value] of Object.entries(webhookCandidate)) {
+      if (!baseCandidate.hasOwnProperty(key)) {
+        result[key] = value as string | number | object | null | undefined;
+      }
+    }
+    
+    return result;
+  };
+
   useEffect(() => {
   const fetchResults = async () => {
     try {
@@ -155,9 +183,29 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
       
       const webhookData = JSON.parse(analysisResults)
       
-      // Traitement des données du webhook - le webhook retourne directement un array
-      const processedData = webhookData.map((c: Candidate, idx: number) => ({
-        ...c,
+      // Vérifier si webhookData est un array ou un objet
+      let candidatesArray: Record<string, unknown>[] = []
+      
+      if (Array.isArray(webhookData)) {
+        candidatesArray = webhookData
+      } else if (webhookData && typeof webhookData === 'object') {
+        // Si c'est un objet, chercher la propriété qui contient l'array de candidats
+        candidatesArray = webhookData.candidates || webhookData.results || webhookData.data || []
+        
+        // Si aucune propriété standard trouvée, prendre la première propriété qui est un array
+        if (!Array.isArray(candidatesArray)) {
+          const values = Object.values(webhookData)
+          candidatesArray = values.find(val => Array.isArray(val)) as Record<string, unknown>[] || []
+        }
+      }
+      
+      if (!Array.isArray(candidatesArray) || candidatesArray.length === 0) {
+        throw new Error('Aucun candidat trouvé dans les résultats')
+      }
+      
+      // Mapper les données du webhook vers l'interface Candidate et ajouter les couleurs
+      const processedData = candidatesArray.map((webhookCandidate: Record<string, unknown>, idx: number) => ({
+        ...mapWebhookToCandidate(webhookCandidate),
         color: candidateColors[idx % candidateColors.length]
       }))
       
@@ -167,75 +215,33 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
     } catch (err) {
       console.error('Erreur lors du chargement des résultats:', err)
       
-      // EN CAS D'ERREUR, UTILISER LES DONNÉES DE FALLBACK AVEC LE NOUVEAU FORMAT
+      // EN CAS D'ERREUR, UTILISER DES DONNÉES DE FALLBACK GÉNÉRIQUES
       const fallbackData = [
         {
-          "full-name": "ANNE MOREAU",
-          "email": "help@enhancv.com",
-          "location": "Bordeaux, FR",
-          "education-level": "Master en Finance",
-          "years-of-experience": 12,
+          "full-name": "Candidat Exemple 1",
+          "email": "candidat1@example.com",
+          "location": "Paris, France",
+          "education-level": "Master",
+          "years-of-experience": 5,
           "salary-expectation": "",
-          "verdict": "Bon profil. Forte expérience en analyse financière, reporting et pilotage budgétaire. Maîtrise confirmée de SAP, Power BI et Excel. Excellente capacité de business partnering et recommandations stratégiques reconnues. Langues et compétences alignées avec le poste.",
-          "final-score": 37,
-          "analyse-financiere": 2,
-          "reporting": 2,
-          "indicateurs-de-performance-kpis": 2,
-          "preparation-de-rapports-mensuels-et-trimestriels": 2,
-          "modelisation-financiere": 1,
-          "previsions-financieres-forecasts": 1,
-          "evaluation-des-projets-d-investissement": 0,
-          "gestion-de-cloture-mensuelle": 2,
-          "pilotage-des-cycles-budgetaires": 2,
-          "suivi-des-budgets-sg&a-opex": 2,
-          "business-partnering-financier": 2,
-          "analyse-des-ecarts": 2,
-          "proposition-d-actions-correctives": 2,
-          "recommandations-strategiques": 2,
-          "optimisation-de-la-structure-de-couts": 1,
-          "amelioration-des-outils-et-processus-financiers": 2,
-          "automatisation-des-processus-financiers": 1,
-          "utilisation-d-outils-de-bi-power-bi": 2,
-          "excellente-maitrise-de-microsoft-excel": 2,
-          "maitrise-de-vba-macros": 0,
-          "maitrise-d-un-erp-sap": 2,
-          "connaissance-de-bloomberg": 0,
-          "langues-francais-courant": 2,
-          "langues-anglais-professionnel-courant": 1
+          "verdict": "Profil intéressant avec une bonne expérience dans le domaine. Compétences techniques solides et motivation évidente.",
+          "final-score": 25,
+          "competence-1": 2,
+          "competence-2": 1,
+          "competence-3": 2
         },
         {
-          "full-name": "Paul MARTIN",
-          "email": "paul.martin@email.com",
+          "full-name": "Candidat Exemple 2",
+          "email": "candidat2@example.com",
           "location": "Lyon, France",
-          "education-level": "Master en Finance",
-          "years-of-experience": 6,
+          "education-level": "Licence",
+          "years-of-experience": 3,
           "salary-expectation": "",
-          "verdict": "Bon profil avec forte expérience en modélisation financière et reporting stratégique. Très bonne maîtrise d'Excel (VBA), Bloomberg et connaissance SAP. Langues et compétences techniques solides. Moins de détails sur clôture mensuelle et cycles budgétaires.",
-          "final-score": 32,
-          "analyse-financiere": 2,
-          "reporting": 2,
-          "indicateurs-de-performance-kpis": 1,
-          "preparation-de-rapports-mensuels-et-trimestriels": 2,
-          "modelisation-financiere": 2,
-          "previsions-financieres-forecasts": 2,
-          "evaluation-des-projets-d-investissement": 1,
-          "gestion-de-cloture-mensuelle": 0,
-          "pilotage-des-cycles-budgetaires": 0,
-          "suivi-des-budgets-sg&a-opex": 0,
-          "business-partnering-financier": 2,
-          "analyse-des-ecarts": 1,
-          "proposition-d-actions-correctives": 1,
-          "recommandations-strategiques": 2,
-          "optimisation-de-la-structure-de-couts": 2,
-          "amelioration-des-outils-et-processus-financiers": 1,
-          "automatisation-des-processus-financiers": 0,
-          "utilisation-d-outils-de-bi-power-bi": 0,
-          "excellente-maitrise-de-microsoft-excel": 2,
-          "maitrise-de-vba-macros": 2,
-          "maitrise-d-un-erp-sap": 1,
-          "connaissance-de-bloomberg": 2,
-          "langues-francais-courant": 2,
-          "langues-anglais-professionnel-courant": 2
+          "verdict": "Candidat prometteur avec un potentiel d'évolution intéressant. Bonnes bases techniques à développer.",
+          "final-score": 20,
+          "competence-1": 1,
+          "competence-2": 2,
+          "competence-3": 1
         }
       ];
 
@@ -335,8 +341,11 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
     );
     
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900/30 to-slate-900 text-white relative">
+      {/* Background overlay pour plus de profondeur */}
+      <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-blue-500/5 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-400/10 via-transparent to-transparent pointer-events-none"></div>
+      <div className="max-w-7xl mx-auto space-y-8 relative z-10">
         {/* Header */}
         <header className="relative">
           <button
@@ -469,6 +478,35 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
                       <div className="bg-white/5 rounded-lg p-3"><span className="text-yellow-400 text-sm font-medium">Email:</span><p className="text-white font-semibold truncate">{sorted[0].email}</p></div>
                     </div>
 
+                    {/* Compétences dynamiques pour le meilleur candidat */}
+                    {(() => {
+                      const skills = detectSkills(sorted[0]);
+                      if (skills.length > 0) {
+                        return (
+                          <div className="mb-4">
+                            <h5 className="text-yellow-400 font-semibold mb-3 flex items-center">
+                              <Star className="w-4 h-4 mr-2 fill-yellow-400" />Compétences évaluées
+                            </h5>
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                              {skills.map(([skillName, skillValue]) => {
+                                const displayName = skillName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                const scoreColor = skillValue === 2 ? 'bg-green-500/20 text-green-300 border-green-500/30' : 
+                                                 skillValue === 1 ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30' : 
+                                                 'bg-red-500/20 text-red-300 border-red-500/30';
+                                return (
+                                  <div key={skillName} className={`${scoreColor} rounded-lg px-3 py-2 text-sm border flex justify-between items-center`}>
+                                    <span className="truncate" title={displayName}>{displayName.length > 15 ? displayName.substring(0, 15) + '...' : displayName}</span>
+                                    <span className="font-bold ml-2 text-lg">{skillValue}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+
                     
 
                     <div className="bg-gradient-to-r from-yellow-500/10 to-amber-500/10 rounded-lg p-4 border border-yellow-500/20">
@@ -595,6 +633,36 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
                           </div>
                         </div>
 
+                        {/* Compétences dynamiques */}
+                        {(() => {
+                          const skills = detectSkills(c);
+                          if (skills.length > 0) {
+                            return (
+                              <div className="mb-4">
+                                <span className="text-slate-400 text-xs font-medium block mb-2">Compétences clés</span>
+                                <div className="grid grid-cols-2 gap-1">
+                                  {skills.slice(0, 6).map(([skillName, skillValue]) => {
+                                    const displayName = skillName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                                    const scoreColor = skillValue === 2 ? 'bg-green-500/20 text-green-300' : 
+                                                     skillValue === 1 ? 'bg-yellow-500/20 text-yellow-300' : 
+                                                     'bg-red-500/20 text-red-300';
+                                    return (
+                                      <div key={skillName} className={`${scoreColor} rounded px-2 py-1 text-xs flex justify-between items-center`}>
+                                        <span className="truncate" title={displayName}>{displayName.length > 12 ? displayName.substring(0, 12) + '...' : displayName}</span>
+                                        <span className="font-bold ml-1">{skillValue}</span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                                {skills.length > 6 && (
+                                  <p className="text-slate-400 text-xs mt-1">+{skills.length - 6} autres compétences</p>
+                                )}
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
+
                         <div className="pt-3 border-t border-white/10 mt-auto">
                           <span className="text-slate-400 text-xs font-medium">Verdict:</span>
                           <p className="text-slate-200 text-xs leading-relaxed mt-1 line-clamp-3">{c.verdict}</p>
@@ -673,6 +741,52 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
           </div>
         )}
       </div>
+
+        {/* Section promotionnelle be2web */}
+        <div className="mt-16 mb-8">
+          <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-cyan-500/20 text-center">
+            <div className="flex justify-center items-center mb-6">
+              <div className="bg-gradient-to-r from-cyan-400 to-blue-500 p-4 rounded-xl shadow-lg">
+                <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">B2W</span>
+                </div>
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-4">
+              Découvrez tous nos services digitaux
+            </h3>
+            <p className="text-slate-300 mb-6 max-w-2xl mx-auto">
+              be2web vous accompagne dans votre transformation digitale avec des solutions sur mesure : 
+              développement web, applications mobiles, IA, marketing digital et bien plus encore.
+            </p>
+            <button 
+              onClick={() => window.open('https://be2web-agence.francoform.com/', '_blank')}
+              className="inline-flex items-center px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 text-white font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105"
+            >
+              <span className="mr-2">🚀</span>
+              Découvrir be2web
+            </button>
+          </div>
+        </div>
+
+        {/* Footer be2web */}
+        <footer className="mt-12 mb-8">
+          <div className="text-center">
+            <div className="inline-flex items-center px-6 py-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:border-white/40 transition-all duration-300">
+              <span className="mr-2">❤️</span>
+              <span>
+                © 2014 
+                <button 
+                  onClick={() => window.open('https://be2web-agence.francoform.com/', '_blank')}
+                  className="mx-1 font-semibold hover:text-cyan-400 transition-colors duration-200 underline"
+                >
+                  be2web
+                </button>
+                . Tous droits réservés. Made with ❤️
+              </span>
+            </div>
+          </div>
+        </footer>
     </main>
   );
 }
