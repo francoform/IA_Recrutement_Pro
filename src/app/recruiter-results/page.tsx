@@ -21,12 +21,9 @@ import {
   Users,
   Target,
   Star,
-  // Eye, // <- Supprimer cette ligne
   Download,
   Mail,
   Calendar,
-  // FileText, // <- Supprimer cette ligne
-  // User, // <- Supprimer cette ligne
   X,
   Send
 } from "lucide-react";
@@ -37,31 +34,33 @@ type Candidate = {
   location: string;
   "education-level": string;
   "years-of-experience": number;
-  "salary-expectation": string | null; // <-- CORRECTION APPLIQUÉE ICI
+  "salary-expectation": string | null;
   verdict: string;
   "final-score": number;
-  // Critères de scoring détaillés
   "analyse-financiere": number;
-  "reporting-financier": number;
+  "reporting": number;
+  "indicateurs-de-performance-kpis": number;
+  "preparation-de-rapports-mensuels-et-trimestriels": number;
   "modelisation-financiere": number;
-  "previsions-financieres": number;
-  "cloture-comptable": number;
-  "pilotage-budgetaire": number;
+  "previsions-financieres-forecasts": number;
+  "evaluation-des-projets-d-investissement": number;
+  "gestion-de-cloture-mensuelle": number;
+  "pilotage-des-cycles-budgetaires": number;
+  "suivi-des-budgets-sg&a-opex": number;
   "business-partnering-financier": number;
-  "optimisation-structure-couts": number;
-  "strategie-financiere": number;
-  "amelioration-processus-financiers": number;
-  "automatisation-outils-financiers": number;
-  "utilisation-outils-bi": number;
-  "maitrise-excel-fonctions-avancees": number;
-  "maitrise-excel-vba-macros": number;
-  "erp-sap": number;
-  "outil-bi-power-bi": number;
-  "connaissance-bloomberg": number;
-  "anglais-professionnel": number;
-  "francais-courant": number;
-  "formation-bac-plus-5-finance-ecole-commerce-equivalent": number;
-  "experience-minimum-5-ans-analyse-financiere-ou-controle-de-gestion-ou-business-partner-financier": number;
+  "analyse-des-ecarts": number;
+  "proposition-d-actions-correctives": number;
+  "recommandations-strategiques": number;
+  "optimisation-de-la-structure-de-couts": number;
+  "amelioration-des-outils-et-processus-financiers": number;
+  "automatisation-des-processus-financiers": number;
+  "utilisation-d-outils-de-bi-power-bi": number;
+  "excellente-maitrise-de-microsoft-excel": number;
+  "maitrise-de-vba-macros": number;
+  "maitrise-d-un-erp-sap": number;
+  "connaissance-de-bloomberg": number;
+  "langues-francais-courant": number;
+  "langues-anglais-professionnel-courant": number;
   color?: {
     primary: string;
     light: string;
@@ -141,67 +140,116 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
       alert('Erreur lors de l\'envoi de l\'email. Veuillez réessayer.');
     }
   };
+  
   useEffect(() => {
-    const fetchResults = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        
-        const analysisId = sessionStorage.getItem('analysisId')
-        if (!analysisId) {
-          throw new Error('ID d\'analyse manquant')
-        }
-        
-        const fallbackData = [
-          {
-            "full-name": "ANNE MOREAU", "email": "help@enhancv.com", "location": "Bordeaux, FR", "education-level": "Master en Finance", "years-of-experience": 12, "salary-expectation": null,
-            "verdict": "Bonne candidate avec plus de 5 ans d'expérience en analyse financière et contrôle de gestion, très compétente en business partnering, maîtrise Power BI, SAP et Excel avancé. Forte en optimisation et recommandations stratégiques, elle a réduit significativement les écarts budgétaires et amélioré la marge.",
-            "final-score": 39, "analyse-financiere": 2, "reporting-financier": 2, "modelisation-financiere": 2, "previsions-financieres": 2, "cloture-comptable": 2, "pilotage-budgetaire": 2,
-            "business-partnering-financier": 2, "optimisation-structure-couts": 2, "strategie-financiere": 2, "amelioration-processus-financiers": 2, "automatisation-outils-financiers": 2,
-            "utilisation-outils-bi": 2, "maitrise-excel-fonctions-avancees": 2, "maitrise-excel-vba-macros": 1, "erp-sap": 2, "outil-bi-power-bi": 2, "connaissance-bloomberg": 0, "anglais-professionnel": 1, "francais-courant": 2,
-            "formation-bac-plus-5-finance-ecole-commerce-equivalent": 2, "experience-minimum-5-ans-analyse-financiere-ou-controle-de-gestion-ou-business-partner-financier": 2
-          },
-          {
-            "full-name": "YANN GARNIER", "email": "yann.garnier@mail.com", "location": "Bordeaux, France", "education-level": "Master 2 Finance d'Entreprise", "years-of-experience": 3, "salary-expectation": null,
-            "verdict": "Candidat junior avec 3 ans d'expérience, maîtrise Excel avancé avec VBA, Power BI, SAP et Bloomberg, bon en contrôle budgétaire et reporting. Moins d'expérience dans la clôture mensuelle et pilotage complet des budgets Sg&A, ce qui limite sa capacité à être pleinement opérationnel sur un poste senior.",
-            "final-score": 35, "analyse-financiere": 2, "reporting-financier": 2, "modelisation-financiere": 2, "previsions-financieres": 1, "cloture-comptable": 0, "pilotage-budgetaire": 1,
-            "business-partnering-financier": 1, "optimisation-structure-couts": 1, "strategie-financiere": 1, "amelioration-processus-financiers": 2, "automatisation-outils-financiers": 2,
-            "utilisation-outils-bi": 2, "maitrise-excel-fonctions-avancees": 2, "maitrise-excel-vba-macros": 2, "erp-sap": 2, "outil-bi-power-bi": 2, "connaissance-bloomberg": 2, "anglais-professionnel": 2, "francais-courant": 2,
-            "formation-bac-plus-5-finance-ecole-commerce-equivalent": 2, "experience-minimum-5-ans-analyse-financiere-ou-controle-de-gestion-ou-business-partner-financier": 0
-          },
-          {
-            "full-name": "Paul MARTIN", "email": "paul.martin@email.com", "location": "Lyon, France", "education-level": "Master en Finance", "years-of-experience": 6, "salary-expectation": null,
-            "verdict": "Profil solide avec plus de 5 ans d'expérience en analyse financière dans des grandes institutions, expertise avancée en modélisation, VBA, Bloomberg, maîtrise Excel avancé et connaissance SAP. Très bon en reporting et recommandations stratégiques, mais suivi des budgets Sg&A moins explicité.",
-            "final-score": 30, "analyse-financiere": 2, "reporting-financier": 2, "modelisation-financiere": 2, "previsions-financieres": 2, "cloture-comptable": 1, "pilotage-budgetaire": 1,
-            "business-partnering-financier": 2, "optimisation-structure-couts": 2, "strategie-financiere": 2, "amelioration-processus-financiers": 1, "automatisation-outils-financiers": 0,
-            "utilisation-outils-bi": 0, "maitrise-excel-fonctions-avancees": 2, "maitrise-excel-vba-macros": 2, "erp-sap": 1, "outil-bi-power-bi": 0, "connaissance-bloomberg": 2, "anglais-professionnel": 2, "francais-courant": 2,
-            "formation-bac-plus-5-finance-ecole-commerce-equivalent": 2, "experience-minimum-5-ans-analyse-financiere-ou-controle-de-gestion-ou-business-partner-financier": 2
-          },
-          {
-            "full-name": "Raoul ROBILLARD", "email": "r.robillard@eemail.com", "location": "Metz", "education-level": "Master 2 spécialisé en Analyse financière internationale", "years-of-experience": 5, "salary-expectation": null,
-            "verdict": "Bon profil avec une expertise en modélisation financière, évaluation de projets et reporting, maîtrise confirmée d'Excel, Bloomberg et SQL, ainsi qu'anglais courant. Expérience en gestion de portefeuille et recommandations stratégiques solides, mais peu d'éléments sur le suivi des budgets Sg&A ou Power BI.",
-            "final-score": 28, "analyse-financiere": 2, "reporting-financier": 2, "modelisation-financiere": 2, "previsions-financieres": 2, "cloture-comptable": 1, "pilotage-budgetaire": 1,
-            "business-partnering-financier": 1, "optimisation-structure-couts": 1, "strategie-financiere": 2, "amelioration-processus-financiers": 1, "automatisation-outils-financiers": 0,
-            "utilisation-outils-bi": 0, "maitrise-excel-fonctions-avancees": 2, "maitrise-excel-vba-macros": 1, "erp-sap": 0, "outil-bi-power-bi": 0, "connaissance-bloomberg": 2, "anglais-professionnel": 2, "francais-courant": 2,
-            "formation-bac-plus-5-finance-ecole-commerce-equivalent": 2, "experience-minimum-5-ans-analyse-financiere-ou-controle-de-gestion-ou-business-partner-financier": 2
-          }
-        ];
-
-        const processedFallback = fallbackData.map((c: Candidate, idx) => ({
-          ...c,
-          color: candidateColors[idx % candidateColors.length]
-        }));
-        setData(processedFallback);
-        setLoading(false);
-        
-      } catch (err) {
-        console.error('Erreur lors du chargement des résultats:', err);
-        setError(`Erreur: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
-        setLoading(false);
+  const fetchResults = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      // Lire directement les résultats depuis sessionStorage
+      const analysisResults = sessionStorage.getItem('analysisResults')
+      if (!analysisResults) {
+        throw new Error('Résultats d\'analyse manquants')
       }
-    };
-    fetchResults();
-  }, []);
+      
+      const webhookData = JSON.parse(analysisResults)
+      
+      // Traitement des données du webhook - le webhook retourne directement un array
+      const processedData = webhookData.map((c: Candidate, idx: number) => ({
+        ...c,
+        color: candidateColors[idx % candidateColors.length]
+      }))
+      
+      setData(processedData)
+      setLoading(false)
+      
+    } catch (err) {
+      console.error('Erreur lors du chargement des résultats:', err)
+      
+      // EN CAS D'ERREUR, UTILISER LES DONNÉES DE FALLBACK AVEC LE NOUVEAU FORMAT
+      const fallbackData = [
+        {
+          "full-name": "ANNE MOREAU",
+          "email": "help@enhancv.com",
+          "location": "Bordeaux, FR",
+          "education-level": "Master en Finance",
+          "years-of-experience": 12,
+          "salary-expectation": "",
+          "verdict": "Bon profil. Forte expérience en analyse financière, reporting et pilotage budgétaire. Maîtrise confirmée de SAP, Power BI et Excel. Excellente capacité de business partnering et recommandations stratégiques reconnues. Langues et compétences alignées avec le poste.",
+          "final-score": 37,
+          "analyse-financiere": 2,
+          "reporting": 2,
+          "indicateurs-de-performance-kpis": 2,
+          "preparation-de-rapports-mensuels-et-trimestriels": 2,
+          "modelisation-financiere": 1,
+          "previsions-financieres-forecasts": 1,
+          "evaluation-des-projets-d-investissement": 0,
+          "gestion-de-cloture-mensuelle": 2,
+          "pilotage-des-cycles-budgetaires": 2,
+          "suivi-des-budgets-sg&a-opex": 2,
+          "business-partnering-financier": 2,
+          "analyse-des-ecarts": 2,
+          "proposition-d-actions-correctives": 2,
+          "recommandations-strategiques": 2,
+          "optimisation-de-la-structure-de-couts": 1,
+          "amelioration-des-outils-et-processus-financiers": 2,
+          "automatisation-des-processus-financiers": 1,
+          "utilisation-d-outils-de-bi-power-bi": 2,
+          "excellente-maitrise-de-microsoft-excel": 2,
+          "maitrise-de-vba-macros": 0,
+          "maitrise-d-un-erp-sap": 2,
+          "connaissance-de-bloomberg": 0,
+          "langues-francais-courant": 2,
+          "langues-anglais-professionnel-courant": 1
+        },
+        {
+          "full-name": "Paul MARTIN",
+          "email": "paul.martin@email.com",
+          "location": "Lyon, France",
+          "education-level": "Master en Finance",
+          "years-of-experience": 6,
+          "salary-expectation": "",
+          "verdict": "Bon profil avec forte expérience en modélisation financière et reporting stratégique. Très bonne maîtrise d'Excel (VBA), Bloomberg et connaissance SAP. Langues et compétences techniques solides. Moins de détails sur clôture mensuelle et cycles budgétaires.",
+          "final-score": 32,
+          "analyse-financiere": 2,
+          "reporting": 2,
+          "indicateurs-de-performance-kpis": 1,
+          "preparation-de-rapports-mensuels-et-trimestriels": 2,
+          "modelisation-financiere": 2,
+          "previsions-financieres-forecasts": 2,
+          "evaluation-des-projets-d-investissement": 1,
+          "gestion-de-cloture-mensuelle": 0,
+          "pilotage-des-cycles-budgetaires": 0,
+          "suivi-des-budgets-sg&a-opex": 0,
+          "business-partnering-financier": 2,
+          "analyse-des-ecarts": 1,
+          "proposition-d-actions-correctives": 1,
+          "recommandations-strategiques": 2,
+          "optimisation-de-la-structure-de-couts": 2,
+          "amelioration-des-outils-et-processus-financiers": 1,
+          "automatisation-des-processus-financiers": 0,
+          "utilisation-d-outils-de-bi-power-bi": 0,
+          "excellente-maitrise-de-microsoft-excel": 2,
+          "maitrise-de-vba-macros": 2,
+          "maitrise-d-un-erp-sap": 1,
+          "connaissance-de-bloomberg": 2,
+          "langues-francais-courant": 2,
+          "langues-anglais-professionnel-courant": 2
+        }
+      ];
+
+      const processedFallback = fallbackData.map((c: Candidate, idx) => ({
+        ...c,
+        color: candidateColors[idx % candidateColors.length]
+      }));
+      setData(processedFallback);
+      setLoading(false);
+      setError(`Erreur: ${err instanceof Error ? err.message : 'Erreur inconnue'}`);
+    }
+  };
+  fetchResults();
+}, []);
 
   const calculateScore = (c: Candidate) =>
     (c["final-score"] ?? Number(String(c["final-score"]).replace(/\/.*/, ""))) || 0;
@@ -287,7 +335,7 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
     );
     
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <header className="relative">

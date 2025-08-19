@@ -5,6 +5,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://ia-recrutement-pro.com'),
   title: "IA Recrutement Pro - Analyse automatique de CV par Intelligence Artificielle",
   description: "Transformez votre processus de recrutement avec l'IA. Analysez, classez et sélectionnez les meilleurs candidats en quelques secondes. Scoring intelligent et gain de temps de 90%.",
   

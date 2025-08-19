@@ -14,7 +14,7 @@ export async function analyzeFiles(files: File[]) {
   
   try {
     // Envoyer au webhook n8n POUR L'UPLOAD (différent de celui des résultats)
-    const response = await fetch('https://n8nify.francoform.com/webhook/NOUVEAU_WEBHOOK_UPLOAD_ID', {
+    const response = await fetch('https://n8nify.francoform.com/webhook/690fb674-2054-44c2-8805-5bb30c6091fa', {
       method: 'POST',
       body: formData,
     })

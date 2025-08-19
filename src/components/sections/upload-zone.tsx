@@ -27,6 +27,8 @@ export function UploadZone() {
   const [showLoadingPopup, setShowLoadingPopup] = useState(false)
   const [analysisProgress, setAnalysisProgress] = useState(0)
 
+
+
   // Vérification des doublons
   const checkForDuplicates = (newFiles: File[], existingFiles: File[], type: keyof FilesByType): string[] => {
     const errors: string[] = []
@@ -194,6 +196,7 @@ export function UploadZone() {
 
   const handleSubmit = async () => {
     if (!canAnalyze()) return
+    
     setIsUploading(true)
     setShowLoadingPopup(true)
     setAnalysisProgress(0)
@@ -210,41 +213,67 @@ export function UploadZone() {
     }, 1000)
 
     try {
-      const formData = new FormData()
-      
-      // Ajouter tous les fichiers
-      files.jobDescription.forEach(f => formData.append("file", f))
-      files.cvs.forEach(f => formData.append("file", f))
-      files.motivationLetters.forEach(f => formData.append("file", f))
+      // 1) Créer l'ID AVANT le FormData
+      const analysisId = Date.now().toString();
+      sessionStorage.setItem('analysisId', analysisId);
 
-      const res = await fetch(
-        "https://n8nify.francoform.com/webhook/690fb674-2054-44c2-8805-5bb30c6091fa",
-        { 
-          method: "POST", 
-          body: formData,
-          mode: 'cors'
-        }
-      )
-      
-      if (!res.ok) throw new Error("Erreur d'analyse")
+      console.log('🚀 Envoi des données vers le proxy API:', {
+         analysisId,
+         files: {
+           jobDescription: files.jobDescription.map(f => f.name),
+           cvs: files.cvs.map(f => f.name),
+           motivationLetters: files.motivationLetters.map(f => f.name)
+         }
+       });
 
+      // 2) Construire le FormData complet
+      const formData = new FormData();
+      formData.append('analysisId', analysisId);
+      files.jobDescription.forEach(f => formData.append('file', f));
+      files.cvs.forEach(f => formData.append('file', f));
+      files.motivationLetters.forEach(f => formData.append('file', f));
+
+      // 3) Appeler directement le webhook n8n
+      const res = await fetch('https://n8nify.francoform.com/webhook/690fb674-2054-44c2-8805-5bb30c6091fa', {
+        method: 'POST',
+        body: formData,
+        mode: 'cors'
+      });
+      
+      console.log('📡 Réponse du webhook n8n reçue:', {
+        status: res.status,
+        statusText: res.statusText,
+        headers: Object.fromEntries(res.headers.entries())
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: 'Erreur inconnue' }));
+        throw new Error(errorData.error || `Erreur HTTP du webhook: ${res.status} ${res.statusText}`);
+      }
+
+      // Parser la réponse JSON
+      const resultsData = await res.json();
+      console.log('✅ Données reçues du proxy:', resultsData);
+      
       // Finaliser le progrès
       clearInterval(progressInterval)
       setAnalysisProgress(100)
       
+      // Stocker les résultats JSON dans sessionStorage
+      sessionStorage.setItem('analysisResults', JSON.stringify(resultsData));
+      
       // Attendre un peu pour montrer 100% puis rediriger
       setTimeout(() => {
-        // Stocker les résultats dans sessionStorage pour éviter les problèmes CORS
-        const analysisId = Date.now().toString()
-        sessionStorage.setItem('analysisId', analysisId)
         window.location.href = "/recruiter-results"
       }, 1500)
       
     } catch (err) {
-      console.error(err)
+      console.error('Erreur lors de l\'analyse:', err)
       clearInterval(progressInterval)
       setShowLoadingPopup(false)
-      alert("Échec de l'analyse. Veuillez réessayer.")
+      
+      const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
+      alert(`Échec de l'analyse: ${errorMessage}\n\nVeuillez réessayer.`);
     } finally {
       setIsUploading(false)
     }
@@ -391,7 +420,7 @@ export function UploadZone() {
   }
 
   return (
-    <section className="w-full px-0 py-16 md:container md:mx-auto md:px-6">
+    <section className="w-full px-0 py-0 md:container md:mx-auto md:px-6">
       <div className="max-w-4xl mx-auto px-4 md:px-0">
         <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-4 md:p-8 border border-white/10 mx-2 md:mx-0">
           <h2 className="text-2xl font-semibold mb-6 text-center">Uploadez vos fichiers de recrutement</h2>
@@ -502,6 +531,8 @@ export function UploadZone() {
                 <br />
                 Cela peut prendre quelques minutes.
               </p>
+              
+
               
               {/* Barre de progression */}
               <div className="mb-6">

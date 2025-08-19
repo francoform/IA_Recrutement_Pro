@@ -42,7 +42,7 @@ export default function HomePage() {
       <div className="relative z-10 h-full flex flex-col justify-center">
         <div className="flex-1 flex flex-col justify-center">
           <Hero />
-          <div className="mt-8">
+          <div className="">
             <Features />
           </div>
         </div>

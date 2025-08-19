@@ -2,7 +2,7 @@ import { Brain, Target, Zap } from 'lucide-react'
 
 export function Features() {
   return (
-    <section className="container mx-auto px-6 py-16">
+    <section className="container mx-auto px-6 py-0">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
         <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10 hover:bg-white/10 transition-all duration-300">
           <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-3 rounded-xl w-fit mb-4 shadow-lg">
