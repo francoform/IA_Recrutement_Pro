@@ -25,7 +25,6 @@ import {
   Star,
   Download,
   Mail,
-  Calendar,
   X,
   Send,
   FileText
@@ -420,8 +419,7 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
   setEmailPopup({ isOpen: true, candidate: c });
   };
 
-  const handleScheduleMeeting = (c: Candidate) =>
-    alert(`Planification d'un rendez-vous avec ${c["full-name"]}\nEmail: ${c.email}\n\nFonctionnalité à venir.`);
+
 
   const closeDocumentPopup = () =>
     setDocumentPopup({ isOpen: false, type: null, candidate: null, content: '' });
@@ -601,7 +599,6 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
                           </div>
                           <div className="flex items-center space-x-3">
                             <div className="relative group"><button onClick={() => handleSendEmail(sorted[0])} className="p-2 rounded-lg bg-yellow-500/20 hover:bg-yellow-500/30 transition-all duration-300 border border-yellow-500/30"><Mail className="w-5 h-5 text-yellow-400" /></button><div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-2 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">Envoyer un email</div></div>
-                            <div className="relative group"><button onClick={() => handleScheduleMeeting(sorted[0])} className="p-2 rounded-lg bg-yellow-500/20 hover:bg-yellow-500/30 transition-all duration-300 border border-yellow-500/30"><Calendar className="w-5 h-5 text-yellow-400" /></button><div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-2 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">Planifier un RDV</div></div>
                           </div>
                         </div>
                       </div>
@@ -752,7 +749,6 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
 
                         <div className="flex items-center justify-center space-x-2 mb-4">
                           <div className="relative group"><button onClick={(e) => { e.stopPropagation(); handleSendEmail(c); }} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-300 border border-white/10"><Mail className="w-4 h-4 text-white" /></button></div>
-                          <div className="relative group"><button onClick={(e) => { e.stopPropagation(); handleScheduleMeeting(c); }} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-all duration-300 border border-white/10"><Calendar className="w-4 h-4 text-white" /></button></div>
                         </div>
 
                         {/* Informations en ligne comme le meilleur candidat */}
