@@ -4,30 +4,46 @@ import { Footer } from '@/components/layout/footer'
 import Image from 'next/image'
 
 export const metadata: Metadata = {
-  title: 'Service IA - Analyse automatique de CV et lettres de motivation | IA Recrutement Pro',
-  description: 'Uploadez vos CV et lettres de motivation pour une analyse automatique par IA. Scoring intelligent, classement des candidats et gain de temps de 90% dans votre processus de recrutement.',
+  title: 'Upload CV IA Gratuit - Analyse automatique pour TPE, PME et artisans | IA Recrutement Pro',
+  description: 'Uploadez gratuitement vos CV et lettres de motivation. Analyse IA instantanée, scoring automatique et classement des candidats. Parfait pour TPE, PME et artisans. Résultats en 2 minutes !',
   
   keywords: [
-    "upload CV IA",
+    // Mots-clés upload et gratuit
+    "upload CV IA gratuit",
+    "analyse CV gratuite en ligne",
+    "tri CV gratuit automatique",
+    "scoring candidats gratuit",
+    "upload lettre motivation IA",
+    "analyse candidature gratuite",
+    // Mots-clés TPE/PME/Artisans
+    "recrutement TPE gratuit",
+    "outil recrutement PME",
+    "aide recrutement artisan",
+    "sélection candidats TPE",
+    "tri CV petite entreprise",
+    "recrutement sans RH",
+    // Mots-clés fonctionnalités
     "analyse lettre motivation automatique",
     "service recrutement IA",
     "scoring candidats intelligent",
     "tri automatique CV",
     "évaluation candidatures IA",
     "matching profil poste",
-    "analyse compétences IA"
+    "analyse compétences IA",
+    "classement candidats automatique",
+    "présélection CV rapide"
   ].join(", "),
 
   openGraph: {
-    title: 'Service IA - Analyse automatique de CV et lettres de motivation',
-    description: 'Uploadez vos CV et lettres de motivation pour une analyse automatique par IA. Scoring intelligent et classement des candidats.',
-    url: 'https://ia-recrutement-pro.com/services/ia',
+    title: 'Upload CV IA Gratuit - Analyse automatique pour TPE, PME et artisans',
+    description: 'Uploadez gratuitement vos CV et lettres de motivation. Analyse IA instantanée, scoring automatique et classement des candidats. Résultats en 2 minutes !',
+    url: 'https://ia-recrutement-pro.francoform.com/services/ia',
   },
 }
 
 export default function IAServicePage() {
   return (
-    <div className="h-screen overflow-auto">
+    <div className="min-h-screen overflow-auto md:h-screen">
       <div className="min-h-full flex flex-col">
         {/* Header de la page */}
         <div className="flex-shrink-0 text-center py-8">
@@ -52,7 +68,7 @@ export default function IAServicePage() {
         
         {/* Zone de contenu principal */}
         <div className="flex-1 flex items-center justify-center">
-          <div className="w-full max-w-6xl mx-auto px-4 md:px-6">
+          <div className="w-full max-w-6xl mx-auto px-1 md:px-6">
             <UploadZone />
           </div>
         </div>

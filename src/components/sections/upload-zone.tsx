@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import { Upload, FileText, Trash2, AlertTriangle, CheckCircle, Briefcase, Heart, User, Clock, Zap } from 'lucide-react'
+import { Upload, FileText, Trash2, User, Heart, Briefcase, Zap, CheckCircle, Clock, AlertTriangle } from 'lucide-react'
+import { EmailVerificationPopup } from '@/components/auth/email-verification-popup'
 
 interface FileValidationResult {
   isValid: boolean
@@ -26,8 +27,7 @@ export function UploadZone() {
   const [dragOverZone, setDragOverZone] = useState<string | null>(null)
   const [showLoadingPopup, setShowLoadingPopup] = useState(false)
   const [analysisProgress, setAnalysisProgress] = useState(0)
-
-
+  const [showEmailVerification, setShowEmailVerification] = useState(false)
 
   // Vérification des doublons
   const checkForDuplicates = (newFiles: File[], existingFiles: File[], type: keyof FilesByType): string[] => {
@@ -197,6 +197,34 @@ export function UploadZone() {
   const handleSubmit = async () => {
     if (!canAnalyze()) return
     
+    // Vérifier d'abord si l'utilisateur a une session valide
+    try {
+      const response = await fetch('/api/auth/validate-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      
+      const result = await response.json()
+      
+      if (!result.valid) {
+        // Session invalide ou expirée, déclencher la vérification email
+        setShowEmailVerification(true)
+        return
+      }
+      
+      // Session valide, procéder à l'analyse
+      await performAnalysis()
+      
+    } catch (error) {
+      console.error('Erreur lors de la validation de session:', error)
+      // En cas d'erreur, déclencher la vérification email par sécurité
+      setShowEmailVerification(true)
+    }
+  }
+
+  const performAnalysis = async () => {
     setIsUploading(true)
     setShowLoadingPopup(true)
     setAnalysisProgress(0)
@@ -276,7 +304,7 @@ export function UploadZone() {
       
       // Attendre un peu pour montrer 100% puis rediriger
       setTimeout(() => {
-        window.location.href = "/recruiter-results"
+        window.location.replace("/recruiter-results")
       }, 1500)
       
     } catch (err) {
@@ -433,8 +461,8 @@ export function UploadZone() {
 
   return (
     <section className="w-full px-0 py-0 md:container md:mx-auto md:px-6">
-      <div className="max-w-4xl mx-auto px-4 md:px-0">
-        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-4 md:p-8 border border-white/10 mx-2 md:mx-0">
+      <div className="max-w-4xl mx-auto px-1 md:px-0">
+        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-4 md:p-8 border border-white/10 mx-1 md:mx-0">
           <h2 className="text-2xl font-semibold mb-6 text-center">Uploadez vos fichiers de recrutement</h2>
           
           {/* Instructions */}
@@ -515,6 +543,16 @@ export function UploadZone() {
                 `Analyser ${calculateCandidates()} candidat${calculateCandidates() > 1 ? 's' : ''}`
               )}
             </button>
+
+            {/* Popup de vérification email */}
+            <EmailVerificationPopup
+              isOpen={showEmailVerification}
+              onClose={() => setShowEmailVerification(false)}
+              onVerificationSuccess={() => {
+                setShowEmailVerification(false)
+                window.location.href = '/services/ia'
+              }}
+            />
           </div>
         </div>
       </div>

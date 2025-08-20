@@ -1,0 +1,220 @@
+import nodemailer from 'nodemailer'
+import { NextRequest, NextResponse } from 'next/server'
+import { generateVerificationCode, storeVerificationCode, getVerificationData } from '@/lib/verification-store'
+
+// Configuration SMTP O2Switch
+const transporter = nodemailer.createTransport({
+  host: 'kitty.o2switch.net',
+  port: 465,
+  secure: true,
+  auth: {
+    user: 'noreply@francoform.com',
+    pass: process.env.SMTP_PASSWORD
+  }
+})
+
+// Template HTML pour l'email de vérification
+const getEmailTemplate = (code: string) => `
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code de vérification - IA Recrutement Pro</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #0891b2 0%, #1e40af 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .header p {
+            color: #e0f2fe;
+            margin: 10px 0 0 0;
+            font-size: 16px;
+        }
+        .content {
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .content h2 {
+            color: #1e293b;
+            margin: 0 0 20px 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .content p {
+            color: #64748b;
+            margin: 0 0 30px 0;
+            font-size: 16px;
+        }
+        .code-container {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border: 2px solid #0891b2;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            display: inline-block;
+        }
+        .verification-code {
+            font-size: 36px;
+            font-weight: 700;
+            color: #0891b2;
+            letter-spacing: 8px;
+            margin: 0;
+            font-family: 'Courier New', monospace;
+        }
+        .code-label {
+            color: #475569;
+            font-size: 14px;
+            margin: 10px 0 0 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .warning {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        .warning p {
+            color: #92400e;
+            margin: 0;
+            font-size: 14px;
+        }
+        .footer {
+            background-color: #f8fafc;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+        .footer p {
+            color: #64748b;
+            margin: 0;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #0891b2;
+            text-decoration: none;
+        }
+        .security-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px auto;
+            background: linear-gradient(135deg, #0891b2 0%, #1e40af 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ IA Recrutement Pro</h1>
+            <p>Votre solution de recrutement intelligente</p>
+        </div>
+        
+        <div class="content">
+            <div class="security-icon">
+                <span style="color: white; font-size: 24px;">🔐</span>
+            </div>
+            
+            <h2>Code de vérification</h2>
+            <p>Voici votre code de vérification pour accéder à notre service :</p>
+            
+            <div class="code-container">
+                <div class="verification-code">${code}</div>
+                <div class="code-label">Code de vérification</div>
+            </div>
+            
+            <p>Ce code est valide pendant <strong>10 minutes</strong>.</p>
+            
+            <div class="warning">
+                <p><strong>⚠️ Important :</strong> Si vous n'avez pas demandé ce code, ignorez cet email. Ne partagez jamais ce code avec qui que ce soit.</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Cet email a été envoyé automatiquement par <a href="https://ia-recrutement-pro.francoform.com">IA Recrutement Pro</a></p>
+            <p>© 2024 IA Recrutement Pro - Tous droits réservés</p>
+        </div>
+    </div>
+</body>
+</html>
+`
+
+export async function POST(request: NextRequest) {
+  try {
+    const { email } = await request.json()
+
+    // Validation de l'email
+    if (!email || !email.includes('@')) {
+      return NextResponse.json(
+        { error: 'Adresse email invalide' },
+        { status: 400 }
+      )
+    }
+
+    // Vérifier les tentatives précédentes (limite de 3 par heure)
+    const existingData = getVerificationData(email)
+    const now = Date.now()
+    const oneHour = 60 * 60 * 1000
+
+    if (existingData && existingData.attempts >= 3 && (now - (existingData.expires - 10 * 60 * 1000)) < oneHour) {
+      return NextResponse.json(
+        { error: 'Trop de tentatives. Veuillez réessayer dans une heure.' },
+        { status: 429 }
+      )
+    }
+
+    // Générer un code de vérification à 6 chiffres
+    const code = generateVerificationCode()
+    
+    // Stocker le code avec expiration (10 minutes)
+    storeVerificationCode(email, code, 10)
+
+    // Envoyer l'email
+    await transporter.sendMail({
+      from: '"IA Recrutement Pro" <noreply@francoform.com>',
+      to: email,
+      subject: '🔐 Votre code de vérification - IA Recrutement Pro',
+      html: getEmailTemplate(code),
+      text: `Votre code de vérification pour IA Recrutement Pro est : ${code}\n\nCe code est valide pendant 10 minutes.\n\nSi vous n'avez pas demandé ce code, ignorez cet email.`
+    })
+
+    return NextResponse.json(
+      { message: 'Code envoyé avec succès' },
+      { status: 200 }
+    )
+
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi du code:', error)
+    return NextResponse.json(
+      { error: 'Erreur lors de l\'envoi du code' },
+      { status: 500 }
+    )
+  }
+}

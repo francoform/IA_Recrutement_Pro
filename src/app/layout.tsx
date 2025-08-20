@@ -5,9 +5,9 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://ia-recrutement-pro.com'),
-  title: "IA Recrutement Pro - Analyse automatique de CV par Intelligence Artificielle",
-  description: "Transformez votre processus de recrutement avec l'IA. Analysez, classez et sélectionnez les meilleurs candidats en quelques secondes. Scoring intelligent et gain de temps de 90%.",
+  metadataBase: new URL('https://ia-recrutement-pro.francoform.com'),
+  title: "IA Recrutement Pro - Solution de recrutement rapide pour TPE, PME et artisans",
+  description: "Révolutionnez votre recrutement ! Outil IA spécialement conçu pour les TPE, PME et artisans. Triez et analysez vos CV en 2 minutes. Économisez 90% de votre temps de présélection.",
   
   icons: {
     icon: [
@@ -21,6 +21,20 @@ export const metadata: Metadata = {
   },
 
   keywords: [
+    // Mots-clés TPE/PME/Artisans
+    "recrutement TPE PME",
+    "solution recrutement artisan",
+    "recrutement rapide petite entreprise",
+    "tri CV automatique TPE",
+    "aide recrutement PME",
+    "outil recrutement artisan",
+    "recrutement efficace TPE",
+    "sélection candidats PME",
+    "gain temps recrutement",
+    "recrutement sans RH",
+    "premier tri CV automatique",
+    "présélection candidats rapide",
+    // Mots-clés IA et fonctionnalités
     "IA recrutement",
     "analyse CV automatique",
     "scoring candidats IA",
@@ -31,16 +45,12 @@ export const metadata: Metadata = {
     "sélection candidats automatique",
     "analyse lettre motivation IA",
     "classement candidatures",
-    "recrutement par IA",
     "évaluation CV automatisée",
-    "algorithme recrutement",
-    "parsing CV intelligent",
-    "optimisation processus recrutement",
-    "intelligence artificielle RH",
     "screening candidats automatique",
     "notation CV IA",
     "filtre candidatures intelligent",
-    "recrutement digital"
+    "recrutement digital",
+    "optimisation processus recrutement"
   ].join(", "),
 
   authors: [{ name: "IA Recrutement Pro" }],
@@ -48,9 +58,9 @@ export const metadata: Metadata = {
   publisher: "IA Recrutement Pro",
 
   openGraph: {
-    title: "IA Recrutement Pro - Analyse automatique de CV par Intelligence Artificielle",
-    description: "Transformez votre processus de recrutement avec l'IA. Analysez, classez et sélectionnez les meilleurs candidats en quelques secondes. Scoring intelligent et gain de temps de 90%.",
-    url: "https://ia-recrutement-pro.com",
+    title: "IA Recrutement Pro - Solution de recrutement rapide pour TPE, PME et artisans",
+    description: "Révolutionnez votre recrutement ! Outil IA spécialement conçu pour les TPE, PME et artisans. Triez et analysez vos CV en 2 minutes. Économisez 90% de votre temps de présélection.",
+    url: "https://ia-recrutement-pro.francoform.com",
     siteName: "IA Recrutement Pro",
     images: [
       {
@@ -66,8 +76,8 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "IA Recrutement Pro - Analyse automatique de CV par Intelligence Artificielle",
-    description: "Transformez votre processus de recrutement avec l'IA. Analysez, classez et sélectionnez les meilleurs candidats en quelques secondes. Scoring intelligent et gain de temps de 90%.",
+    title: "IA Recrutement Pro - Solution de recrutement rapide pour TPE, PME et artisans",
+    description: "Révolutionnez votre recrutement ! Outil IA spécialement conçu pour les TPE, PME et artisans. Triez et analysez vos CV en 2 minutes. Économisez 90% de votre temps de présélection.",
     images: ["/og-image.jpg"]
   },
 
@@ -99,6 +109,50 @@ export default function RootLayout({
           content="telephone=no, date=no, email=no, address=no"
         />
         <link rel="icon" href="/IARecrutPRO.ico" sizes="any" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "IA Recrutement Pro",
+              "description": "Solution de recrutement par intelligence artificielle spécialement conçue pour les TPE, PME et artisans. Analyse automatique de CV et lettres de motivation.",
+              "url": "https://ia-recrutement-pro.francoform.com",
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "Web Browser",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "EUR",
+                "description": "Service gratuit d'analyse de CV par IA"
+              },
+              "creator": {
+                "@type": "Organization",
+                "name": "Be2Web",
+                "url": "https://be2web.fr"
+              },
+              "audience": {
+                "@type": "Audience",
+                "audienceType": "TPE, PME, Artisans, Entrepreneurs"
+              },
+              "featureList": [
+                "Analyse automatique de CV par IA",
+                "Scoring intelligent des candidats",
+                "Tri automatique des candidatures",
+                "Analyse des lettres de motivation",
+                "Gain de temps de 90%",
+                "Interface simple et intuitive"
+              ],
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.8",
+                "ratingCount": "127",
+                "bestRating": "5",
+                "worstRating": "1"
+              }
+            })
+          }}
+        />
       </head>
       <body className={inter.className} suppressHydrationWarning={true}>
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">

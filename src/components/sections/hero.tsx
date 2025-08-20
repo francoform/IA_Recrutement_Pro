@@ -1,6 +1,10 @@
 import Image from 'next/image'
 
-export function Hero() {
+interface HeroProps {
+  onStartAnalysis?: () => void
+}
+
+export function Hero({ onStartAnalysis }: HeroProps) {
   return (
     <section className="container mx-auto px-6 py-12 md:py-16 lg:py-20 text-center">
       <div className="flex justify-center items-center mb-4 md:mb-6">
@@ -25,12 +29,12 @@ export function Hero() {
       </p>
       
       <div className="flex flex-col sm:flex-row gap-4 justify-center mb-2 md:mb-4">
-        <a 
-          href="/services/ia" 
+        <button 
+          onClick={onStartAnalysis}
           className="bg-gradient-to-r from-cyan-400 to-cyan-600 text-white px-8 py-4 rounded-xl font-semibold hover:shadow-xl transition-all duration-300"
         >
           Commencer l&apos;analyse
-        </a>
+        </button>
         <a 
           href="/about" 
           className="border border-cyan-400 text-cyan-400 px-8 py-4 rounded-xl font-semibold hover:bg-cyan-400 hover:text-black transition-all duration-300"

@@ -629,7 +629,7 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
                                                  'bg-red-500/20 text-red-300 border-red-500/30';
                                 return (
                                   <div key={skillName} className={`${scoreColor} rounded-lg px-3 py-2 text-sm border flex justify-between items-center`}>
-                                    <span className="truncate" title={displayName}>{displayName.length > 15 ? displayName.substring(0, 15) + '...' : displayName}</span>
+                                    <span title={displayName}>{displayName}</span>
                                     <span className="font-bold ml-2 text-lg">{skillValue}</span>
                                   </div>
                                 );
@@ -782,7 +782,7 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
                                                      'bg-red-500/20 text-red-300';
                                     return (
                                       <div key={skillName} className={`${scoreColor} rounded px-2 py-1 text-xs flex justify-between items-center`}>
-                                        <span className="truncate" title={displayName}>{displayName.length > 12 ? displayName.substring(0, 12) + '...' : displayName}</span>
+                                        <span title={displayName}>{displayName}</span>
                                         <span className="font-bold ml-1">{skillValue}</span>
                                       </div>
                                     );
