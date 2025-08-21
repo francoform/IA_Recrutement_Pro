@@ -88,7 +88,10 @@ export async function GET(request: NextRequest) {
         totalVerifications: analytics.totalVerifications,
         totalBlocked: analytics.totalBlocked,
         totalAnalyses: analytics.totalAnalyses,
-        totalRateLimits: rateLimitStats?.length || 0
+        ipLimits: rateLimitStats?.filter(r => r.type === 'ip').length || 0,
+        emailLimits: rateLimitStats?.filter(r => r.type === 'email').length || 0,
+        suspiciousIPs: analytics.suspiciousActivities.filter(a => a.timestamp > Date.now() - 24 * 60 * 60 * 1000).length,
+        blockedIPs: analytics.suspiciousActivities.filter(a => a.action === 'blocked').length
       },
       charts: {
         daily: dailyData,

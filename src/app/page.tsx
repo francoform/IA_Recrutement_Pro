@@ -175,36 +175,41 @@ function HomePageContent() {
     }
   }
   return (
-    <main className="min-h-screen h-screen overflow-y-auto scrollbar-hide relative">
-      {/* Animation WebGL de fond */}
-      <AnimationBackground />
-      
-      {/* Background de base harmonisé */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Gradient de base - Bleu foncé harmonisé avec l'animation */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900"></div>
+    <>
+      {/* Background fixe sur toute la viewport */}
+      <div className="fixed inset-0 z-0">
+        {/* Animation WebGL de fond */}
+        <AnimationBackground />
         
-        {/* Overlay pour adoucir et harmoniser avec l'animation WebGL */}
-        <div className="absolute inset-0 bg-black/30"></div>
+        {/* Background de base harmonisé */}
+        <div className="absolute inset-0 overflow-hidden">
+          {/* Gradient de base - Bleu foncé harmonisé avec l'animation */}
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900"></div>
+          
+          {/* Overlay pour adoucir et harmoniser avec l'animation WebGL */}
+          <div className="absolute inset-0 bg-black/30"></div>
+        </div>
       </div>
       
-      {/* Contenu centré */}
-      <div className="relative z-10 min-h-screen flex flex-col">
-        <div className="flex-1 flex flex-col justify-center py-8 md:py-0">
-          <Hero onStartAnalysis={handleStartAnalysis} />
-          <div className="mb-12">
-            <Features />
+      {/* Contenu scrollable */}
+      <main className="relative z-10 min-h-screen overflow-y-auto scrollbar-hide">
+        <div className="min-h-screen flex flex-col">
+          <div className="flex-1 flex flex-col justify-center py-8 md:py-0">
+            <Hero onStartAnalysis={handleStartAnalysis} />
+            <div className="mb-12">
+              <Features />
+            </div>
+            
+            {/* Hero Banner entre les fonctionnalités et le footer */}
+            <div className="my-16">
+              <HeroBanner />
+            </div>
           </div>
           
-          {/* Hero Banner entre les fonctionnalités et le footer */}
-          <div className="my-16">
-            <HeroBanner />
-          </div>
+          {/* Footer */}
+          <Footer />
         </div>
-        
-        {/* Footer */}
-        <Footer />
-      </div>
+      </main>
 
       {/* Popup d'authentification */}
       {showAuthPopup && (
@@ -226,9 +231,7 @@ function HomePageContent() {
           maxCount={rateLimitData.max}
         />
       )}
-
-
-    </main>
+    </>
   )
 }
 
