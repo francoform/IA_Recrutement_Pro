@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getRateLimitStats } from '@/lib/rate-limiter'
 import { recordAnalyticsEvent, getAnalyticsData } from '@/lib/analytics'
+import { supabase } from '@/lib/supabase'
 
 // Fonction pour obtenir la clé du jour
 function getDayKey(date: Date = new Date()): string {
@@ -26,9 +26,15 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Obtenir les données analytics et les statistiques de rate limiting
+    // Obtenir les données analytics et les statistiques de Supabase
     const analytics = getAnalyticsData()
-    const rateLimitStats = getRateLimitStats()
+    
+    // Obtenir les statistiques depuis Supabase
+    const { data: rateLimitStats } = await supabase
+      .from('rate_limits')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(100)
 
     // Préparer les données pour l'affichage
     const last7Days = Array.from({ length: 7 }, (_, i) => {
@@ -82,7 +88,7 @@ export async function GET(request: NextRequest) {
         totalVerifications: analytics.totalVerifications,
         totalBlocked: analytics.totalBlocked,
         totalAnalyses: analytics.totalAnalyses,
-        ...rateLimitStats
+        totalRateLimits: rateLimitStats?.length || 0
       },
       charts: {
         daily: dailyData,

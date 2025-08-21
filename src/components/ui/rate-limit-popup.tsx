@@ -6,7 +6,7 @@ import { X, Clock, AlertTriangle } from 'lucide-react';
 interface RateLimitPopupProps {
   isOpen: boolean;
   onClose: () => void;
-  resetTime?: string; // Timestamp de reset
+  resetTime?: number; // Timestamp de reset en millisecondes
   limitType: 'ip' | 'email';
   currentCount: number;
   maxCount: number;
@@ -26,8 +26,8 @@ export default function RateLimitPopup({
     if (!resetTime) return;
 
     const updateTimer = () => {
-      const now = new Date().getTime();
-      const reset = new Date(resetTime).getTime();
+      const now = Date.now();
+      const reset = resetTime;
       const diff = reset - now;
 
       if (diff <= 0) {

@@ -1,10 +1,24 @@
 import Image from 'next/image'
+import { useState } from 'react'
 
 interface HeroProps {
   onStartAnalysis?: () => void
 }
 
 export function Hero({ onStartAnalysis }: HeroProps) {
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleClick = async () => {
+    console.log('🔥 Hero: Bouton cliqué, déclenchement de onStartAnalysis')
+    setIsLoading(true)
+    
+    // Toujours permettre le clic, la gestion des limites se fait dans onStartAnalysis
+    if (onStartAnalysis) {
+      onStartAnalysis()
+    }
+    
+    setIsLoading(false)
+  }
   return (
     <section className="container mx-auto px-6 py-12 md:py-16 lg:py-20 text-center">
       <div className="flex justify-center items-center mb-4 md:mb-6">
@@ -23,17 +37,24 @@ export function Hero({ onStartAnalysis }: HeroProps) {
         IA Recrutement Pro
       </h1>
       
-      <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed mb-6 md:mb-8">
+      <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed mb-4 md:mb-6">
         Transformez votre processus de recrutement avec l&apos;IA. 
         Analysez, classez et sélectionnez les meilleurs candidats en quelques secondes.
       </p>
       
+
+      
       <div className="flex flex-col sm:flex-row gap-4 justify-center mb-2 md:mb-4">
         <button 
-          onClick={onStartAnalysis}
-          className="bg-gradient-to-r from-cyan-400 to-cyan-600 text-white px-8 py-4 rounded-xl font-semibold hover:shadow-xl transition-all duration-300"
+          onClick={handleClick}
+          disabled={isLoading}
+          className={`
+            px-8 py-4 rounded-xl font-semibold transition-all duration-300 cursor-pointer
+            bg-gradient-to-r from-cyan-400 to-cyan-600 text-white hover:from-green-400 hover:to-green-600 hover:shadow-xl
+            ${isLoading ? 'opacity-50 cursor-wait' : ''}
+          `}
         >
-          Commencer l&apos;analyse
+          {isLoading ? 'Vérification...' : 'Commencer l\'analyse'}
         </button>
         <a 
           href="/about" 

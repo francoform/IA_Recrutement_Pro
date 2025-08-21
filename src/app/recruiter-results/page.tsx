@@ -452,7 +452,7 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
             <h2 className="text-xl font-semibold text-white mb-2">Erreur</h2>
             <p className="text-slate-300 mb-6">{error}</p>
             <button
-              onClick={() => (window.location.href = '/services/ia')}
+              onClick={() => router.push('/services/ia')}
               className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-6 py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               Retour à l'analyse
@@ -476,7 +476,7 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
         {/* Header */}
         <header className="relative">
           <button
-            onClick={() => (window.location.href = '/')}
+            onClick={() => router.push('/')}
             className="absolute left-0 top-0 flex items-center text-cyan-400 hover:text-cyan-300 transition-all duration-300 group bg-white/5 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10 hover:bg-white/10"
           >
             <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
@@ -484,7 +484,7 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
             <span className="ml-2 text-sm font-medium">Accueil</span>
           </button>
           <button
-            onClick={() => (window.location.href = '/services/ia')}
+            onClick={() => router.push('/services/ia')}
             className="absolute right-0 top-0 flex items-center text-emerald-400 hover:text-emerald-300 transition-all duration-300 group bg-white/5 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10 hover:bg-white/10"
           >
             <FileText className="w-5 h-5 mr-2" />

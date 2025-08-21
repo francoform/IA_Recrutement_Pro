@@ -1,6 +1,12 @@
 import nodemailer from 'nodemailer'
 import { NextRequest, NextResponse } from 'next/server'
-import { generateVerificationCode, storeVerificationCode, getVerificationData } from '@/lib/verification-store'
+import { isDisposableEmail } from '@/lib/disposable-email-detector'
+import { supabase } from '@/lib/supabase'
+
+// Fonction pour générer un code de vérification à 6 chiffres
+function generateVerificationCode(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString()
+}
 
 // Configuration SMTP O2Switch
 const transporter = nodemailer.createTransport({
@@ -178,23 +184,45 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Vérifier les tentatives précédentes (limite de 3 par heure)
-    const existingData = getVerificationData(email)
-    const now = Date.now()
-    const oneHour = 60 * 60 * 1000
-
-    if (existingData && existingData.attempts >= 3 && (now - (existingData.expires - 10 * 60 * 1000)) < oneHour) {
+    // Vérifier si l'email est temporaire/jetable
+    if (await isDisposableEmail(email)) {
       return NextResponse.json(
-        { error: 'Trop de tentatives. Veuillez réessayer dans une heure.' },
-        { status: 429 }
+        { error: 'Les adresses email temporaires ne sont pas autorisées. Veuillez utiliser une adresse email permanente.' },
+        { status: 400 }
       )
     }
+
+    // Vérifier si l'utilisateur existe déjà
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .single()
 
     // Générer un code de vérification à 6 chiffres
     const code = generateVerificationCode()
     
-    // Stocker le code avec expiration (10 minutes)
-    storeVerificationCode(email, code, 10)
+    // Créer ou mettre à jour l'utilisateur avec le code de vérification
+    if (existingUser) {
+      await supabase
+        .from('users')
+        .update({ 
+          verification_code: code,
+          code_generated_at: new Date().toISOString(),
+          verified: false,
+          updated_at: new Date().toISOString()
+        })
+        .eq('email', email)
+    } else {
+      await supabase
+        .from('users')
+        .insert({ 
+          email,
+          verification_code: code,
+          code_generated_at: new Date().toISOString(),
+          verified: false
+        })
+    }
 
     // Envoyer l'email
     await transporter.sendMail({

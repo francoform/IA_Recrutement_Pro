@@ -1,33 +1,45 @@
 'use client'
 
-import { Hero } from '@/components/sections/hero'
-import { Features } from '@/components/sections/features'
-import { Footer } from '@/components/layout/footer'
-import { AnimationBackground } from '@/components/ui/animation-background'
-import { EmailVerificationPopup } from '@/components/auth/email-verification-popup'
-import RateLimitPopup from '@/components/ui/rate-limit-popup'
-import GDPRPopup from '@/components/ui/gdpr-popup'
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
+import { Hero } from '@/components/sections/hero'
+import { Features } from '@/components/sections/features'
+import { EmailVerificationPopup } from '@/components/auth/email-verification-popup'
+import RateLimitPopup from '@/components/ui/rate-limit-popup'
+import { AnimationBackground } from '@/components/ui/animation-background'
+import { Footer } from '@/components/layout/footer'
+import { clearAllClientCaches } from '@/lib/cache-cleaner'
+import HeroBanner from '@/components/ui/hero-banner'
 
 function HomePageContent() {
+  const router = useRouter()
   const [showAuthPopup, setShowAuthPopup] = useState(false)
   const [showRateLimitPopup, setShowRateLimitPopup] = useState(false)
-  const [showGDPRPopup, setShowGDPRPopup] = useState(false)
   const [rateLimitData, setRateLimitData] = useState<{
     type: 'ip' | 'email';
     resetTime: number;
     current: number;
     max: number;
   } | null>(null)
-  const router = useRouter()
 
   useEffect(() => {
-    // Vérifier si l'utilisateur a déjà accepté le RGPD
-    const gdprAccepted = localStorage.getItem('gdpr-accepted');
-    if (!gdprAccepted) {
-      setShowGDPRPopup(true);
+    console.log('🏠 [DEBUG] Page d\'accueil chargée')
+    console.log('🍪 Cookies disponibles au chargement:', document.cookie)
+    console.log('📋 localStorage gdpr-accepted:', localStorage.getItem('gdpr-accepted'))
+    
+    // Nettoyer les caches côté client au démarrage pour un test propre
+    const shouldClearCache = new URLSearchParams(window.location.search).get('clear-cache');
+    if (shouldClearCache === 'true') {
+      console.log('🧹 Nettoyage des caches demandé')
+      clearAllClientCaches();
+      // Supprimer le paramètre de l'URL
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('clear-cache');
+      window.history.replaceState({}, '', newUrl.toString());
+      console.log('🧹 Caches nettoyés')
     }
+    
+    // La vérification RGPD est maintenant intégrée dans la popup de vérification email
 
     const urlParams = new URLSearchParams(window.location.search);
     const errorParam = urlParams.get('error');
@@ -68,40 +80,102 @@ function HomePageContent() {
 
   const handleRateLimitClose = () => {
     setShowRateLimitPopup(false)
-    setRateLimitData(null)
+    // Ne pas supprimer rateLimitData pour permettre la réaffichage
   }
 
-  const handleGDPRAccept = () => {
-    localStorage.setItem('gdpr-accepted', 'true')
-    setShowGDPRPopup(false)
-  }
 
-  const handleGDPRDecline = () => {
-    // Rediriger vers une page d'information ou fermer l'application
-    alert('Vous devez accepter la politique de confidentialité pour utiliser ce service.')
+
+  // Fonction utilitaire pour récupérer le token depuis les cookies
+  const getAuthToken = () => {
+    console.log('🔍 [DEBUG] Récupération du token d\'authentification...')
+    console.log('🍪 Tous les cookies disponibles:', document.cookie)
+    
+    const cookies = document.cookie.split(';')
+    const authCookie = cookies.find(cookie => cookie.trim().startsWith('supabase-session='))
+    console.log('🍪 Cookie supabase-session trouvé:', authCookie)
+    
+    if (!authCookie) {
+      console.log('❌ Aucun cookie supabase-session trouvé')
+      return null
+    }
+    
+    const rawToken = authCookie.split('=')[1].trim()
+    const token = decodeURIComponent(rawToken)
+    console.log('🔑 Token brut:', rawToken ? `${rawToken.substring(0, 20)}...` : 'null')
+    console.log('🔑 Token décodé:', token ? `${token.substring(0, 20)}...` : 'null')
+    return token
   }
 
   const handleStartAnalysis = async () => {
+    console.log('🚀 [DEBUG] ===== DÉBUT handleStartAnalysis =====')
+    console.log('🚀 [DEBUG] Clic sur "Commencer l\'analyse"')
+    console.log('🍪 Cookies avant vérification:', document.cookie)
+    
+    // Récupérer le token d'authentification
+    const token = getAuthToken()
+    
+    // Si aucun token n'est présent, afficher directement la popup d'authentification
+    if (!token) {
+      console.log('🔐 Aucun token présent, affichage popup d\'authentification')
+      setShowAuthPopup(true);
+      return;
+    }
+    
     try {
-      const response = await fetch('/api/auth/validate-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      const data = await response.json();
+      // Vérifier les limites de débit avec le token
+      console.log('📡 Vérification des limites de débit...')
       
-      if (data.valid) {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+      
+      console.log('🔑 Token ajouté à l\'en-tête Authorization')
+      
+      const checkResponse = await fetch('/api/analysis/check-limits', {
+        method: 'POST',
+        headers,
+      });
+      
+      console.log('📡 Réponse API check-limits:', checkResponse.status, checkResponse.statusText)
+      
+      if (checkResponse.status === 429) {
+        const limitData = await checkResponse.json();
+        console.log('⏰ Limite de débit atteinte, affichage popup')
+        setRateLimitData({
+          type: limitData.type || 'email',
+          current: limitData.current || 0,
+          max: limitData.max || 0,
+          resetTime: limitData.resetTime || Date.now() + 86400000
+        });
+        setShowRateLimitPopup(true);
+        return;
+      }
+      
+      if (checkResponse.status === 401) {
+        // Token invalide, afficher la popup d'authentification
+        console.log('🔐 Token invalide, affichage popup d\'authentification')
+        setShowAuthPopup(true);
+        return;
+      }
+      
+      const data = await checkResponse.json();
+      
+      if (data.allowed) {
+        console.log('✅ Limites OK, redirection vers /services/ia')
         router.push('/services/ia');
       } else {
+        console.log('🔐 Limites non respectées, affichage popup d\'authentification')
         setShowAuthPopup(true);
       }
-    } catch {
+    } catch (error) {
+      console.error('❌ Erreur lors de la vérification des limites:', error)
+      console.log('🔐 Erreur réseau, affichage popup d\'authentification par sécurité')
       setShowAuthPopup(true);
     }
-  };
+  }
   return (
-    <main className="min-h-screen overflow-auto relative md:h-screen md:overflow-hidden">
+    <main className="min-h-screen h-screen overflow-y-auto scrollbar-hide relative">
       {/* Animation WebGL de fond */}
       <AnimationBackground />
       
@@ -115,15 +189,20 @@ function HomePageContent() {
       </div>
       
       {/* Contenu centré */}
-      <div className="relative z-10 min-h-screen flex flex-col md:h-full md:justify-center">
+      <div className="relative z-10 min-h-screen flex flex-col">
         <div className="flex-1 flex flex-col justify-center py-8 md:py-0">
           <Hero onStartAnalysis={handleStartAnalysis} />
-          <div className="">
+          <div className="mb-12">
             <Features />
+          </div>
+          
+          {/* Hero Banner entre les fonctionnalités et le footer */}
+          <div className="my-16">
+            <HeroBanner />
           </div>
         </div>
         
-        {/* Footer fixé en bas */}
+        {/* Footer */}
         <Footer />
       </div>
 
@@ -141,19 +220,14 @@ function HomePageContent() {
         <RateLimitPopup
           isOpen={showRateLimitPopup}
           onClose={handleRateLimitClose}
-          resetTime={new Date(rateLimitData.resetTime).toISOString()}
+          resetTime={rateLimitData.resetTime}
           limitType={rateLimitData.type}
           currentCount={rateLimitData.current}
           maxCount={rateLimitData.max}
         />
       )}
 
-      {/* Popup RGPD */}
-      <GDPRPopup
-        isOpen={showGDPRPopup}
-        onAccept={handleGDPRAccept}
-        onDecline={handleGDPRDecline}
-      />
+
     </main>
   )
 }

@@ -2,7 +2,7 @@
 
 export function Footer() {
   return (
-    <footer className="mt-20 pb-8">
+    <footer className="mt-0 pb-8">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             {/* Footer simple sans logo */}
             <button 

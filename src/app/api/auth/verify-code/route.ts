@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAuthToken } from '@/lib/auth-utils'
-import { verifyCode } from '@/lib/verification-store'
+import { AuthService } from '@/lib/auth-service'
+import { supabase } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,57 +15,62 @@ export async function POST(request: NextRequest) {
     }
 
     // Logs de débogage
-    console.log('🔍 Vérification du code:', { email, code })
+    console.log('🔍 [SUPABASE-AUTH] Vérification du code:', { email, code })
     
-    // Vérifier le code
-    const verification = verifyCode(email, code)
-    console.log('📊 Résultat de vérification:', verification)
+    // Vérifier le code avec Supabase
+    const verification = await AuthService.verifyCode(email, code)
+    console.log('📊 [SUPABASE-AUTH] Résultat de vérification:', verification)
     
-    if (verification.expired) {
-      console.log('❌ Code expiré pour:', email)
+    if (!verification.success) {
+      console.log('❌ [SUPABASE-AUTH] Échec de vérification:', verification.error)
       return NextResponse.json(
-        { error: 'Code expiré ou invalide' },
+        { error: verification.error || 'Code incorrect ou expiré' },
         { status: 400 }
       )
     }
 
-    if (!verification.valid) {
-      return NextResponse.json(
-        { error: 'Code incorrect' },
-        { status: 400 }
-      )
-    }
+    // Créer un token de session
+    const sessionToken = await AuthService.createSessionToken(email)
+    console.log('🔑 [SUPABASE-AUTH] Token de session créé')
 
-    // Créer le JWT token (valide 24h)
-    const token = await createAuthToken(email, true)
+    // Récupérer les données utilisateur
+    const { data: user } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .single()
 
     // Créer la réponse avec le cookie sécurisé
     const response = NextResponse.json(
       { 
         message: 'Vérification réussie',
-        verified: true
+        verified: true,
+        user: {
+          id: user?.id,
+          email: user?.email,
+          verified: user?.verified
+        }
       },
       { status: 200 }
     )
 
-    // Définir le cookie sécurisé (24h)
-    response.cookies.set('auth-session', token, {
-      httpOnly: true,
+    // Définir le cookie accessible côté client (24h)
+    response.cookies.set('supabase-session', sessionToken, {
+      httpOnly: false, // Permet l'accès côté client
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 24 * 60 * 60, // 24h en secondes
       path: '/'
     })
 
+    console.log('✅ [SUPABASE-AUTH] Vérification réussie pour:', email)
     return response
 
   } catch (error) {
-    console.error('Erreur lors de la vérification:', error)
+    console.error('❌ [SUPABASE-AUTH] Erreur lors de la vérification:', error)
     return NextResponse.json(
       { error: 'Erreur lors de la vérification' },
       { status: 500 }
     )
   }
 }
-
-// Note: verifyAuthToken a été déplacé vers /lib/auth-utils.ts pour compatibilité Edge Runtime

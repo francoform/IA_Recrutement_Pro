@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react'
 import { Upload, FileText, Trash2, User, Heart, Briefcase, Zap, CheckCircle, Clock, AlertTriangle } from 'lucide-react'
 import { EmailVerificationPopup } from '@/components/auth/email-verification-popup'
+// Services Supabase importés mais utilisés indirectement via les APIs
 
 interface FileValidationResult {
   isValid: boolean
@@ -28,6 +29,9 @@ export function UploadZone() {
   const [showLoadingPopup, setShowLoadingPopup] = useState(false)
   const [analysisProgress, setAnalysisProgress] = useState(0)
   const [showEmailVerification, setShowEmailVerification] = useState(false)
+  const [showRateLimitPopup, setShowRateLimitPopup] = useState(false)
+  const [rateLimitMessage, setRateLimitMessage] = useState('')
+  const [rateLimitType, setRateLimitType] = useState<'hourly' | 'daily'>('hourly')
 
   // Vérification des doublons
   const checkForDuplicates = (newFiles: File[], existingFiles: File[], type: keyof FilesByType): string[] => {
@@ -194,37 +198,124 @@ export function UploadZone() {
            files.cvs.length === files.motivationLetters.length
   }
 
-  const handleSubmit = async () => {
-    if (!canAnalyze()) return
+  // Fonction utilitaire pour récupérer le token Supabase depuis les cookies
+  const getAuthToken = () => {
+    console.log('🔍 [DEBUG] Vérification de la session Supabase...')
+    console.log('🍪 Tous les cookies disponibles:', document.cookie)
     
-    // Vérifier d'abord si l'utilisateur a une session valide
+    const cookies = document.cookie.split(';')
+    const authCookie = cookies.find(cookie => cookie.trim().startsWith('supabase-session='))
+    console.log('🍪 Cookie supabase-session trouvé:', authCookie)
+    
+    if (!authCookie) {
+      console.log('❌ Aucun cookie supabase-session trouvé - session expirée ou perdue')
+      return null
+    }
+    
+    const token = decodeURIComponent(authCookie.split('=')[1].trim())
+    console.log('🔑 Token Supabase extrait:', token ? `${token.substring(0, 20)}...` : 'null')
+    
+    return token
+  }
+
+  const handleSubmit = async () => {
+    console.log('🎯 === DÉBUT HANDLESUBMIT ===');
+    console.log('🎯 canAnalyze():', canAnalyze());
+    
+    if (!canAnalyze()) {
+      console.log('❌ canAnalyze() retourne false - arrêt');
+      return;
+    }
+    
     try {
-      const response = await fetch('/api/auth/validate-session', {
+      console.log('🔑 === RÉCUPÉRATION TOKEN ===');
+      // Récupérer le token d'authentification
+      const token = getAuthToken();
+      console.log('🔑 Token récupéré:', token ? 'PRÉSENT' : 'ABSENT');
+      console.log('🔑 Longueur du token:', token?.length || 0);
+      
+      if (!token) {
+        console.log('❌ Pas de token - affichage vérification email');
+        setShowEmailVerification(true);
+        return;
+      }
+
+      console.log('🚦 === VÉRIFICATION RATE-LIMITING SUPABASE ===');
+      console.log('🚦 Appel de /api/analysis/check-limits...');
+      
+      // Vérifier directement les limites avec le token Supabase
+      const limitsResponse = await fetch('/api/analysis/check-limits', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
       })
       
-      const result = await response.json()
+      console.log('🚦 Réponse check-limits reçue:', {
+        status: limitsResponse.status,
+        statusText: limitsResponse.statusText,
+        ok: limitsResponse.ok
+      })
       
-      if (!result.valid) {
-        // Session invalide ou expirée, déclencher la vérification email
+      const limitsResult = await limitsResponse.json()
+      console.log('🚦 Données check-limits parsées:', limitsResult)
+      
+      // Si le token est invalide, l'API retournera une erreur 401
+      if (limitsResponse.status === 401) {
+        console.log('❌ Token Supabase invalide (401) - affichage vérification email')
         setShowEmailVerification(true)
         return
       }
       
-      // Session valide, procéder à l'analyse
-      await performAnalysis()
+      if (!limitsResult.allowed) {
+        console.log('🚫 Rate limit atteint - affichage popup')
+        console.log('🚫 Détails rate limit:', {
+          current: limitsResult.current,
+          max: limitsResult.max,
+          type: limitsResult.type
+        })
+        
+        // Rate limit atteint, afficher la popup
+        const message = `Vous avez effectué ${limitsResult.current}/${limitsResult.max} analyses autorisées aujourd'hui.\n\nVotre quota sera réinitialisé demain à minuit.`
+        
+        setRateLimitMessage(message)
+        setRateLimitType('daily')
+        setShowRateLimitPopup(true)
+        return
+      }
+      
+      console.log('✅ Rate limit OK - procéder à l\'analyse');
+      console.log('✅ Limites actuelles:', {
+        current: limitsResult.current,
+        max: limitsResult.max,
+        type: limitsResult.type
+      });
+      
+      // Token valide et pas de rate limiting, procéder à l'analyse
+      console.log('🚀 Appel de performAnalysis avec le token...');
+      await performAnalysis(token);
       
     } catch (error) {
-      console.error('Erreur lors de la validation de session:', error)
+      console.error('💥 === EXCEPTION DANS HANDLESUBMIT ===');
+      console.error('💥 Type d\'erreur:', typeof error);
+      console.error('💥 Message d\'erreur:', error instanceof Error ? error.message : String(error));
+      console.error('💥 Stack trace:', error instanceof Error ? error.stack : 'Pas de stack trace');
+      console.error('💥 Erreur complète:', error);
+      
       // En cas d'erreur, déclencher la vérification email par sécurité
-      setShowEmailVerification(true)
+      console.log('🔄 Affichage vérification email par sécurité');
+      setShowEmailVerification(true);
     }
+    
+    console.log('🎯 === FIN HANDLESUBMIT ===');
   }
 
-  const performAnalysis = async () => {
+  const performAnalysis = async (authToken: string) => {
+    console.log('🎯 === DÉBUT DE L\'ANALYSE ===');
+    console.log('🎯 authToken disponible:', !!authToken);
+    console.log('🎯 authToken longueur:', authToken?.length || 0);
+    
     setIsUploading(true)
     setShowLoadingPopup(true)
     setAnalysisProgress(0)
@@ -261,54 +352,158 @@ export function UploadZone() {
       files.cvs.forEach(f => formData.append('file', f));
       files.motivationLetters.forEach(f => formData.append('file', f));
 
-      // 3) Appeler directement le webhook n8n
-      const res = await fetch('https://n8nify.francoform.com/webhook/690fb674-2054-44c2-8805-5bb30c6091fa', {
-        method: 'POST',
-        body: formData,
-        mode: 'cors'
-      });
+      console.log('📤 AVANT appel webhook n8n - Début de la requête');
+      console.log('📤 FormData préparée, taille approximative:', formData.entries ? Array.from(formData.entries()).length : 'inconnu');
       
-      console.log('📡 Réponse du webhook n8n reçue:', {
-        status: res.status,
-        statusText: res.statusText,
-        headers: Object.fromEntries(res.headers.entries())
-      });
+      let res;
+      try {
+        console.log('🌐 Début de l\'appel fetch au webhook n8n...');
+        
+        // 3) Appeler directement le webhook n8n
+        res = await fetch('https://n8nify.francoform.com/webhook/690fb674-2054-44c2-8805-5bb30c6091fa', {
+          method: 'POST',
+          body: formData,
+          mode: 'cors'
+        });
+        
+        console.log('✅ Fetch terminé avec succès');
+        console.log('📡 APRÈS appel webhook n8n - Réponse reçue:', {
+          status: res.status,
+          statusText: res.statusText,
+          ok: res.ok,
+          headers: Object.fromEntries(res.headers.entries())
+        });
+        
+      } catch (fetchError) {
+        console.error('❌ ERREUR lors du fetch webhook n8n:', fetchError);
+        console.error('❌ Type d\'erreur:', fetchError instanceof Error ? fetchError.constructor.name : typeof fetchError);
+        console.error('❌ Message d\'erreur:', fetchError instanceof Error ? fetchError.message : String(fetchError));
+        console.error('❌ Stack trace:', fetchError instanceof Error ? fetchError.stack : 'Pas de stack trace');
+        throw fetchError;
+      }
 
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ error: 'Erreur inconnue' }));
+        console.log('❌ Webhook n8n a échoué - Status non OK');
+        console.log('❌ Tentative de lecture du corps de l\'erreur...');
+        
+        let errorData;
+        try {
+          errorData = await res.json();
+          console.log('❌ Corps de l\'erreur parsé:', errorData);
+        } catch (jsonError) {
+          console.error('❌ Impossible de parser le JSON d\'erreur:', jsonError);
+          errorData = { error: 'Erreur inconnue' };
+        }
+        
         throw new Error(errorData.error || `Erreur HTTP du webhook: ${res.status} ${res.statusText}`);
       }
 
-      // Parser la réponse JSON
-      const resultsData = await res.json();
+      console.log('✅ Webhook n8n réussi - Parsing de la réponse JSON...');
+      
+      let resultsData;
+      try {
+        console.log('🔄 Début du parsing JSON de la réponse...');
+        resultsData = await res.json();
+        console.log('✅ JSON parsé avec succès');
+      } catch (jsonParseError) {
+        console.error('❌ ERREUR lors du parsing JSON:', jsonParseError);
+        console.error('❌ Type d\'erreur JSON:', jsonParseError instanceof Error ? jsonParseError.constructor.name : typeof jsonParseError);
+        console.error('❌ Message d\'erreur JSON:', jsonParseError instanceof Error ? jsonParseError.message : String(jsonParseError));
+        throw new Error('Impossible de parser la réponse JSON du webhook');
+      }
       console.log('✅ Données reçues du webhook n8n:', resultsData);
       console.log('📊 Type des données:', typeof resultsData);
       console.log('📊 Est-ce un array?', Array.isArray(resultsData));
       console.log('📊 Nombre d\'éléments si array:', Array.isArray(resultsData) ? resultsData.length : 'N/A');
       console.log('📊 Clés de l\'objet si objet:', typeof resultsData === 'object' && !Array.isArray(resultsData) ? Object.keys(resultsData) : 'N/A');
       
+      console.log('🎯 Finalisation du progrès...');
       // Finaliser le progrès
       clearInterval(progressInterval)
       setAnalysisProgress(100)
+      console.log('✅ Progrès finalisé à 100%');
       
-      // Stocker les résultats JSON dans sessionStorage avec logs détaillés
-      const dataToStore = JSON.stringify(resultsData);
-      console.log('💾 Données à stocker dans sessionStorage:', dataToStore);
-      console.log('💾 Longueur des données:', dataToStore.length);
-      sessionStorage.setItem('analysisResults', dataToStore);
+      console.log('💾 STOCKAGE - Début du stockage des résultats...');
       
-      // Vérifier que les données ont bien été stockées
-      const storedData = sessionStorage.getItem('analysisResults');
-      console.log('✅ Vérification stockage - données récupérées:', storedData ? 'OK' : 'ERREUR');
-      console.log('✅ Longueur des données stockées:', storedData?.length || 0);
+      try {
+        // Stocker les résultats JSON dans sessionStorage avec logs détaillés
+        console.log('🔄 Conversion des données en JSON...');
+        const dataToStore = JSON.stringify(resultsData);
+        console.log('✅ JSON stringifié, longueur:', dataToStore.length);
+        
+        console.log('🔄 Stockage dans sessionStorage...');
+        sessionStorage.setItem('analysisResults', dataToStore);
+        console.log('✅ Données stockées dans sessionStorage');
+        
+        // Vérifier que les données ont bien été stockées
+        console.log('🔄 Vérification du stockage...');
+        const storedData = sessionStorage.getItem('analysisResults');
+        console.log('✅ Vérification stockage - données récupérées:', storedData ? 'OK' : 'ERREUR');
+        console.log('✅ Longueur des données stockées:', storedData?.length || 0);
+        
+      } catch (storageError) {
+        console.error('❌ ERREUR lors du stockage:', storageError);
+        console.error('❌ Type d\'erreur stockage:', storageError instanceof Error ? storageError.constructor.name : typeof storageError);
+        console.error('❌ Message d\'erreur stockage:', storageError instanceof Error ? storageError.message : String(storageError));
+        // Continuer malgré l'erreur de stockage
+      }
+      
+      console.log('🔢 === DÉBUT INCRÉMENTATION RATE-LIMITING SUPABASE ===');
+      console.log('🔢 Tentative d\'incrémentation des compteurs...');
+      console.log('🔢 Token Supabase à envoyer:', authToken ? 'PRÉSENT' : 'ABSENT')
+      
+      // Incrémenter les compteurs de rate-limiting après succès de l'analyse
+      try {
+        console.log('🔢 Appel de l\'API increment-counters...')
+        const incrementResponse = await fetch('/api/analysis/increment-counters', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token: authToken }),
+        })
+        
+        console.log('🔢 Réponse de l\'API increment-counters:', {
+          status: incrementResponse.status,
+          statusText: incrementResponse.statusText,
+          ok: incrementResponse.ok
+        })
+        
+        if (incrementResponse.ok) {
+          const incrementResult = await incrementResponse.json().catch(() => null)
+          console.log('✅ Compteurs Supabase incrémentés avec succès')
+          console.log('✅ Réponse complète de l\'API:', incrementResult)
+        } else {
+          const errorText = await incrementResponse.text().catch(() => 'Impossible de lire l\'erreur')
+          console.error('❌ Erreur lors de l\'incrémentation des compteurs Supabase:', {
+            status: incrementResponse.status,
+            statusText: incrementResponse.statusText,
+            errorText
+          })
+        }
+      } catch (incrementError) {
+        console.error('❌ Exception lors de l\'appel d\'incrémentation Supabase:', incrementError)
+        console.error('❌ Stack trace:', incrementError instanceof Error ? incrementError.stack : 'Pas de stack trace')
+        // Ne pas bloquer la suite même si l'incrémentation échoue
+      }
+      
+      console.log('🔢 === FIN INCRÉMENTATION RATE-LIMITING SUPABASE ===');
       
       // Attendre un peu pour montrer 100% puis rediriger
+      console.log('🔄 Redirection dans 1.5 secondes...');
       setTimeout(() => {
-        window.location.replace("/recruiter-results")
+        console.log('🔄 Début de la redirection vers /recruiter-results/');
+        try {
+          window.location.replace("/recruiter-results/")
+          console.log('✅ Redirection initiée');
+        } catch (redirectError) {
+          console.error('❌ ERREUR lors de la redirection:', redirectError);
+        }
       }, 1500)
       
     } catch (err) {
-      console.error('Erreur lors de l\'analyse:', err)
+      console.error('💥 ERREUR GLOBALE lors de l\'analyse:', err)
+      console.error('💥 Stack trace:', err instanceof Error ? err.stack : 'Pas de stack trace')
       clearInterval(progressInterval)
       setShowLoadingPopup(false)
       
@@ -316,6 +511,7 @@ export function UploadZone() {
       alert(`Échec de l'analyse: ${errorMessage}\n\nVeuillez réessayer.`);
     } finally {
       setIsUploading(false)
+      console.log('🎯 === FIN DE L\'ANALYSE ===');
     }
   }
 
@@ -670,6 +866,36 @@ export function UploadZone() {
                 setValidationErrors([])
               }}
               className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition-colors duration-200"
+            >
+              Compris
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Popup de limitation de taux */}
+      {showRateLimitPopup && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-orange-900/90 backdrop-blur-lg border border-orange-500 rounded-2xl p-6 max-w-md w-full">
+            <div className="flex items-center mb-4">
+              <Clock className="w-6 h-6 text-orange-400 mr-3" />
+              <h3 className="text-lg font-semibold text-orange-100">
+                {rateLimitType === 'hourly' ? 'Limite horaire atteinte' : 'Limite quotidienne atteinte'}
+              </h3>
+            </div>
+            <p className="text-orange-200 mb-4">
+              {rateLimitMessage}
+            </p>
+            <div className="bg-orange-800/50 rounded-lg p-3 mb-4">
+              <div className="text-sm text-orange-100">
+                <strong>Limites actuelles :</strong>
+                <br />• 5 analyses par heure par IP
+                <br />• 10 analyses par jour par email vérifié
+              </div>
+            </div>
+            <button
+              onClick={() => setShowRateLimitPopup(false)}
+              className="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-lg transition-colors duration-200"
             >
               Compris
             </button>
