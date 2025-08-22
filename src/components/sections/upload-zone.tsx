@@ -890,7 +890,7 @@ export function UploadZone() {
               <div className="text-sm text-orange-100">
                 <strong>Limites actuelles :</strong>
                 <br />• 5 analyses par heure par IP
-                <br />• 10 analyses par jour par email vérifié
+                <br />• 3 analyses par jour par email vérifié
               </div>
             </div>
             <button

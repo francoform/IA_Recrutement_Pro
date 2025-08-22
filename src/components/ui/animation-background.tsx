@@ -80,10 +80,30 @@ export function AnimationBackground() {
           noise = max(.0, noise - .5);
           noise *= (1. - length(vUv - .5));
 
-          // Palette de couleurs adaptée au design existant
-          color = vec3(0.06, 0.71, 0.83); // Cyan principal (#06b6d4)
-          color += vec3(0.0, 0.2, 0.6) * sin(3.0 * u_scroll_progress + 1.5); // Variation bleue
-          color += vec3(0.2, 0.4, 0.8) * cos(2.0 * u_scroll_progress); // Variation indigo
+          // Palette de couleurs avec variations progressives
+          float time_cycle = t * 0.3; // Cycle lent pour les transitions
+          
+          // Couleurs de base converties en RGB normalisé
+          vec3 color1 = vec3(0.06, 0.71, 0.83); // Cyan principal (#06b6d4)
+          vec3 color2 = vec3(0.89, 0.25, 0.71); // Rose/Magenta (#e440b4)
+          vec3 color3 = vec3(1.0, 0.4, 0.0);    // Orange (#ff6600)
+          vec3 color4 = vec3(0.0, 0.78, 0.33);  // Vert (#00C755)
+          
+          // Interpolation cyclique entre les couleurs
+          float cycle = mod(time_cycle, 4.0);
+          
+          if (cycle < 1.0) {
+            color = mix(color1, color2, cycle);
+          } else if (cycle < 2.0) {
+            color = mix(color2, color3, cycle - 1.0);
+          } else if (cycle < 3.0) {
+            color = mix(color3, color4, cycle - 2.0);
+          } else {
+            color = mix(color4, color1, cycle - 3.0);
+          }
+          
+          // Variations subtiles basées sur le scroll
+          color += vec3(0.1) * sin(2.0 * u_scroll_progress + time_cycle);
 
           color = color * noise;
 

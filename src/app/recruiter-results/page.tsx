@@ -816,29 +816,29 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
 
         {/* Popup Document */}
         {documentPopup.isOpen && documentPopup.candidate && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 max-w-md w-full">
-              <div className="p-6 border-b border-white/20" style={{ backgroundColor: `${documentPopup.candidate.color?.primary}20` }}>
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+            <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 w-[95vw] sm:max-w-md sm:w-full max-h-[90vh] overflow-hidden flex flex-col">
+              <div className="p-4 sm:p-6 border-b border-white/20 flex-shrink-0" style={{ backgroundColor: `${documentPopup.candidate.color?.primary}20` }}>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-white" style={{ backgroundColor: documentPopup.candidate.color?.primary }}>
-                      <Mail className="w-5 h-5" />
+                  <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white flex-shrink-0" style={{ backgroundColor: documentPopup.candidate.color?.primary }}>
+                      <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
-                    <div>
-                      <h3 className="text-xl font-semibold text-white">{documentPopup.type === 'cv' ? 'Curriculum Vitae' : 'Lettre de motivation'}</h3>
-                      <p className="text-slate-300">{documentPopup.candidate["full-name"]}</p>
+                    <div className="min-w-0">
+                      <h3 className="text-base sm:text-xl font-semibold text-white truncate">{documentPopup.type === 'cv' ? 'Curriculum Vitae' : 'Lettre de motivation'}</h3>
+                      <p className="text-slate-300 text-sm sm:text-base truncate">{documentPopup.candidate["full-name"]}</p>
                     </div>
                   </div>
-                  <button onClick={closeDocumentPopup} className="text-white hover:text-slate-300 transition-colors"><X className="w-6 h-6" /></button>
+                  <button onClick={closeDocumentPopup} className="text-white hover:text-slate-300 transition-colors flex-shrink-0 ml-2"><X className="w-5 h-5 sm:w-6 sm:h-6" /></button>
                 </div>
               </div>
-              <div className="p-6 overflow-y-auto max-h-[60vh]">
-                <div className="bg-white/5 rounded-lg p-6 border border-white/10">
-                  <pre className="text-slate-200 text-sm leading-relaxed whitespace-pre-wrap font-mono">{documentPopup.content}</pre>
+              <div className="p-4 sm:p-6 overflow-y-auto scrollbar-hide flex-1">
+                <div className="bg-white/5 rounded-lg p-4 sm:p-6 border border-white/10">
+                  <pre className="text-slate-200 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap font-mono">{documentPopup.content}</pre>
                 </div>
               </div>
-              <div className="p-6 border-t border-white/20 flex justify-end space-x-3">
-                <button onClick={closeDocumentPopup} className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-all duration-300 border border-white/10">Fermer</button>
+              <div className="p-4 sm:p-6 border-t border-white/20 flex justify-end space-x-2 sm:space-x-3 flex-shrink-0">
+                <button onClick={closeDocumentPopup} className="bg-white/10 hover:bg-white/20 text-white px-3 sm:px-4 py-2 rounded-lg transition-all duration-300 border border-white/10 text-sm sm:text-base">Fermer</button>
                 <button
                   onClick={() => {
                     if (documentPopup.candidate) {
@@ -850,9 +850,9 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
                     }
                   }}
                   style={{ backgroundColor: documentPopup.candidate.color?.primary }}
-                  className="hover:opacity-90 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center"
+                  className="hover:opacity-90 text-white px-3 sm:px-4 py-2 rounded-lg transition-all duration-300 flex items-center text-sm sm:text-base"
                 >
-                  <Download className="w-4 h-4 mr-2" /> Télécharger
+                  <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" /> Télécharger
                 </button>
               </div>
             </div>
@@ -883,55 +883,51 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
         {/* Popup candidat détaillé */}
          {candidatePopup.isOpen && candidatePopup.candidate && (
            <div 
-             className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4"
+             className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-2 sm:p-4"
              onClick={closeCandidatePopup}
            >
             <div 
-               className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 max-w-4xl w-full max-h-[90vh] overflow-y-auto scrollbar-hide"
+               className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 w-[95vw] sm:max-w-4xl sm:w-full max-h-[90vh] overflow-hidden flex flex-col"
                onClick={(e) => e.stopPropagation()}
-               style={{
-                 scrollbarWidth: 'none',
-                 msOverflowStyle: 'none'
-               }}
              >
-              <div className="p-6 border-b border-white/20" style={{ backgroundColor: `${candidatePopup.candidate.color?.primary}20` }}>
+              <div className="p-4 sm:p-6 border-b border-white/20 flex-shrink-0" style={{ backgroundColor: `${candidatePopup.candidate.color?.primary}20` }}>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold" style={{ backgroundColor: candidatePopup.candidate.color?.primary }}>
-                      <Users className="w-6 h-6" />
+                  <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0" style={{ backgroundColor: candidatePopup.candidate.color?.primary }}>
+                      <Users className="w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-white">{candidatePopup.candidate["full-name"]}</h3>
-                      <p className="text-slate-300">{candidatePopup.candidate.email}</p>
+                    <div className="min-w-0">
+                      <h3 className="text-lg sm:text-2xl font-bold text-white truncate">{candidatePopup.candidate["full-name"]}</h3>
+                      <p className="text-slate-300 text-sm sm:text-base truncate">{candidatePopup.candidate.email}</p>
                     </div>
                   </div>
                   <button 
                     onClick={closeCandidatePopup} 
-                    className="text-white hover:text-slate-300 transition-colors"
+                    className="text-white hover:text-slate-300 transition-colors flex-shrink-0 ml-2"
                   >
-                    <X className="w-6 h-6" />
+                    <X className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
                 </div>
               </div>
               
-              <div className="p-6 space-y-6">
+              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto scrollbar-hide flex-1">
                 {/* Informations générales */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="bg-white/5 rounded-lg p-4">
-                     <span className="text-slate-400 text-sm font-medium">Score final</span>
-                     <p className="text-white font-bold text-xl">{candidatePopup.candidate["final-score"]}/40</p>
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+                  <div className="bg-white/5 rounded-lg p-3 sm:p-4">
+                     <span className="text-slate-400 text-xs sm:text-sm font-medium">Score final</span>
+                     <p className="text-white font-bold text-lg sm:text-xl">{candidatePopup.candidate["final-score"]}/40</p>
                    </div>
-                   <div className="bg-white/5 rounded-lg p-4">
-                     <span className="text-slate-400 text-sm font-medium">Expérience</span>
-                     <p className="text-white font-semibold">{candidatePopup.candidate["years-of-experience"] ? `${candidatePopup.candidate["years-of-experience"]} ans` : 'Non spécifiée'}</p>
+                   <div className="bg-white/5 rounded-lg p-3 sm:p-4">
+                     <span className="text-slate-400 text-xs sm:text-sm font-medium">Expérience</span>
+                     <p className="text-white font-semibold text-sm sm:text-base">{candidatePopup.candidate["years-of-experience"] ? `${candidatePopup.candidate["years-of-experience"]} ans` : 'Non spécifiée'}</p>
                    </div>
-                   <div className="bg-white/5 rounded-lg p-4">
-                     <span className="text-slate-400 text-sm font-medium">Formation</span>
-                     <p className="text-white font-semibold">{candidatePopup.candidate["education-level"] || 'Non spécifiée'}</p>
+                   <div className="bg-white/5 rounded-lg p-3 sm:p-4">
+                     <span className="text-slate-400 text-xs sm:text-sm font-medium">Formation</span>
+                     <p className="text-white font-semibold text-sm sm:text-base">{candidatePopup.candidate["education-level"] || 'Non spécifiée'}</p>
                    </div>
-                   <div className="bg-white/5 rounded-lg p-4">
-                     <span className="text-slate-400 text-sm font-medium">Localisation</span>
-                     <p className="text-white font-semibold">{candidatePopup.candidate.location || 'Non spécifiée'}</p>
+                   <div className="bg-white/5 rounded-lg p-3 sm:p-4">
+                     <span className="text-slate-400 text-xs sm:text-sm font-medium">Localisation</span>
+                     <p className="text-white font-semibold text-sm sm:text-base">{candidatePopup.candidate.location || 'Non spécifiée'}</p>
                    </div>
                 </div>
 
@@ -941,20 +937,20 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
                   if (skills.length > 0) {
                     return (
                       <div>
-                        <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
-                          <Star className="w-5 h-5 mr-2 fill-yellow-400 text-yellow-400" />
+                        <h4 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center">
+                          <Star className="w-4 h-4 sm:w-5 sm:h-5 mr-2 fill-yellow-400 text-yellow-400" />
                           Toutes les compétences évaluées
                         </h4>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
                           {skills.map(([skillName, skillValue]) => {
                             const displayName = skillName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                             const scoreColor = skillValue === 2 ? 'bg-green-500/20 text-green-300 border-green-500/30' : 
                                              skillValue === 1 ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30' : 
                                              'bg-red-500/20 text-red-300 border-red-500/30';
                             return (
-                              <div key={skillName} className={`${scoreColor} rounded-lg px-4 py-3 border flex justify-between items-center`}>
-                                <span className="font-medium" title={displayName}>{displayName}</span>
-                                <span className="font-bold text-xl">{skillValue}</span>
+                              <div key={skillName} className={`${scoreColor} rounded-lg px-3 sm:px-4 py-2 sm:py-3 border flex justify-between items-center`}>
+                                <span className="font-medium text-sm sm:text-base truncate" title={displayName}>{displayName}</span>
+                                <span className="font-bold text-lg sm:text-xl flex-shrink-0 ml-2">{skillValue}</span>
                               </div>
                             );
                           })}
@@ -967,17 +963,17 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
 
                 {/* Verdict détaillé */}
                 <div>
-                  <h4 className="text-lg font-semibold text-white mb-4 flex items-center">
-                    <CheckCircle className="w-5 h-5 mr-2 text-green-400" />
+                  <h4 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center">
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-400" />
                     Analyse détaillée
                   </h4>
-                  <div className="bg-white/5 rounded-lg p-6 border border-white/10">
-                    <p className="text-slate-200 leading-relaxed">{candidatePopup.candidate.verdict}</p>
+                  <div className="bg-white/5 rounded-lg p-4 sm:p-6 border border-white/10">
+                    <p className="text-slate-200 leading-relaxed text-sm sm:text-base">{candidatePopup.candidate.verdict}</p>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-wrap gap-3 pt-4 justify-center">
+                <div className="flex flex-wrap gap-2 sm:gap-3 pt-2 sm:pt-4 justify-center pb-2">
                   <button
                     onClick={() => {
                       closeCandidatePopup();

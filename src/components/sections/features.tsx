@@ -4,24 +4,24 @@ export function Features() {
   return (
     <section className="container mx-auto px-6 py-0">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10 hover:bg-white/10 transition-all duration-300">
-          <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-3 rounded-xl w-fit mb-4 shadow-lg">
+        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] hover:border-purple-500/50 transition-all duration-300 group">
+          <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-3 rounded-xl w-fit mb-4 shadow-lg group-hover:shadow-[0_0_20px_rgba(168,85,247,0.6)]">
             <Brain className="w-6 h-6 text-white" />
           </div>
           <h3 className="text-xl font-semibold mb-2">Analyse Automatique</h3>
           <p className="text-gray-400">Extraction et classification automatique des données CV en temps réel</p>
         </div>
         
-        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10 hover:bg-white/10 transition-all duration-300">
-          <div className="bg-gradient-to-r from-orange-500 to-red-500 p-3 rounded-xl w-fit mb-4 shadow-lg">
+        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(249,115,22,0.4)] hover:border-orange-500/50 transition-all duration-300 group">
+          <div className="bg-gradient-to-r from-orange-500 to-red-500 p-3 rounded-xl w-fit mb-4 shadow-lg group-hover:shadow-[0_0_20px_rgba(249,115,22,0.6)]">
             <Target className="w-6 h-6 text-white" />
           </div>
           <h3 className="text-xl font-semibold mb-2">Scoring Intelligent</h3>
           <p className="text-gray-400">Notation dynamique basée sur la correspondance avec le poste</p>
         </div>
         
-        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10 hover:bg-white/10 transition-all duration-300">
-          <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-3 rounded-xl w-fit mb-4 shadow-lg">
+        <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(34,197,94,0.4)] hover:border-green-500/50 transition-all duration-300 group">
+          <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-3 rounded-xl w-fit mb-4 shadow-lg group-hover:shadow-[0_0_20px_rgba(34,197,94,0.6)]">
             <Zap className="w-6 h-6 text-white" />
           </div>
           <h3 className="text-xl font-semibold mb-2">Gain de Temps</h3>

@@ -190,8 +190,8 @@ export const rateLimitService = {
         }
       }
 
-      // Vérifier les limites (5 analyses par jour)
-      const dailyLimit = 5
+      // Vérifier les limites (3 analyses par jour)
+      const dailyLimit = 3
       const allowed = rateLimit.daily_count < dailyLimit
       const remaining = Math.max(0, dailyLimit - rateLimit.daily_count)
 

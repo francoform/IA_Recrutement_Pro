@@ -183,11 +183,11 @@ function HomePageContent() {
         
         {/* Background de base harmonisé */}
         <div className="absolute inset-0 overflow-hidden">
-          {/* Gradient de base - Bleu foncé harmonisé avec l'animation */}
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900"></div>
+          {/* Background sombre comme la page about */}
+          <div className="absolute inset-0 bg-zinc-950"></div>
           
           {/* Overlay pour adoucir et harmoniser avec l'animation WebGL */}
-          <div className="absolute inset-0 bg-black/30"></div>
+          <div className="absolute inset-0 bg-black/20"></div>
         </div>
       </div>
       

@@ -1,0 +1,1279 @@
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TempoBill — Freelance Billing &amp; Time Tracking</title>
+<meta name="description" content="Start timers, track tasks, send polished invoices, and get paid faster. A delightful billing and time tracker for freelancers and teams.">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* Smooth scrolling */
+html { scroll-behavior: smooth; }
+/* Enhanced entrance animations */
+.animate-fade-in-up {
+animation: fadeInUp 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+opacity: 0;
+transform: translateY(30px);
+}
+.animate-fade-in {
+animation: fadeIn 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+opacity: 0;
+}
+.animate-slide-in-left {
+animation: slideInLeft 0.9s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+opacity: 0;
+transform: translateX(-40px);
+}
+.animate-slide-in-right {
+animation: slideInRight 0.9s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+opacity: 0;
+transform: translateX(40px);
+}
+.animate-scale-in {
+animation: scaleIn 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+opacity: 0;
+transform: scale(0.9) translateY(20px);
+}
+.animate-float {
+animation: float 6s ease-in-out infinite;
+}
+.animate-bounce-subtle {
+animation: bounceSubtle 2s ease-in-out infinite;
+}
+/* Scroll-triggered animations */
+.scroll-animate {
+opacity: 0;
+transform: translateY(30px);
+transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.scroll-animate.animate {
+opacity: 1;
+transform: translateY(0);
+}
+.scroll-slide-left {
+opacity: 0;
+transform: translateX(-40px);
+transition: all 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.scroll-slide-left.animate {
+opacity: 1;
+transform: translateX(0);
+}
+.scroll-slide-right {
+opacity: 0;
+transform: translateX(40px);
+transition: all 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.scroll-slide-right.animate {
+opacity: 1;
+transform: translateX(0);
+}
+.scroll-scale {
+opacity: 0;
+transform: scale(0.95) translateY(20px);
+transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.scroll-scale.animate {
+opacity: 1;
+transform: scale(1) translateY(0);
+}
+.scroll-rotate {
+opacity: 0;
+transform: rotate(-5deg) scale(0.95);
+transition: all 1s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.scroll-rotate.animate {
+opacity: 1;
+transform: rotate(0deg) scale(1);
+}
+/* Sequential delays for entrance */
+.delay-0 { animation-delay: 0ms; }
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+.delay-700 { animation-delay: 700ms; }
+.delay-800 { animation-delay: 800ms; }
+.delay-900 { animation-delay: 900ms; }
+.delay-1000 { animation-delay: 1000ms; }
+.delay-1200 { animation-delay: 1200ms; }
+.delay-1400 { animation-delay: 1400ms; }
+/* Sequential delays for scroll animations */
+.scroll-delay-0 { transition-delay: 0ms; }
+.scroll-delay-100 { transition-delay: 100ms; }
+.scroll-delay-200 { transition-delay: 200ms; }
+.scroll-delay-300 { transition-delay: 300ms; }
+.scroll-delay-400 { transition-delay: 400ms; }
+.scroll-delay-500 { transition-delay: 500ms; }
+.scroll-delay-600 { transition-delay: 600ms; }
+/* Keyframes */
+@keyframes fadeInUp {
+from {
+opacity: 0;
+transform: translateY(30px);
+}
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
+@keyframes fadeIn {
+from { opacity: 0; }
+to { opacity: 1; }
+}
+@keyframes slideInLeft {
+from {
+opacity: 0;
+transform: translateX(-40px);
+}
+to {
+opacity: 1;
+transform: translateX(0);
+}
+}
+@keyframes slideInRight {
+from {
+opacity: 0;
+transform: translateX(40px);
+}
+to {
+opacity: 1;
+transform: translateX(0);
+}
+}
+@keyframes scaleIn {
+from {
+opacity: 0;
+transform: scale(0.9) translateY(20px);
+}
+to {
+opacity: 1;
+transform: scale(1) translateY(0);
+}
+}
+@keyframes float {
+0%, 100% { transform: translateY(0px); }
+50% { transform: translateY(-10px); }
+}
+@keyframes bounceSubtle {
+0%, 100% { transform: translateY(0px); }
+50% { transform: translateY(-5px); }
+}
+/* Stagger animations for groups */
+.stagger-entrance > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-entrance > *:nth-child(2) { animation-delay: 150ms; }
+.stagger-entrance > *:nth-child(3) { animation-delay: 300ms; }
+.stagger-entrance > *:nth-child(4) { animation-delay: 450ms; }
+.stagger-entrance > *:nth-child(5) { animation-delay: 600ms; }
+.stagger-entrance > *:nth-child(6) { animation-delay: 750ms; }
+.stagger-scroll > *:nth-child(1) { transition-delay: 0ms; }
+.stagger-scroll > *:nth-child(2) { transition-delay: 150ms; }
+.stagger-scroll > *:nth-child(3) { transition-delay: 300ms; }
+.stagger-scroll > *:nth-child(4) { transition-delay: 450ms; }
+.stagger-scroll > *:nth-child(5) { transition-delay: 600ms; }
+.stagger-scroll > *:nth-child(6) { transition-delay: 750ms; }
+/* Scroll progress bar */
+.scroll-progress {
+position: fixed;
+top: 0;
+left: 0;
+width: 0%;
+height: 2px;
+background: linear-gradient(90deg, #6366f1, #06b6d4);
+z-index: 100;
+transition: width 0.3s ease;
+}
+/* Parallax elements */
+.parallax {
+transition: transform 0.1s ease-out;
+}
+</style>
+<link id="all-fonts-link-font-geist" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-geist">.font-geist { font-family: 'Geist', sans-serif !important; }</style><link id="all-fonts-link-font-bricolage" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500;600;700&amp;display=swap"><style id="all-fonts-style-font-bricolage">.font-bricolage { font-family: 'Bricolage Grotesque', sans-serif !important; }</style></head>
+  <body class="antialiased bg-zinc-950 text-zinc-200 [font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif] overflow-x-hidden">
+    <!-- Scroll progress bar -->
+    <div class="scroll-progress" style="width: 0%;"></div>
+    
+    <div class="spline-container fixed top-0 w-full h-screen -z-10"><iframe src="https://my.spline.design/liquidgradientabstractbackground-gEjylYLumN1b1CUcuIb8DyUA" frameborder="0" width="100%" height="100%" class=""></iframe></div>
+    
+    <!-- Subtle background accents -->
+    <div class="pointer-events-none fixed inset-0 -z-10">
+      <div class="absolute inset-0 parallax" style="background: radial-gradient(600px 300px at 20% 10%, rgba(99, 102, 241, 0.18), transparent 60%), radial-gradient(500px 250px at 80% 30%, rgba(56, 189, 248, 0.18), transparent 55%), radial-gradient(400px 200px at 60% 80%, rgba(250, 204, 21, 0.08), transparent 60%); transform: translateY(0px);"></div>
+      <div class="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(24,24,27,0)_0%,rgba(24,24,27,0.75)_40%,rgba(24,24,27,1)_100%)]"></div>
+      <div class="absolute inset-0 bg-[url('data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22 viewBox=%220 0 48 48%22&gt;&lt;path fill=%22rgba(255,255,255,0.035)%22 d=%22M0 0h1v1H0z%22/&gt;&lt;/svg&gt;')] opacity-60"></div>
+    </div>
+
+    <!-- Nav -->
+    <header class="sticky top-0 z-50">
+      <div class="mx-auto max-w-7xl px-5">
+        <div class="mt-4 mb-4 flex items-center justify-between rounded-xl border border-white/10 bg-zinc-900/40 px-4 py-3 backdrop-blur animate-fade-in delay-0">
+          <a href="#" class="flex items-center gap-3 animate-scale-in delay-200">
+            <span class="text-sm text-white tracking-tight font-geist">TempoBill</span>
+          </a>
+          <nav class="hidden items-center gap-7 md:flex stagger-entrance">
+            <a href="#features" class="text-sm text-zinc-300 hover:text-white transition-colors font-geist tracking-tight animate-fade-in-up delay-300">Product</a>
+            <a href="#workflow" class="text-sm text-zinc-300 hover:text-white transition-colors font-geist tracking-tight animate-fade-in-up delay-400">Workflow</a>
+            <a href="#pricing" class="text-sm text-zinc-300 hover:text-white transition-colors font-geist tracking-tight animate-fade-in-up delay-500">Pricing</a>
+            <a href="#resources" class="text-sm text-zinc-300 hover:text-white transition-colors font-geist tracking-tight animate-fade-in-up delay-600">Resources</a>
+          </nav>
+          <div class="flex items-center gap-3 stagger-entrance">
+            <a href="#" class="hidden ring-1 ring-white/10 transition hover:text-white hover:ring-white/30 md:inline-flex animate-fade-in-up delay-700 text-sm text-zinc-300 tracking-tight font-geist rounded-lg pt-2 pr-3 pb-2 pl-3">Sign in</a>
+            <a href="#cta" class="inline-flex items-center gap-2 animate-scale-in delay-800 tracking-tight font-geist" style="--green: #1BFD9C; font-size: 14px; padding: 0.5rem 0.75rem; letter-spacing: 0.06em; position: relative; font-family: inherit; border-radius: 0.5rem; overflow: hidden; transition: all 0.3s; line-height: 1.4em; border: 2px solid var(--green); background: linear-gradient(to right, rgba(27, 253, 156, 0.1) 1%, transparent 40%, transparent 60%, rgba(27, 253, 156, 0.1) 100%); color: var(--green); box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4), 0 0 9px 3px rgba(27, 253, 156, 0.1);">Get started</a>
+            <button class="md:hidden p-2 text-zinc-300 animate-fade-in delay-900" onclick="toggleMobileMenu()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="menu" class="lucide lucide-menu h-5 w-5"><path d="M4 12h16"></path><path d="M4 18h16"></path><path d="M4 6h16"></path></svg>
+            </button>
+          </div>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="hidden rounded-xl border border-white/10 bg-zinc-900/40 backdrop-blur mb-4 p-4">
+          <nav class="space-y-3 stagger-entrance">
+            <a href="#features" class="block text-sm text-zinc-300 hover:text-white transition-colors font-geist tracking-tight animate-fade-in-up">Product</a>
+            <a href="#workflow" class="block text-sm text-zinc-300 hover:text-white transition-colors font-geist tracking-tight animate-fade-in-up">Workflow</a>
+            <a href="#pricing" class="block text-sm text-zinc-300 hover:text-white transition-colors font-geist tracking-tight animate-fade-in-up">Pricing</a>
+            <a href="#resources" class="block text-sm text-zinc-300 hover:text-white transition-colors font-geist tracking-tight animate-fade-in-up">Resources</a>
+            <hr class="border-white/10">
+            <a href="#" class="block text-sm text-zinc-300 hover:text-white transition-colors font-geist tracking-tight animate-fade-in-up">Sign in</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="relative">
+      <div class="mx-auto max-w-7xl px-5 pt-8 pb-16 md:pb-24">
+        <div class="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
+          <div class="space-y-6">
+            <p class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-zinc-900/40 px-3 py-1 text-[11px] text-zinc-300 animate-fade-in-up delay-200 font-geist tracking-tight">
+              <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-bounce-subtle"></span> New: Automatic late-fee reminders and invoice branding
+            </p>
+            <h1 class="text-4xl md:text-5xl tracking-tight text-white animate-fade-in-up delay-400 font-bricolage font-light">
+              Freelance billing and time tracking that just works
+            </h1>
+            <p class="max-w-xl text-base text-zinc-400 animate-fade-in-up delay-600 font-geist tracking-tight">
+              Start a timer, log tasks, send polished invoices, and get paid faster—without spreadsheets. Designed for solo pros and nimble teams.
+            </p>
+            <div id="cta" class="flex flex-col gap-3 sm:flex-row animate-fade-in-up delay-800">
+              <a href="#" class="inline-flex items-center justify-center gap-2 font-geist tracking-tight animate-float" style="--green: #1BFD9C; font-size: 15px; padding: 0.7em 2.7em; letter-spacing: 0.06em; position: relative; font-family: inherit; border-radius: 0.6em; overflow: hidden; transition: all 0.3s; line-height: 1.4em; border: 2px solid var(--green); background: linear-gradient(to right, rgba(27, 253, 156, 0.1) 1%, transparent 40%, transparent 60%, rgba(27, 253, 156, 0.1) 100%); color: var(--green); box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4), 0 0 9px 3px rgba(27, 253, 156, 0.1);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="timer" class="lucide lucide-timer h-4 w-4"><line x1="10" x2="14" y1="2" y2="2"></line><line x1="12" x2="15" y1="14" y2="11"></line><circle cx="12" cy="14" r="8"></circle></svg>
+                Start free — no card
+              </a>
+              <a href="#demo" class="inline-flex items-center justify-center gap-2 font-geist tracking-tight animate-float" style="--white: #FFFFFF; font-size: 15px; padding: 0.7em 2.7em; letter-spacing: 0.06em; position: relative; font-family: inherit; border-radius: 0.6em; overflow: hidden; transition: all 0.3s; line-height: 1.4em; border: 2px solid var(--white); background: linear-gradient(to right, rgba(255, 255, 255, 0.1) 1%, transparent 40%, transparent 60%, rgba(255, 255, 255, 0.1) 100%); color: var(--white); box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.4), 0 0 9px 3px rgba(255, 255, 255, 0.1);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="play-circle" class="lucide lucide-play-circle h-4 w-4"><path d="M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"></path><circle cx="12" cy="12" r="10"></circle></svg>
+                Watch demo
+              </a>
+            </div>
+            <div class="flex items-center gap-6 pt-2 animate-fade-in-up delay-1000">
+              <div class="flex -space-x-2 stagger-entrance">
+                <img alt="User" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&amp;w=256&amp;auto=format&amp;fit=crop" class="h-8 w-8 rounded-full ring-2 ring-zinc-950 object-cover animate-scale-in delay-1100">
+                <img alt="User" src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&amp;w=256&amp;auto=format&amp;fit=crop" class="h-8 w-8 rounded-full ring-2 ring-zinc-950 object-cover animate-scale-in delay-1200">
+                <img alt="User" src="https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?q=80&amp;w=256&amp;auto=format&amp;fit=crop" class="h-8 w-8 rounded-full ring-2 ring-zinc-950 object-cover animate-scale-in delay-1300">
+              </div>
+              <p class="text-sm text-zinc-400 font-geist tracking-tight animate-fade-in delay-1200">
+                Trusted by 10,000+ independents and studios
+              </p>
+            </div>
+          </div>
+          <!-- Hero Demo Card -->
+          <div id="demo" class="relative animate-slide-in-right delay-600">
+            <div class="absolute -inset-0.5 rounded-2xl bg-gradient-to-b from-indigo-500/30 to-cyan-400/20 blur-2xl opacity-40 animate-float"></div>
+            <div class="relative rounded-2xl border border-white/10 bg-zinc-900/40 p-4 backdrop-blur">
+              <!-- Toolbar -->
+              <div class="flex items-center justify-between rounded-lg border border-white/10 bg-zinc-900/50 px-3 py-2 animate-fade-in-up delay-800">
+                <div class="flex items-center gap-2">
+                  <div class="flex h-6 w-6 items-center justify-center rounded-md bg-indigo-500/20 ring-1 ring-indigo-300/30 animate-bounce-subtle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="timer" class="lucide lucide-timer h-3.5 w-3.5 text-indigo-300"><line x1="10" x2="14" y1="2" y2="2"></line><line x1="12" x2="15" y1="14" y2="11"></line><circle cx="12" cy="14" r="8"></circle></svg>
+                  </div>
+                  <span class="text-xs text-zinc-300 font-geist tracking-tight">Current timer</span>
+                </div>
+                <div class="flex items-center gap-1.5 stagger-entrance">
+                  <button class="inline-flex items-center gap-1 rounded-md bg-white/5 px-2.5 py-1.5 text-xs text-white ring-1 ring-white/10 transition hover:bg-white/10 hover:ring-white/30 font-geist tracking-tight animate-scale-in delay-900">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="play" class="lucide lucide-play h-3.5 w-3.5"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"></path></svg>
+                    Start
+                  </button>
+                  <button class="inline-flex items-center gap-1 rounded-md bg-white/5 px-2.5 py-1.5 text-xs text-white ring-1 ring-white/10 transition hover:bg-white/10 hover:ring-white/30 font-geist tracking-tight animate-scale-in delay-1000">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="pause" class="lucide lucide-pause h-3.5 w-3.5"><rect x="14" y="3" width="5" height="18" rx="1"></rect><rect x="5" y="3" width="5" height="18" rx="1"></rect></svg>
+                    Pause
+                  </button>
+                  <button class="inline-flex items-center gap-1 rounded-md bg-white text-zinc-900 px-2.5 py-1.5 text-xs ring-1 ring-white/10 transition hover:bg-zinc-100 hover:ring-white/30 font-geist tracking-tight animate-scale-in delay-1100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" class="lucide lucide-check h-3.5 w-3.5"><path d="M20 6 9 17l-5-5"></path></svg>
+                    Log
+                  </button>
+                </div>
+              </div>
+              <!-- Session List -->
+              <div class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 stagger-entrance">
+                <div class="rounded-lg border border-white/10 bg-zinc-900/50 p-3 animate-fade-in-up delay-1000">
+                  <div class="flex items-start justify-between">
+                    <div>
+                      <p class="text-xs text-zinc-400 font-geist tracking-tight">Client</p>
+                      <p class="text-sm text-white font-geist tracking-tight">Aster Studio</p>
+                    </div>
+                    <span class="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2 py-0.5 text-[11px] text-emerald-300 ring-1 ring-emerald-400/20 font-geist tracking-tight animate-bounce-subtle">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="dollar-sign" class="lucide lucide-dollar-sign h-3 w-3"><line x1="12" x2="12" y1="2" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                      Billable
+                    </span>
+                  </div>
+                  <div class="mt-2 flex items-center justify-between">
+                    <div class="flex items-center gap-2 text-sm text-zinc-300 font-geist tracking-tight">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="hammer" class="lucide lucide-hammer h-4 w-4 text-zinc-400"><path d="m15 12-9.373 9.373a1 1 0 0 1-3.001-3L12 9"></path><path d="m18 15 4-4"></path><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172v-.344a2 2 0 0 0-.586-1.414l-1.657-1.657A6 6 0 0 0 12.516 3H9l1.243 1.243A6 6 0 0 1 12 8.485V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"></path></svg>
+                      Design QA
+                    </div>
+                    <div class="text-sm text-zinc-400 font-geist tracking-tight">02:13:08</div>
+                  </div>
+                  <div class="mt-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2 stagger-entrance">
+                      <span class="rounded-md bg-white/5 px-2 py-1 text-[11px] text-zinc-300 ring-1 ring-white/10 font-geist tracking-tight animate-scale-in delay-1200">UI</span>
+                      <span class="rounded-md bg-white/5 px-2 py-1 text-[11px] text-zinc-300 ring-1 ring-white/10 font-geist tracking-tight animate-scale-in delay-1300">Review</span>
+                    </div>
+                    <button class="inline-flex items-center gap-1.5 rounded-md bg-white/5 px-2.5 py-1.5 text-xs text-white ring-1 ring-white/10 transition hover:bg-white/10 hover:ring-white/30 font-geist tracking-tight">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="square" class="lucide lucide-square h-3.5 w-3.5"><rect width="18" height="18" x="3" y="3" rx="2"></rect></svg>
+                      Stop
+                    </button>
+                  </div>
+                </div>
+                <div class="rounded-lg border border-white/10 bg-zinc-900/50 p-3 animate-fade-in-up delay-1100">
+                  <div class="flex items-start justify-between">
+                    <div>
+                      <p class="text-xs text-zinc-400 font-geist tracking-tight">Client</p>
+                      <p class="text-sm text-white font-geist tracking-tight">Northbound</p>
+                    </div>
+                    <span class="inline-flex items-center gap-1 rounded-md bg-zinc-100/10 px-2 py-0.5 text-[11px] text-zinc-300 ring-1 ring-white/10 font-geist tracking-tight">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="tag" class="lucide lucide-tag h-3 w-3"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"></path><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"></circle></svg>
+                      Non-billable
+                    </span>
+                  </div>
+                  <div class="mt-2 flex items-center justify-between">
+                    <div class="flex items-center gap-2 text-sm text-zinc-300 font-geist tracking-tight">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="code-2" class="lucide lucide-code-2 h-4 w-4 text-zinc-400"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg>
+                      Internal tooling
+                    </div>
+                    <div class="text-sm text-zinc-400 font-geist tracking-tight">00:47:15</div>
+                  </div>
+                  <div class="mt-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="rounded-md bg-white/5 px-2 py-1 text-[11px] text-zinc-300 ring-1 ring-white/10 font-geist tracking-tight animate-scale-in delay-1400">Ops</span>
+                    </div>
+                    <button class="inline-flex items-center gap-1.5 rounded-md bg-white/5 px-2.5 py-1.5 text-xs text-white ring-1 ring-white/10 transition hover:bg-white/10 hover:ring-white/30 font-geist tracking-tight">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="play" class="lucide lucide-play h-3.5 w-3.5"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"></path></svg>
+                      Resume
+                    </button>
+                  </div>
+                </div>
+                <!-- Invoice mini card -->
+                <div class="rounded-lg border border-white/10 bg-gradient-to-br from-zinc-900/60 to-zinc-900/30 p-3 md:col-span-2 animate-fade-in-up delay-1200">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="receipt" class="lucide lucide-receipt h-4 w-4 text-amber-300 animate-bounce-subtle"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 17.5v-11"></path></svg>
+                      <p class="text-sm font-geist tracking-tight">Invoice #1043</p>
+                    </div>
+                    <span class="rounded-md bg-emerald-500/15 px-2 py-1 text-[11px] text-emerald-300 ring-1 ring-emerald-400/20 font-geist tracking-tight animate-bounce-subtle">Due in 7 days</span>
+                  </div>
+                  <div class="mt-2 grid grid-cols-3 gap-4 text-sm">
+                    <div class="space-y-0.5">
+                      <p class="text-zinc-400 font-geist tracking-tight">Client</p>
+                      <p class="text-white font-geist tracking-tight">Aster Studio</p>
+                    </div>
+                    <div class="space-y-0.5">
+                      <p class="text-zinc-400 font-geist tracking-tight">Amount</p>
+                      <p class="text-white font-geist tracking-tight">$2,480.00</p>
+                    </div>
+                    <div class="flex items-end justify-end">
+                      <button class="inline-flex items-center gap-1.5 rounded-lg bg-white text-zinc-900 px-3 py-1.5 text-xs ring-1 ring-white/10 transition hover:bg-zinc-100 hover:ring-white/30 font-geist tracking-tight animate-float">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="send" class="lucide lucide-send h-3.5 w-3.5"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg>
+                        Send Invoice
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Analytics widget with chart -->
+              <div class="animate-fade-in-up delay-1400 bg-zinc-900/50 border-white/10 border rounded-lg mt-4 pt-4 pr-4 pb-4 pl-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-sm text-white font-geist tracking-tight">Weekly hours</h3>
+                    <p class="text-xs text-zinc-400 font-geist tracking-tight">Billable vs non-billable</p>
+                  </div>
+                  <div class="flex items-center gap-2 stagger-entrance">
+                    <span class="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2 py-0.5 text-[11px] text-emerald-300 ring-1 ring-emerald-400/20 font-geist tracking-tight animate-scale-in">
+                      <span class="h-1.5 w-1.5 rounded-full bg-emerald-300 animate-bounce-subtle"></span>
+                      Billable
+                    </span>
+                    <span class="inline-flex items-center gap-1 rounded-md bg-zinc-100/10 px-2 py-0.5 text-[11px] text-zinc-300 ring-1 ring-white/10 font-geist tracking-tight animate-scale-in">
+                      <span class="h-1.5 w-1.5 rounded-full bg-zinc-400"></span>
+                      Non
+                    </span>
+                  </div>
+                </div>
+                <div class="mt-3 rounded-md border border-white/10 p-2 animate-scale-in delay-200">
+                  <div class="relative h-36 w-full">
+                    <div class="h-full w-full">
+                      <canvas id="hoursChart" width="1020" height="288" style="display: block; box-sizing: border-box; height: 144px; width: 510px;" class=""></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="relative border-t border-white/10">
+      <div class="mx-auto max-w-7xl px-5 py-16 md:py-20">
+        <div class="grid grid-cols-2 gap-6 md:grid-cols-4 stagger-scroll">
+          <div class="text-center scroll-animate scroll-delay-0">
+            <div class="text-3xl tracking-tight text-white font-bricolage font-light">10k+</div>
+            <div class="mt-1 text-sm text-zinc-400 font-geist tracking-tight">Active users</div>
+          </div>
+          <div class="text-center scroll-animate scroll-delay-100">
+            <div class="text-3xl tracking-tight text-white font-bricolage font-light">$2.4M</div>
+            <div class="mt-1 text-sm text-zinc-400 font-geist tracking-tight">Invoiced monthly</div>
+          </div>
+          <div class="text-center scroll-animate scroll-delay-200">
+            <div class="text-3xl tracking-tight text-white font-bricolage font-light">98%</div>
+            <div class="mt-1 text-sm text-zinc-400 font-geist tracking-tight">Uptime SLA</div>
+          </div>
+          <div class="text-center scroll-animate scroll-delay-300">
+            <div class="text-3xl tracking-tight text-white font-bricolage font-light">24h</div>
+            <div class="mt-1 text-sm text-zinc-400 font-geist tracking-tight">Support response</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="relative border-t border-white/10">
+      <div class="mx-auto max-w-7xl px-5 py-16 md:py-20">
+        <div class="mb-10 flex items-end justify-between">
+          <div class="scroll-slide-left scroll-delay-0">
+            <h2 class="text-3xl md:text-4xl tracking-tight text-white font-bricolage font-light">Everything you need to track, bill, and get paid</h2>
+            <p class="mt-2 max-w-2xl text-zinc-400 font-geist tracking-tight">No-hassle timers, effortless invoices, and real-time insights keep your work and cash flow moving.</p>
+          </div>
+          <a href="#" class="hidden md:inline-flex items-center gap-2 rounded-lg bg-white/5 px-3 py-2 text-sm text-white ring-1 ring-white/10 transition hover:bg-white/10 hover:ring-white/30 scroll-slide-right scroll-delay-0 font-geist tracking-tight">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="link" class="lucide lucide-link h-4 w-4"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+            Explore docs
+          </a>
+        </div>
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-3 stagger-scroll">
+          <div class="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 transition hover:border-white/20 hover:bg-zinc-900/60 scroll-animate scroll-delay-0 group">
+            <div class="flex h-10 w-10 items-center justify-center rounded-md bg-indigo-500/20 ring-1 ring-indigo-300/30 animate-bounce-subtle">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="alarm-clock" class="lucide lucide-alarm-clock h-5 w-5 text-indigo-300"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path><path d="M5 3 2 6"></path><path d="m22 6-3-3"></path><path d="M6.38 18.7 4 21"></path><path d="M17.64 18.67 20 21"></path></svg>
+            </div>
+            <h3 class="mt-4 text-lg text-white font-geist tracking-tight">One-click timers</h3>
+            <p class="mt-2 text-sm text-zinc-400 font-geist tracking-tight">Start, pause, and log across clients and projects. Switch instantly without losing time.</p>
+            <ul class="mt-4 space-y-2 text-sm text-zinc-300">
+              <li class="flex items-center gap-2 font-geist tracking-tight"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="plus" class="lucide lucide-plus h-4 w-4 text-zinc-400"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>Create tasks fast</li>
+              <li class="flex items-center gap-2 font-geist tracking-tight"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="layers" class="lucide lucide-layers h-4 w-4 text-zinc-400"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"></path><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"></path><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"></path></svg>Projects &amp; tags</li>
+              <li class="flex items-center gap-2 font-geist tracking-tight"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="wand-2" class="lucide lucide-wand-2 h-4 w-4 text-zinc-400"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"></path><path d="m14 7 3 3"></path><path d="M5 6v4"></path><path d="M19 14v4"></path><path d="M10 2v2"></path><path d="M7 8H3"></path><path d="M21 16h-4"></path><path d="M11 3H9"></path></svg>Smart suggestions</li>
+            </ul>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 transition hover:border-white/20 hover:bg-zinc-900/60 scroll-animate scroll-delay-100 group">
+            <div class="flex h-10 w-10 items-center justify-center rounded-md bg-amber-500/20 ring-1 ring-amber-300/30 animate-bounce-subtle">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="receipt" class="lucide lucide-receipt h-5 w-5 text-amber-300"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 17.5v-11"></path></svg>
+            </div>
+            <h3 class="mt-4 text-lg text-white font-geist tracking-tight">Beautiful invoices</h3>
+            <p class="mt-2 text-sm text-zinc-400 font-geist tracking-tight">Turn logged hours into branded invoices with taxes, late fees, and reminders—auto-sent.</p>
+            <ul class="mt-4 space-y-2 text-sm text-zinc-300">
+              <li class="flex items-center gap-2 font-geist tracking-tight"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="palette" class="lucide lucide-palette h-4 w-4 text-zinc-400"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"></path><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle></svg>Branding &amp; themes</li>
+              <li class="flex items-center gap-2 font-geist tracking-tight"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="dollar-sign" class="lucide lucide-dollar-sign h-4 w-4 text-zinc-400"><line x1="12" x2="12" y1="2" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>Online payments</li>
+              <li class="flex items-center gap-2 font-geist tracking-tight"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="bell" class="lucide lucide-bell h-4 w-4 text-zinc-400"><path d="M10.268 21a2 2 0 0 0 3.464 0"></path><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path></svg>Auto reminders</li>
+            </ul>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 transition hover:border-white/20 hover:bg-zinc-900/60 scroll-animate scroll-delay-200 group">
+            <div class="flex h-10 w-10 items-center justify-center rounded-md bg-emerald-500/20 ring-1 ring-emerald-300/30 animate-bounce-subtle">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="pie-chart" class="lucide lucide-pie-chart h-5 w-5 text-emerald-300"><path d="M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.998.398-.998.95v8a1 1 0 0 0 1 1z"></path><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path></svg>
+            </div>
+            <h3 class="mt-4 text-lg text-white font-geist tracking-tight">Clear insights</h3>
+            <p class="mt-2 text-sm text-zinc-400 font-geist tracking-tight">See billable rates, utilization, and projected revenue. Export to CSV or share read-only links.</p>
+            <ul class="mt-4 space-y-2 text-sm text-zinc-300">
+              <li class="flex items-center gap-2 font-geist tracking-tight"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="bar-chart-3" class="lucide lucide-bar-chart-3 h-4 w-4 text-zinc-400"><path d="M3 3v16a2 2 0 0 0 2 2h16"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>Billable vs non</li>
+              <li class="flex items-center gap-2 font-geist tracking-tight"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar" class="lucide lucide-calendar h-4 w-4 text-zinc-400"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg>Weekly &amp; monthly</li>
+              <li class="flex items-center gap-2 font-geist tracking-tight"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="share-2" class="lucide lucide-share-2 h-4 w-4 text-zinc-400"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"></line><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"></line></svg>Share insights</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Extended Features -->
+        <div class="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 stagger-scroll">
+          <div class="rounded-2xl border border-white/10 bg-zinc-900/40 p-8 transition hover:border-white/20 hover:bg-zinc-900/60 scroll-slide-left scroll-delay-300 group">
+            <div class="flex items-center gap-4">
+              <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-cyan-500/20 ring-1 ring-cyan-300/30 animate-bounce-subtle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="smartphone" class="lucide lucide-smartphone h-6 w-6 text-cyan-300"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"></rect><path d="M12 18h.01"></path></svg>
+              </div>
+              <div class="">
+                <h3 class="text-xl text-white font-geist tracking-tight">Mobile &amp; Desktop Apps</h3>
+                <p class="text-sm text-zinc-400 font-geist tracking-tight">Track time anywhere with native apps for iOS, Android, Mac, and Windows.</p>
+              </div>
+            </div>
+            <div class="mt-6 flex items-center gap-4">
+              <a href="#" class="inline-flex items-center gap-2 rounded-lg bg-white/5 px-4 py-2 text-sm text-white ring-1 ring-white/10 transition hover:bg-white/10 hover:ring-white/30 font-geist tracking-tight">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="smartphone" class="lucide lucide-smartphone h-4 w-4"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"></rect><path d="M12 18h.01"></path></svg>
+                Download apps
+              </a>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2 py-0.5 text-[11px] text-emerald-300 ring-1 ring-emerald-400/20 font-geist tracking-tight animate-bounce-subtle">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="wifi" class="lucide lucide-wifi h-3 w-3"><path d="M12 20h.01"></path><path d="M2 8.82a15 15 0 0 1 20 0"></path><path d="M5 12.859a10 10 0 0 1 14 0"></path><path d="M8.5 16.429a5 5 0 0 1 7 0"></path></svg>
+                  Offline sync
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-zinc-900/40 p-8 transition hover:border-white/20 hover:bg-zinc-900/60 scroll-slide-right scroll-delay-400 group">
+            <div class="flex items-center gap-4">
+              <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-violet-500/20 ring-1 ring-violet-300/30 animate-bounce-subtle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="users" class="lucide lucide-users h-6 w-6 text-violet-300"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg>
+              </div>
+              <div class="">
+                <h3 class="text-xl text-white font-geist tracking-tight">Team Collaboration</h3>
+                <p class="text-sm text-zinc-400 font-geist tracking-tight">Invite team members, set permissions, and manage projects together seamlessly.</p>
+              </div>
+            </div>
+            <div class="mt-6 flex items-center gap-4">
+              <a href="#" class="inline-flex items-center gap-2 rounded-lg bg-white/5 px-4 py-2 text-sm text-white ring-1 ring-white/10 transition hover:bg-white/10 hover:ring-white/30 font-geist tracking-tight">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="user-plus" class="lucide lucide-user-plus h-4 w-4"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" x2="19" y1="8" y2="14"></line><line x1="22" x2="16" y1="11" y2="11"></line></svg>
+                Invite team
+              </a>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1 rounded-md bg-violet-500/15 px-2 py-0.5 text-[11px] text-violet-300 ring-1 ring-violet-400/20 font-geist tracking-tight animate-bounce-subtle">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="shield" class="lucide lucide-shield h-3 w-3"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg>
+                  Role-based access
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Workflow Section -->
+    <section id="workflow" class="relative border-t border-white/10">
+      <div class="mx-auto max-w-7xl px-5 py-16 md:py-20">
+        <div class="text-center mb-12 scroll-animate scroll-delay-0">
+          <h2 class="text-3xl md:text-4xl tracking-tight text-white font-bricolage font-light">Simple workflow, powerful results</h2>
+          <p class="mt-3 text-zinc-400 max-w-2xl mx-auto font-geist tracking-tight">From time tracking to getting paid, TempoBill streamlines every step of your freelance workflow.</p>
+        </div>
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-3 stagger-scroll">
+          <div class="relative scroll-animate scroll-delay-0">
+            <div class="absolute left-1/2 top-16 h-24 w-px bg-gradient-to-b from-indigo-500/50 to-transparent hidden md:block"></div>
+            <div class="relative rounded-2xl border border-indigo-300/20 bg-gradient-to-br from-indigo-500/5 via-zinc-900/40 to-zinc-900/60 backdrop-blur-sm p-6 transition-all duration-300 hover:border-indigo-300/40 hover:bg-gradient-to-br hover:from-indigo-500/10 hover:via-zinc-900/50 hover:to-zinc-900/70 group">
+              <div class="absolute -inset-0.5 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-transparent blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+              <div class="relative text-center">
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/20 ring-1 ring-indigo-300/30 shadow-lg shadow-indigo-500/10 animate-float">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="timer" class="lucide lucide-timer h-8 w-8 text-indigo-300"><line x1="10" x2="14" y1="2" y2="2"></line><line x1="12" x2="15" y1="14" y2="11"></line><circle cx="12" cy="14" r="8"></circle></svg>
+                </div>
+                <h3 class="mt-4 text-lg text-white font-geist tracking-tight">1. Track Time</h3>
+                <p class="mt-2 text-sm text-zinc-400 font-geist tracking-tight">Start timers for different clients and projects. Log manual entries or use our smart suggestions.</p>
+                <div class="mt-4 rounded-lg border border-indigo-200/10 bg-zinc-900/60 backdrop-blur-sm p-4 shadow-inner">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2 text-sm text-zinc-300 font-geist tracking-tight">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="timer" class="lucide lucide-timer h-4 w-4 text-indigo-300 animate-bounce-subtle"><line x1="10" x2="14" y1="2" y2="2"></line><line x1="12" x2="15" y1="14" y2="11"></line><circle cx="12" cy="14" r="8"></circle></svg>
+                      Design work
+                    </div>
+                    <div class="text-sm text-emerald-300 font-geist tracking-tight">01:23:45</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="relative scroll-animate scroll-delay-100">
+            <div class="absolute left-1/2 top-16 h-24 w-px bg-gradient-to-b from-amber-500/50 to-transparent hidden md:block"></div>
+            <div class="relative rounded-2xl border border-amber-300/20 bg-gradient-to-br from-amber-500/5 via-zinc-900/40 to-zinc-900/60 backdrop-blur-sm p-6 transition-all duration-300 hover:border-amber-300/40 hover:bg-gradient-to-br hover:from-amber-500/10 hover:via-zinc-900/50 hover:to-zinc-900/70 group">
+              <div class="absolute -inset-0.5 rounded-2xl bg-gradient-to-br from-amber-500/20 to-transparent blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+              <div class="relative text-center">
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/20 ring-1 ring-amber-300/30 shadow-lg shadow-amber-500/10 animate-float">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-text" class="lucide lucide-file-text h-8 w-8 text-amber-300"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>
+                </div>
+                <h3 class="mt-4 text-lg text-white font-geist tracking-tight">2. Create Invoice</h3>
+                <p class="mt-2 text-sm text-zinc-400 font-geist tracking-tight">Convert your time logs into professional invoices with custom branding and payment options.</p>
+                <div class="mt-4 rounded-lg border border-amber-200/10 bg-zinc-900/60 backdrop-blur-sm p-4 shadow-inner">
+                  <div class="flex items-center justify-between">
+                    <div class="text-sm text-zinc-300 font-geist tracking-tight">Invoice #1044</div>
+                    <div class="text-sm text-white font-geist tracking-tight">$1,280.00</div>
+                  </div>
+                  <div class="mt-2 text-xs text-zinc-400 font-geist tracking-tight">8.5 hours • $150/hr</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="relative scroll-animate scroll-delay-200">
+            <div class="relative rounded-2xl border border-emerald-300/20 bg-gradient-to-br from-emerald-500/5 via-zinc-900/40 to-zinc-900/60 backdrop-blur-sm p-6 transition-all duration-300 hover:border-emerald-300/40 hover:bg-gradient-to-br hover:from-emerald-500/10 hover:via-zinc-900/50 hover:to-zinc-900/70 group">
+              <div class="absolute -inset-0.5 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-transparent blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+              <div class="relative text-center">
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 ring-1 ring-emerald-300/30 shadow-lg shadow-emerald-500/10 animate-float">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="credit-card" class="lucide lucide-credit-card h-8 w-8 text-emerald-300"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg>
+                </div>
+                <h3 class="mt-4 text-lg text-white font-geist tracking-tight">3. Get Paid</h3>
+                <p class="mt-2 text-sm text-zinc-400 font-geist tracking-tight">Send invoices instantly and accept online payments. Automated reminders ensure you get paid on time.</p>
+                <div class="mt-4 rounded-lg border border-emerald-200/10 bg-zinc-900/60 backdrop-blur-sm p-4 shadow-inner">
+                  <div class="flex items-center justify-between">
+                    <span class="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2 py-0.5 text-[11px] text-emerald-300 ring-1 ring-emerald-400/20 font-geist tracking-tight animate-bounce-subtle">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" class="lucide lucide-check h-3 w-3"><path d="M20 6 9 17l-5-5"></path></svg>
+                      Paid
+                    </span>
+                    <div class="text-sm text-zinc-300 font-geist tracking-tight">2 days ago</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Integrations -->
+    <section id="integrations" class="relative border-t border-white/10">
+      <div class="mx-auto max-w-7xl px-5 py-16 md:py-20">
+        <div class="grid grid-cols-1 items-center gap-10 md:grid-cols-2">
+          <div class="scroll-slide-left scroll-delay-0">
+            <h2 class="text-3xl md:text-4xl tracking-tight text-white font-bricolage font-light">Connect your stack</h2>
+            <p class="mt-3 max-w-xl text-zinc-400 font-geist tracking-tight">Sync timesheets, send invoices, and accept payments with your favorite tools.</p>
+            <div class="mt-6 grid grid-cols-2 gap-4 stagger-scroll">
+              <div class="flex items-center gap-3 rounded-xl border border-white/10 bg-zinc-900/40 p-3 transition hover:border-white/20 hover:bg-zinc-900/60 scroll-scale scroll-delay-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="credit-card" class="lucide lucide-credit-card h-5 w-5 text-emerald-300 animate-bounce-subtle"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg>
+                <div>
+                  <p class="text-sm text-white font-geist tracking-tight">Payments</p>
+                  <p class="text-xs text-zinc-400 font-geist tracking-tight">Cards, ACH, Wallets</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 rounded-xl border border-white/10 bg-zinc-900/40 p-3 transition hover:border-white/20 hover:bg-zinc-900/60 scroll-scale scroll-delay-100">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="notebook-pen" class="lucide lucide-notebook-pen h-5 w-5 text-indigo-300 animate-bounce-subtle"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"></path><path d="M2 6h4"></path><path d="M2 10h4"></path><path d="M2 14h4"></path><path d="M2 18h4"></path><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"></path></svg>
+                <div>
+                  <p class="text-sm text-white font-geist tracking-tight">Accounting</p>
+                  <p class="text-xs text-zinc-400 font-geist tracking-tight">Export &amp; sync</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 rounded-xl border border-white/10 bg-zinc-900/40 p-3 transition hover:border-white/20 hover:bg-zinc-900/60 scroll-scale scroll-delay-200">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="webhook" class="lucide lucide-webhook h-5 w-5 text-cyan-300 animate-bounce-subtle"><path d="M18 16.98h-5.99c-1.1 0-1.95.94-2.48 1.9A4 4 0 0 1 2 17c.01-.7.2-1.4.57-2"></path><path d="m6 17 3.13-5.78c.53-.97.1-2.18-.5-3.1a4 4 0 1 1 6.89-4.06"></path><path d="m12 6 3.13 5.73C15.66 12.7 16.9 13 18 13a4 4 0 0 1 0 8"></path></svg>
+                <div>
+                  <p class="text-sm text-white font-geist tracking-tight">Webhooks</p>
+                  <p class="text-xs text-zinc-400 font-geist tracking-tight">Real-time events</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 rounded-xl border border-white/10 bg-zinc-900/40 p-3 transition hover:border-white/20 hover:bg-zinc-900/60 scroll-scale scroll-delay-300">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="key-round" class="lucide lucide-key-round h-5 w-5 text-amber-300 animate-bounce-subtle"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"></path><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle></svg>
+                <div>
+                  <p class="text-sm text-white font-geist tracking-tight">API</p>
+                  <p class="text-xs text-zinc-400 font-geist tracking-tight">Simple &amp; secure</p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-6">
+              <a href="#" class="inline-flex items-center gap-2 tracking-tight font-geist" style="--green: #1BFD9C; font-size: 15px; padding: 0.7em 2.7em; letter-spacing: 0.06em; position: relative; font-family: inherit; border-radius: 0.6em; overflow: hidden; transition: all 0.3s; line-height: 1.4em; border: 2px solid var(--green); background: linear-gradient(to right, rgba(27, 253, 156, 0.1) 1%, transparent 40%, transparent 60%, rgba(27, 253, 156, 0.1) 100%); color: var(--green); box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4), 0 0 9px 3px rgba(27, 253, 156, 0.1);">
+                View integration guides
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-right" class="lucide lucide-arrow-right h-4 w-4"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+              </a>
+            </div>
+          </div>
+          <div class="relative scroll-slide-right scroll-delay-200">
+            <div class="absolute -inset-0.5 rounded-2xl bg-gradient-to-b from-cyan-400/20 to-indigo-500/20 blur-2xl opacity-40 animate-float"></div>
+            <div class="relative rounded-2xl border border-white/10 bg-zinc-900/40 p-6 backdrop-blur">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="shield-check" class="lucide lucide-shield-check h-5 w-5 text-emerald-300 animate-bounce-subtle"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                  <p class="text-sm text-white font-geist tracking-tight">Secure by default</p>
+                </div>
+                <span class="rounded-md bg-white/5 px-2 py-1 text-[11px] text-zinc-300 ring-1 ring-white/10 font-geist tracking-tight">OAuth 2.0</span>
+              </div>
+              <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 stagger-scroll">
+                <div class="rounded-lg border border-white/10 bg-zinc-900/50 p-4 scroll-scale scroll-delay-0">
+                  <p class="text-xs text-zinc-400 font-geist tracking-tight">Integration</p>
+                  <p class="text-sm text-white font-geist tracking-tight">Payment Provider</p>
+                  <div class="mt-3 flex items-center justify-between">
+                    <div class="text-xs text-zinc-400 font-geist tracking-tight">Status</div>
+                    <div class="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2 py-0.5 text-[11px] text-emerald-300 ring-1 ring-emerald-400/20 font-geist tracking-tight animate-bounce-subtle">
+                      <span class="h-1.5 w-1.5 rounded-full bg-emerald-300"></span> Connected
+                    </div>
+                  </div>
+                </div>
+                <div class="rounded-lg border border-white/10 bg-zinc-900/50 p-4 scroll-scale scroll-delay-100">
+                  <p class="text-xs text-zinc-400 font-geist tracking-tight">Integration</p>
+                  <p class="text-sm text-white font-geist tracking-tight">Accounting Suite</p>
+                  <div class="mt-3 flex items-center justify-between">
+                    <div class="text-xs text-zinc-400 font-geist tracking-tight">Status</div>
+                    <div class="inline-flex items-center gap-1 rounded-md bg-zinc-100/10 px-2 py-0.5 text-[11px] text-zinc-300 ring-1 ring-white/10 font-geist tracking-tight">
+                      <span class="h-1.5 w-1.5 rounded-full bg-zinc-500"></span> Not linked
+                    </div>
+                  </div>
+                </div>
+                <div class="rounded-lg border border-white/10 bg-zinc-900/50 p-4 md:col-span-2 scroll-scale scroll-delay-200">
+                  <div class="flex items-center justify-between">
+                    <p class="text-sm text-white font-geist tracking-tight">Webhook deliveries</p>
+                    <button class="inline-flex items-center gap-1.5 rounded-md bg-white/5 px-3 py-1.5 text-xs text-white ring-1 ring-white/10 transition hover:bg-white/10 hover:ring-white/30 font-geist tracking-tight">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="copy" class="lucide lucide-copy h-3.5 w-3.5"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+                      Copy secret
+                    </button>
+                  </div>
+                  <div class="mt-3 grid grid-cols-3 gap-2 text-xs text-zinc-400 stagger-scroll">
+                    <div class="rounded-md border border-white/10 bg-white/5 px-2 py-1 font-geist tracking-tight animate-scale-in scroll-delay-0">invoice.sent</div>
+                    <div class="rounded-md border border-white/10 bg-white/5 px-2 py-1 font-geist tracking-tight animate-scale-in scroll-delay-100">payment.succeeded</div>
+                    <div class="rounded-md border border-white/10 bg-white/5 px-2 py-1 font-geist tracking-tight animate-scale-in scroll-delay-200">client.created</div>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 flex items-center justify-between border-t border-white/10 pt-4">
+                <div class="text-xs text-zinc-400 font-geist tracking-tight">SDKs for JS, Python, Go</div>
+                <a href="#" class="inline-flex items-center gap-1 text-xs text-indigo-300 hover:text-indigo-200 transition-colors font-geist tracking-tight">
+                  Get API keys
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="key" class="lucide lucide-key h-4 w-4"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"></path><path d="m21 2-9.6 9.6"></path><circle cx="7.5" cy="15.5" r="5.5"></circle></svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" class="relative border-t border-white/10">
+      <div class="mx-auto max-w-7xl px-5 py-16 md:py-20">
+        <div class="text-center scroll-animate scroll-delay-0">
+          <h2 class="text-3xl md:text-4xl tracking-tight text-white font-bricolage font-light">Simple, fair pricing</h2>
+          <p class="mt-2 text-zinc-400 font-geist tracking-tight">Start free. Upgrade when you're ready. Cancel anytime.</p>
+        </div>
+        
+        <!-- Pricing Toggle -->
+        <div class="mt-8 flex items-center justify-center scroll-scale scroll-delay-0">
+          <div class="flex items-center gap-4 rounded-xl bg-zinc-900/40 border border-white/10 p-2 backdrop-blur">
+            <button class="px-3 py-1.5 text-sm font-geist tracking-tight text-white bg-white/10 rounded-lg transition">Monthly</button>
+            <button class="px-3 py-1.5 text-sm font-geist tracking-tight text-zinc-400 hover:text-white transition">Annual <span class="ml-1 text-xs bg-emerald-500/15 text-emerald-300 px-1.5 py-0.5 rounded-md animate-bounce-subtle">Save 20%</span></button>
+          </div>
+        </div>
+
+        <div class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3 stagger-scroll">
+          <!-- Free Plan -->
+          <div class="relative rounded-2xl border border-white/10 bg-zinc-900/40 p-8 transition-all duration-500 hover:border-white/20 hover:bg-zinc-900/60 scroll-animate scroll-delay-0 group">
+            <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-zinc-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div class="relative">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg text-white font-geist tracking-tight">Free</h3>
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/5 ring-1 ring-white/10 animate-bounce-subtle">
+                  <span class="text-xs text-white font-geist tracking-tight">TB</span>
+                </div>
+              </div>
+              
+              <div class="flex items-baseline gap-2 mb-2">
+                <span class="text-4xl font-bricolage font-light text-white tracking-tight">$0</span>
+              </div>
+              <p class="text-sm text-zinc-400 font-geist tracking-tight mb-6">Perfect for getting started</p>
+              
+              <div class="space-y-1 mb-6">
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-zinc-300 font-geist tracking-tight">Users</span>
+                  <span class="text-white font-geist tracking-tight">1</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-zinc-300 font-geist tracking-tight">Clients</span>
+                  <span class="text-white font-geist tracking-tight">3</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-zinc-300 font-geist tracking-tight">Projects</span>
+                  <span class="text-white font-geist tracking-tight">10</span>
+                </div>
+              </div>
+
+              <ul class="space-y-3 mb-8 text-sm">
+                <li class="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-emerald-400 flex-shrink-0">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  <span class="text-zinc-300 font-geist tracking-tight">Unlimited time tracking</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-emerald-400 flex-shrink-0">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  <span class="text-zinc-300 font-geist tracking-tight">Basic invoicing</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-emerald-400 flex-shrink-0">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  <span class="text-zinc-300 font-geist tracking-tight">Email support</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-emerald-400 flex-shrink-0">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  <span class="text-zinc-300 font-geist tracking-tight">Mobile apps</span>
+                </li>
+              </ul>
+              
+              <button class="w-full py-3 px-4 text-sm font-geist tracking-tight transition-all duration-300 group-hover:scale-105 animate-float text-zinc-900 rounded-xl" style="--white: #FFFFFF; font-size: 15px; padding: 0.7em 2.7em; letter-spacing: 0.06em; position: relative; font-family: inherit; border-radius: 0.6em; overflow: hidden; transition: all 0.3s; line-height: 1.4em; border: 2px solid var(--white); background: linear-gradient(to right, rgba(255, 255, 255, 0.1) 1%, transparent 40%, transparent 60%, rgba(255, 255, 255, 0.1) 100%); color: var(--white); box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.4), 0 0 9px 3px rgba(255, 255, 255, 0.1);">
+                Get started free
+              </button>
+            </div>
+          </div>
+
+          <!-- Pro Plan -->
+          <div class="relative rounded-2xl border border-indigo-300/40 bg-gradient-to-b from-indigo-500/10 via-indigo-500/5 to-white/5 p-8 transition-all duration-500 hover:border-indigo-300/60 hover:shadow-2xl hover:shadow-indigo-500/10 scroll-animate scroll-delay-100 group scale-105 md:scale-110 transform">
+            <div class="absolute -inset-0.5 rounded-2xl bg-gradient-to-br from-indigo-500/20 via-indigo-400/10 to-transparent blur opacity-60 group-hover:opacity-80 transition-opacity duration-500 animate-float"></div>
+            <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+              <div class="animate-bounce-subtle text-xs font-semibold text-zinc-900 tracking-tight font-geist bg-gradient-to-r from-emerald-300 to-emerald-400 rounded-full pt-1.5 pr-4 pb-1.5 pl-4 shadow-lg">
+                Most Popular
+              </div>
+            </div>
+            
+            <div class="relative">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg text-white font-geist tracking-tight">Pro</h3>
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500/20 ring-1 ring-indigo-300/30 animate-bounce-subtle">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-indigo-300">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                  </svg>
+                </div>
+              </div>
+              
+              <div class="flex items-baseline gap-2 mb-2">
+                <span class="text-4xl font-bricolage font-light text-white tracking-tight">$12</span>
+                <span class="text-zinc-400 text-sm font-geist tracking-tight">/month</span>
+              </div>
+              <p class="text-sm text-zinc-400 font-geist tracking-tight mb-6">Everything you need to scale</p>
+              
+              <div class="space-y-1 mb-6">
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-zinc-300 font-geist tracking-tight">Users</span>
+                  <span class="text-white font-geist tracking-tight">1</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-zinc-300 font-geist tracking-tight">Clients</span>
+                  <span class="text-indigo-300 font-geist tracking-tight">Unlimited</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-zinc-300 font-geist tracking-tight">Projects</span>
+                  <span class="text-indigo-300 font-geist tracking-tight">Unlimited</span>
+                </div>
+              </div>
+
+              <ul class="space-y-3 mb-8 text-sm">
+                <li class="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-indigo-400 flex-shrink-0">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  <span class="text-zinc-200 font-geist tracking-tight">Everything in Free, plus:</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-indigo-400 flex-shrink-0">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  <span class="text-white font-geist tracking-tight">Online payments &amp; fees</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-indigo-400 flex-shrink-0">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  <span class="text-white font-geist tracking-tight">Custom branding</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-indigo-400 flex-shrink-0">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  <span class="text-white font-geist tracking-tight">Automated reminders</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-indigo-400 flex-shrink-0">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  <span class="text-white font-geist tracking-tight">Advanced reporting</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-indigo-400 flex-shrink-0">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  <span class="text-white font-geist tracking-tight">Priority support</span>
+                </li>
+              </ul>
+              
+              <button class="w-full py-3 px-4 text-sm font-geist tracking-tight transition-all duration-300 group-hover:scale-105 animate-float text-white rounded-xl" style="--green: #1BFD9C; font-size: 15px; padding: 0.7em 2.7em; letter-spacing: 0.06em; position: relative; font-family: inherit; border-radius: 0.6em; overflow: hidden; transition: all 0.3s; line-height: 1.4em; border: 2px solid var(--green); background: linear-gradient(to right, rgba(27, 253, 156, 0.1) 1%, transparent 40%, transparent 60%, rgba(27, 253, 156, 0.1) 100%); color: var(--green); box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4), 0 0 9px 3px rgba(27, 253, 156, 0.1);">
+                Start Pro trial
+              </button>
+              
+              <p class="text-xs text-center text-zinc-400 mt-3 font-geist tracking-tight">14-day free trial</p>
+            </div>
+          </div>
+
+          <!-- Team Plan -->
+          <div class="relative rounded-2xl border border-white/10 bg-zinc-900/40 p-8 transition-all duration-500 hover:border-white/20 hover:bg-zinc-900/60 scroll-animate scroll-delay-200 group">
+            <div class="absolute inset-0 rounded-2xl bg-gradient-to-br from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div class="relative">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg text-white font-geist tracking-tight">Team</h3>
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/20 ring-1 ring-violet-300/30 animate-bounce-subtle">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-violet-300">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="m22 21-2-2"></path>
+                    <path d="m16 16 2 2"></path>
+                  </svg>
+                </div>
+              </div>
+              
+              <div class="flex items-baseline gap-2 mb-2">
+                <span class="text-4xl font-bricolage font-light text-white tracking-tight">$19</span>
+                <span class="text-zinc-400 text-sm font-geist tracking-tight">/user/month</span>
+              </div>
+              <p class="text-sm text-zinc-400 font-geist tracking-tight mb-6">Built for growing teams</p>
+              
+              <div class="space-y-1 mb-6">
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-zinc-300 font-geist tracking-tight">Users</span>
+                  <span class="text-violet-300 font-geist tracking-tight">Unlimited</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-zinc-300 font-geist tracking-tight">Clients</span>
+                  <span class="text-violet-300 font-geist tracking-tight">Unlimited</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-zinc-300 font-geist tracking-tight">Projects</span>
+                  <span class="text-violet-300 font-geist tracking-tight">Unlimited</span>
+                </div>
+              </div>
+
+              <ul class="space-y-3 mb-8 text-sm">
+                <li class="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-violet-400 flex-shrink-0">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  <span class="text-zinc-200 font-geist tracking-tight">Everything in Pro, plus:</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-violet-400 flex-shrink-0">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  <span class="text-white font-geist tracking-tight">Team roles &amp; permissions</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-violet-400 flex-shrink-0">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  <span class="text-white font-geist tracking-tight">Budget tracking &amp; alerts</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-violet-400 flex-shrink-0">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  <span class="text-white font-geist tracking-tight">Approval workflows</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-violet-400 flex-shrink-0">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  <span class="text-white font-geist tracking-tight">Advanced integrations</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 text-violet-400 flex-shrink-0">
+                    <path d="M20 6 9 17l-5-5"></path>
+                  </svg>
+                  <span class="text-white font-geist tracking-tight">Dedicated account manager</span>
+                </li>
+              </ul>
+              
+              <button class="w-full py-3 px-4 text-sm font-geist tracking-tight transition-all duration-300 group-hover:scale-105 animate-float text-zinc-900 rounded-xl" style="--white: #FFFFFF; font-size: 15px; padding: 0.7em 2.7em; letter-spacing: 0.06em; position: relative; font-family: inherit; border-radius: 0.6em; overflow: hidden; transition: all 0.3s; line-height: 1.4em; border: 2px solid var(--white); background: linear-gradient(to right, rgba(255, 255, 255, 0.1) 1%, transparent 40%, transparent 60%, rgba(255, 255, 255, 0.1) 100%); color: var(--white); box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.4), 0 0 9px 3px rgba(255, 255, 255, 0.1);">
+                Start Team trial
+              </button>
+              
+              <p class="text-xs text-center text-zinc-400 mt-3 font-geist tracking-tight">14-day free trial</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Features comparison link -->
+        <div class="mt-12 text-center scroll-animate scroll-delay-300">
+          <a href="#" class="inline-flex items-center gap-2 text-sm text-indigo-300 hover:text-indigo-200 transition-colors font-geist tracking-tight">
+            Compare all features
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="relative border-t border-white/10">
+      <div class="max-w-7xl md:py-20 mr-auto ml-auto pt-16 pr-5 pb-16 pl-5 space-y-6">
+        <div class="text-center mb-12 scroll-animate scroll-delay-0">
+          <h2 class="text-3xl md:text-4xl tracking-tight text-white font-bricolage font-light">Loved by creators worldwide</h2>
+          <p class="mt-2 text-zinc-400 font-geist tracking-tight">See what freelancers and teams say about TempoBill.</p>
+        </div>
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 stagger-scroll">
+          <div class="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 transition hover:border-white/20 hover:bg-zinc-900/60 scroll-animate scroll-delay-0 group">
+            <div class="flex items-center gap-3 mb-4">
+              <img alt="Customer" src="https://images.unsplash.com/photo-1529665253569-6d01c0eaf7b6?q=80&amp;w=320&amp;auto=format&amp;fit=crop" class="h-10 w-10 rounded-full object-cover ring-1 ring-white/10 animate-bounce-subtle">
+              <div>
+                <p class="text-sm text-white font-geist tracking-tight">Sam Kerr</p>
+                <p class="text-xs text-zinc-400 font-geist tracking-tight">Brand Designer</p>
+              </div>
+            </div>
+            <p class="text-sm text-zinc-300 font-geist tracking-tight">"The timers feel invisible, and invoices go out on time every time. I get paid faster and spend less time chasing."</p>
+            <div class="mt-4 flex gap-1 stagger-entrance">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" class="lucide lucide-star h-4 w-4 fill-amber-300 text-amber-300 animate-bounce-subtle"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 01 .295-.295l-3.73-3.73a.53.53 0 0 1-.154-.374V2.56l-1.178-2.373A.53.53 0 0 1 11.525 2.295Z"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" class="lucide lucide-star h-4 w-4 fill-amber-300 text-amber-300"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .295.295l-3.73 3.73a.53.53 0 0 1-.154.374V2.56l-1.178-2.373A.53.53 0 0 1 11.525 2.295Z"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" class="lucide lucide-star h-4 w-4 fill-amber-300 text-amber-300"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .295.295l-3.73 3.73a.53.53 0 0 1-.154.374V2.56l-1.178-2.373A.53.53 0 0 1 11.525 2.295Z"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" class="lucide lucide-star h-4 w-4 fill-amber-300 text-amber-300"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .295.295l-3.73 3.73a.53.53 0 0 1-.154.374V2.56l-1.178-2.373A.53.53 0 0 1 11.525 2.295Z"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" class="lucide lucide-star h-4 w-4 fill-amber-300 text-amber-300"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .295.295l-3.73 3.73a.53.53 0 0 1-.154.374V2.56l-1.178-2.373A.53.53 0 0 1 11.525 2.295Z"></path></svg>
+            </div>
+          </div>
+          
+          <div class="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 transition hover:border-white/20 hover:bg-zinc-900/60 scroll-animate scroll-delay-100 group">
+            <div class="flex items-center gap-3 mb-4">
+              <img alt="Customer" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&amp;w=320&amp;auto=format&amp;fit=crop" class="h-10 w-10 rounded-full object-cover ring-1 ring-white/10 animate-bounce-subtle">
+              <div>
+                <p class="text-sm text-white font-geist tracking-tight">Marcus Chen</p>
+                <p class="text-xs text-zinc-400 font-geist tracking-tight">Full-stack Developer</p>
+              </div>
+            </div>
+            <p class="text-sm text-zinc-300 font-geist tracking-tight">"Game changer for my freelance business. The API integrations saved me hours of manual work, and clients love the professional invoices."</p>
+            <div class="mt-4 flex gap-1 stagger-entrance">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" class="lucide lucide-star h-4 w-4 fill-amber-300 text-amber-300 animate-bounce-subtle"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .295.295l-3.73 3.73a.53.53 0 0 1-.154.374V2.56l-1.178-2.373A.53.53 0 0 1 11.525 2.295Z"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" class="lucide lucide-star h-4 w-4 fill-amber-300 text-amber-300"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .295.295l-3.73 3.73a.53.53 0 0 1-.154.374V2.56l-1.178-2.373A.53.53 0 0 1 11.525 2.295Z"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" class="lucide lucide-star h-4 w-4 fill-amber-300 text-amber-300"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .295.295l-3.73 3.73a.53.53 0 0 1-.154.374V2.56l-1.178-2.373A.53.53 0 0 1 11.525 2.295Z"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" class="lucide lucide-star h-4 w-4 fill-amber-300 text-amber-300"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .295.295l-3.73 3.73a.53.53 0 0 1-.154.374V2.56l-1.178-2.373A.53.53 0 0 1 11.525 2.295Z"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" class="lucide lucide-star h-4 w-4 fill-amber-300 text-amber-300"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .295.295l-3.73 3.73a.53.53 0 0 1-.154.374V2.56l-1.178-2.373A.53.53 0 0 1 11.525 2.295Z"></path></svg>
+            </div>
+          </div>
+          
+          <div class="rounded-2xl border border-white/10 bg-zinc-900/40 p-6 transition hover:border-white/20 hover:bg-zinc-900/60 scroll-animate scroll-delay-200 group">
+            <div class="flex items-center gap-3 mb-4">
+              <img alt="Customer" src="https://images.unsplash.com/photo-1621619856624-42fd193a0661?w=1080&amp;q=80" class="h-10 w-10 rounded-full object-cover ring-1 ring-white/10 animate-bounce-subtle">
+              <div>
+                <p class="text-sm text-white font-geist tracking-tight">Elena Rodriguez</p>
+                <p class="text-xs text-zinc-400 font-geist tracking-tight">Creative Director</p>
+              </div>
+            </div>
+            <p class="text-sm text-zinc-300 font-geist tracking-tight">"Our team productivity went up 40% since switching to TempoBill. The insights help us make better business decisions every day."</p>
+            <div class="mt-4 flex gap-1 stagger-entrance">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" class="lucide lucide-star h-4 w-4 fill-amber-300 text-amber-300 animate-bounce-subtle"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .295.295l-3.73 3.73a.53.53 0 0 1-.154.374V2.56l-1.178-2.373A.53.53 0 0 1 11.525 2.295Z"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" class="lucide lucide-star h-4 w-4 fill-amber-300 text-amber-300"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .295.295l-3.73 3.73a.53.53 0 0 1-.154.374V2.56l-1.178-2.373A.53.53 0 0 1 11.525 2.295Z"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" class="lucide lucide-star h-4 w-4 fill-amber-300 text-amber-300"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .295.295l-3.73 3.73a.53.53 0 0 1-.154.374V2.56l-1.178-2.373A.53.53 0 0 1 11.525 2.295Z"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" class="lucide lucide-star h-4 w-4 fill-amber-300 text-amber-300"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .295.295l-3.73 3.73a.53.53 0 0 1-.154.374V2.56l-1.178-2.373A.53.53 0 0 1 11.525 2.295Z"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" class="lucide lucide-star h-4 w-4 fill-amber-300 text-amber-300"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .295.295l-3.73 3.73a.53.53 0 0 1-.154.374V2.56l-1.178-2.373A.53.53 0 0 1 11.525 2.295Z"></path></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="relative border-t border-white/10">
+      <div class="mx-auto max-w-7xl px-5 py-16 md:py-20">
+        <div class="text-center space-y-6 scroll-animate scroll-delay-0">
+          <h2 class="text-3xl md:text-4xl tracking-tight text-white font-bricolage font-light">Ready to get started?</h2>
+          <p class="max-w-2xl mx-auto text-zinc-400 font-geist tracking-tight">Join thousands of freelancers and teams who use TempoBill to track time, send invoices, and get paid faster.</p>
+          <div class="flex flex-col gap-4 sm:flex-row sm:justify-center animate-fade-in-up delay-400">
+            <a href="#" class="inline-flex items-center justify-center gap-2 font-geist tracking-tight animate-float" style="--green: #1BFD9C; font-size: 16px; padding: 0.8em 2.5em; letter-spacing: 0.06em; position: relative; font-family: inherit; border-radius: 0.6em; overflow: hidden; transition: all 0.3s; line-height: 1.4em; border: 2px solid var(--green); background: linear-gradient(to right, rgba(27, 253, 156, 0.1) 1%, transparent 40%, transparent 60%, rgba(27, 253, 156, 0.1) 100%); color: var(--green); box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4), 0 0 9px 3px rgba(27, 253, 156, 0.1);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="timer" class="lucide lucide-timer h-4 w-4"><line x1="10" x2="14" y1="2" y2="2"></line><line x1="12" x2="15" y1="14" y2="11"></line><circle cx="12" cy="14" r="8"></circle></svg>
+              Start your free trial
+            </a>
+            <a href="#" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white/5 px-6 py-3 text-sm text-white ring-1 ring-white/10 transition hover:bg-white/10 hover:ring-white/30 font-geist tracking-tight animate-float">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-lucide="message-circle" class="lucide lucide-message-circle h-4 w-4"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg>
+              Talk to sales
+            </a>
+          </div>
+          <p class="text-sm text-zinc-500 font-geist tracking-tight">No credit card required • 14-day free trial • Cancel anytime</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="relative border-t border-white/10 bg-zinc-950/50 backdrop-blur">
+      <div class="mx-auto max-w-7xl px-5 py-12">
+        <div class="grid grid-cols-2 gap-8 md:grid-cols-5">
+          <div class="col-span-2 md:col-span-1">
+            <div class="flex items-center gap-3 mb-4">
+              <span class="text-lg text-white tracking-tight font-geist">TempoBill</span>
+            </div>
+            <p class="text-sm text-zinc-400 font-geist tracking-tight max-w-xs">The delightful billing and time tracking solution for freelancers and creative teams.</p>
+          </div>
+          
+          <div>
+            <h3 class="text-sm font-semibold text-white mb-3 font-geist tracking-tight">Product</h3>
+            <ul class="space-y-2 text-sm text-zinc-400">
+              <li><a href="#" class="hover:text-white transition-colors font-geist tracking-tight">Time Tracking</a></li>
+              <li><a href="#" class="hover:text-white transition-colors font-geist tracking-tight">Invoicing</a></li>
+              <li><a href="#" class="hover:text-white transition-colors font-geist tracking-tight">Reports</a></li>
+              <li><a href="#" class="hover:text-white transition-colors font-geist tracking-tight">Mobile Apps</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 class="text-sm font-semibold text-white mb-3 font-geist tracking-tight">Company</h3>
+            <ul class="space-y-2 text-sm text-zinc-400">
+              <li><a href="#" class="hover:text-white transition-colors font-geist tracking-tight">About</a></li>
+              <li><a href="#" class="hover:text-white transition-colors font-geist tracking-tight">Blog</a></li>
+              <li><a href="#" class="hover:text-white transition-colors font-geist tracking-tight">Careers</a></li>
+              <li><a href="#" class="hover:text-white transition-colors font-geist tracking-tight">Press</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 class="text-sm font-semibold text-white mb-3 font-geist tracking-tight">Support</h3>
+            <ul class="space-y-2 text-sm text-zinc-400">
+              <li><a href="#" class="hover:text-white transition-colors font-geist tracking-tight">Help Center</a></li>
+              <li><a href="#" class="hover:text-white transition-colors font-geist tracking-tight">Contact Us</a></li>
+              <li><a href="#" class="hover:text-white transition-colors font-geist tracking-tight">Status</a></li>
+              <li><a href="#" class="hover:text-white transition-colors font-geist tracking-tight">Community</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 class="text-sm font-semibold text-white mb-3 font-geist tracking-tight">Legal</h3>
+            <ul class="space-y-2 text-sm text-zinc-400">
+              <li><a href="#" class="hover:text-white transition-colors font-geist tracking-tight">Privacy</a></li>
+              <li><a href="#" class="hover:text-white transition-colors font-geist tracking-tight">Terms</a></li>
+              <li><a href="#" class="hover:text-white transition-colors font-geist tracking-tight">Security</a></li>
+              <li><a href="#" class="hover:text-white transition-colors font-geist tracking-tight">Cookies</a></li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center">
+          <p class="text-sm text-zinc-500 font-geist tracking-tight">© 2024 TempoBill. All rights reserved.</p>
+          <div class="flex items-center gap-4 mt-4 md:mt-0">
+            <a href="#" class="text-zinc-400 hover:text-white transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
+              </svg>
+            </a>
+            <a href="#" class="text-zinc-400 hover:text-white transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                <rect width="4" height="12" x="2" y="9"></rect>
+                <circle cx="4" cy="4" r="2"></circle>
+              </svg>
+            </a>
+            <a href="#" class="text-zinc-400 hover:text-white transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+      // Mobile menu toggle
+      function toggleMobileMenu() {
+        const menu = document.getElementById('mobileMenu');
+        menu.classList.toggle('hidden');
+      }
+
+      // Scroll progress bar
+      function updateScrollProgress() {
+        const scrollProgress = document.querySelector('.scroll-progress');
+        const scrollTop = window.pageYOffset;
+        const docHeight = document.body.scrollHeight - window.innerHeight;
+        const scrollPercent = (scrollTop / docHeight) * 100;
+        scrollProgress.style.width = scrollPercent + '%';
+      }
+
+      // Parallax effects
+      function updateParallax() {
+        const elements = document.querySelectorAll('.parallax');
+        elements.forEach(el => {
+          const scrolled = window.pageYOffset;
+          const speed = 0.5;
+          el.style.transform = `translateY(${scrolled * speed}px)`;
+        });
+      }
+
+      // Scroll animations
+      function checkScrollAnimations() {
+        const elements = document.querySelectorAll('.scroll-animate, .scroll-slide-left, .scroll-slide-right, .scroll-scale, .scroll-rotate');
+        
+        elements.forEach(el => {
+          const elementTop = el.getBoundingClientRect().top;
+          const elementVisible = 150;
+          
+          if (elementTop < window.innerHeight - elementVisible) {
+            el.classList.add('animate');
+          }
+        });
+      }
+
+      // Chart initialization
+      function initChart() {
+        const ctx = document.getElementById('hoursChart');
+        if (ctx) {
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+              datasets: [{
+                label: 'Billable',
+                data: [7, 8.5, 6, 9, 7.5, 3, 2],
+                backgroundColor: 'rgba(52, 211, 153, 0.8)',
+                borderColor: 'rgba(52, 211, 153, 1)',
+                borderWidth: 1
+              }, {
+                label: 'Non-billable',
+                data: [2, 1.5, 3, 1, 2.5, 1, 0.5],
+                backgroundColor: 'rgba(113, 113, 122, 0.8)',
+                borderColor: 'rgba(113, 113, 122, 1)',
+                borderWidth: 1
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: false
+                }
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  grid: {
+                    color: 'rgba(255, 255, 255, 0.1)',
+                    drawBorder: false
+                  },
+                  ticks: {
+                    color: 'rgba(161, 161, 170, 0.8)',
+                    font: {
+                      size: 11
+                    }
+                  }
+                },
+                x: {
+                  grid: {
+                    display: false
+                  },
+                  ticks: {
+                    color: 'rgba(161, 161, 170, 0.8)',
+                    font: {
+                      size: 11
+                    }
+                  }
+                }
+              }
+            }
+          });
+        }
+      }
+
+      // Event listeners
+      window.addEventListener('scroll', () => {
+        updateScrollProgress();
+        updateParallax();
+        checkScrollAnimations();
+      });
+
+      window.addEventListener('load', () => {
+        initChart();
+        checkScrollAnimations();
+      });
+
+      // Initialize on DOM ready
+      document.addEventListener('DOMContentLoaded', () => {
+        checkScrollAnimations();
+      });
+    </script>
+  
+</body></html>

@@ -150,18 +150,18 @@ export function EmailVerificationPopup({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md bg-black/40 backdrop-blur-xl border border-white/20 shadow-2xl">
-        <DialogHeader>
-          <DialogTitle className="text-center text-xl font-bold text-white flex items-center justify-center gap-2">
-            <Shield className="w-6 h-6 text-cyan-400" />
+      <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] bg-black/40 backdrop-blur-xl border border-white/20 shadow-2xl overflow-hidden flex flex-col">
+        <DialogHeader className="flex-shrink-0 pb-2">
+          <DialogTitle className="text-center text-lg sm:text-xl font-bold text-white flex items-center justify-center gap-2">
+            <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400" />
             Vérification de sécurité
           </DialogTitle>
-          <DialogDescription className="text-center text-gray-300 text-sm">
+          <DialogDescription className="text-center text-gray-300 text-xs sm:text-sm">
             Confirmez votre identité pour accéder au service d&#39;analyse IA
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-6 p-6">
+        <div className="flex-1 overflow-y-auto scrollbar-hide px-4 sm:px-6 pb-4 sm:pb-6 space-y-4 sm:space-y-6">
           {/* Étape 1: Saisie email */}
           {step === 'email' && (
             <div className="space-y-4">
