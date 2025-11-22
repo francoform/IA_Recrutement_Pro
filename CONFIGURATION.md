@@ -13,7 +13,7 @@ L'erreur 500 sur `/api/auth/send-verification-code` est causée par l'absence de
 - **Sans cette variable** : Erreur 500 lors de l'envoi de codes de vérification
 
 ### 2. NEXTAUTH_URL
-- **Production** : `https://ia-recrutement-pro.francoform.com`
+- **Production** : `https://ia-recrutement-pro.be2web.fr`
 - **Développement** : `http://localhost:3000`
 
 ### 3. NEXTAUTH_SECRET
@@ -34,7 +34,7 @@ L'erreur 500 sur `/api/auth/send-verification-code` est causée par l'absence de
 3. **Ajoutez les variables suivantes :**
    ```
    SMTP_PASSWORD=votre_mot_de_passe_smtp_réel
-   NEXTAUTH_URL=https://ia-recrutement-pro.francoform.com
+   NEXTAUTH_URL=https://ia-recrutement-pro.be2web.fr
    NEXTAUTH_SECRET=votre_clé_secrète_aléatoire_32_caractères_minimum
    ```
 
