@@ -141,7 +141,7 @@ graph TD
 Le système utilise **Supabase Auth** avec les composants suivants :
 
 - **Table `rate_limits`** : Stockage des limites par utilisateur
-- **Vérification par email** : Code à 6 chiffres via SMTP O2Switch
+- **Vérification par email** : Code à 6 chiffres via SMTP OVH
 - **Sessions persistantes** : 24h de validité automatique
 - **Rate limiting** : 3 analyses/jour + 2 analyses/heure
 - **RLS (Row Level Security)** : Protection des données utilisateur
@@ -167,7 +167,7 @@ Le système utilise **Supabase Auth** avec les composants suivants :
 #### Services Implémentés
 ```typescript
 // /src/lib/email-service.ts (✅ OPÉRATIONNEL)
-// Configuration SMTP O2Switch avec nodemailer
+// Configuration SMTP OVH avec nodemailer
 // Génération codes 6 chiffres aléatoires
 // Templates HTML professionnels
 // Gestion expiration 10 minutes
@@ -380,11 +380,12 @@ export function isWhitelisted(email: string): boolean {
 
 ### 4.1 Variables d'Environnement (✅ CONFIGURÉES)
 ```env
-# SMTP O2Switch (opérationnel)
-SMTP_HOST=kitty.o2switch.net
+# SMTP OVH (opérationnel)
+SMTP_HOST=ssl0.ovh.net
 SMTP_PORT=465
-SMTP_USER=noreply@francoform.com
-SMTP_PASS=Maxime%9524
+SMTP_USER=contact@be2web.fr
+SMTP_PASSWORD=votre_mot_de_passe
+SMTP_SECURE=true
 
 # Supabase (configuré)
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
@@ -423,7 +424,7 @@ RATE_LIMIT_IP_DAILY=1
 ✅ **Économies tokens** : Réduction 90% des analyses non légitimes  
 ✅ **Supabase intégré** : Base de données robuste avec RLS et persistance  
 ✅ **Rate limiting intelligent** : 3/jour + 2/heure avec reset automatique  
-✅ **SMTP O2Switch** : Infrastructure email existante réutilisée  
+✅ **SMTP OVH** : Infrastructure email existante réutilisée  
 ✅ **SEO renforcé** : Message "3 analyses gratuites" pour conversion  
 ✅ **Sessions persistantes** : Authentification 24h sans re-vérification  
 ✅ **Monitoring intégré** : Logs d'usage et métriques de performance  

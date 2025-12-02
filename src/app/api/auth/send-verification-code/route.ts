@@ -8,13 +8,13 @@ function generateVerificationCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString()
 }
 
-// Configuration SMTP O2Switch
+// Configuration SMTP OVH
 const transporter = nodemailer.createTransport({
-  host: 'kitty.o2switch.net',
-  port: 465,
-  secure: true,
+  host: process.env.SMTP_HOST || 'ssl0.ovh.net',
+  port: parseInt(process.env.SMTP_PORT || '465'),
+  secure: process.env.SMTP_SECURE === 'true',
   auth: {
-    user: 'noreply@francoform.com',
+    user: process.env.SMTP_USER || 'contact@be2web.fr',
     pass: process.env.SMTP_PASSWORD
   }
 })
@@ -201,12 +201,12 @@ export async function POST(request: NextRequest) {
 
     // Générer un code de vérification à 6 chiffres
     const code = generateVerificationCode()
-    
+
     // Créer ou mettre à jour l'utilisateur avec le code de vérification
     if (existingUser) {
       await supabase
         .from('users')
-        .update({ 
+        .update({
           verification_code: code,
           code_generated_at: new Date().toISOString(),
           verified: false,
@@ -216,7 +216,7 @@ export async function POST(request: NextRequest) {
     } else {
       await supabase
         .from('users')
-        .insert({ 
+        .insert({
           email,
           verification_code: code,
           code_generated_at: new Date().toISOString(),
@@ -226,11 +226,11 @@ export async function POST(request: NextRequest) {
 
     // Envoyer l'email
     await transporter.sendMail({
-      from: '"IA Recrutement Pro" <noreply@francoform.com>',
+      from: `"IA Recrutement Pro" <${process.env.SMTP_USER || 'contact@be2web.fr'}>`,
       to: email,
       subject: '🔐 Votre code de vérification - IA Recrutement Pro',
       html: getEmailTemplate(code),
-      text: `Votre code de vérification pour IA Recrutement Pro est : ${code}\n\nCe code est valide pendant 10 minutes.\n\nSi vous n'avez pas demandé ce code, ignorez cet email.`
+      text: `Votre code de vérification pour IA Recrutement Pro est : ${code}\\n\\nCe code est valide pendant 10 minutes.\\n\\nSi vous n'avez pas demandé ce code, ignorez cet email.`
     })
 
     return NextResponse.json(

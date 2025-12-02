@@ -112,9 +112,9 @@ interface AnalyzeResponse {
 **Fonction**: Envoi d'emails aux candidats
 
 **Configuration SMTP**:
-- Host: kitty.o2switch.net
+- Host: ssl0.ovh.net
 - Port: 465 (SSL)
-- Auth: noreply@francoform.com
+- Auth: contact@be2web.fr
 
 **Paramètres**:
 ```typescript
@@ -294,10 +294,11 @@ export const FILE_CONFIG = {
 ### 11.3 Variables d'Environnement
 ```env
 # Email Configuration
-SMTP_HOST=kitty.o2switch.net
+SMTP_HOST=ssl0.ovh.net
 SMTP_PORT=465
-SMTP_USER=noreply@francoform.com
-SMTP_PASS=Maxime%9524
+SMTP_USER=contact@be2web.fr
+SMTP_PASSWORD=votre_mot_de_passe
+SMTP_SECURE=true
 
 # Webhook URLs
 N8N_WEBHOOK_URL=https://n8nify.francoform.com/webhook/690fb674-2054-44c2-8805-5bb30c6091fa
@@ -313,7 +314,7 @@ N8N_WEBHOOK_URL=https://n8nify.francoform.com/webhook/690fb674-2054-44c2-8805-5b
 
 ### 12.2 Points d'Attention
 - Webhook N8N: Point de défaillance unique
-- SMTP: Configuration hardcodée
+- SMTP: Configuration via variables d'environnement
 - SessionStorage: Données volatiles
 - File upload: Limite de taille
 

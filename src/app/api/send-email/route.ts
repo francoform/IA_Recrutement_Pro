@@ -5,20 +5,20 @@ export async function POST(request: NextRequest) {
   try {
     const { to, from, cc, subject, message, candidateName } = await request.json();
 
-    // Configuration du transporteur SMTP
+    // Configuration du transporteur SMTP OVH
     const transporter = nodemailer.createTransport({
-      host: 'kitty.o2switch.net',
-      port: 465,
-      secure: true, // SSL
+      host: process.env.SMTP_HOST || 'ssl0.ovh.net',
+      port: parseInt(process.env.SMTP_PORT || '465'),
+      secure: process.env.SMTP_SECURE === 'true', // SSL
       auth: {
-        user: 'noreply@francoform.com',
-        pass: 'Maxime%9524'
+        user: process.env.SMTP_USER || 'contact@be2web.fr',
+        pass: process.env.SMTP_PASSWORD
       }
     });
 
     // Options de l'email
     const mailOptions = {
-      from: `"${from}" <noreply@francoform.com>`,
+      from: `"${from}" <${process.env.SMTP_USER || 'contact@be2web.fr'}>`,
       to: to,
       cc: cc || undefined,
       replyTo: from,
