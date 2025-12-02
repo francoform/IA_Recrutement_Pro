@@ -143,7 +143,7 @@ interface EmailRequest {
 4. Stockage de l'ID en sessionStorage
 5. Retour des résultats
 
-**Webhook N8N**: `https://n8nify.francoform.com/webhook/690fb674-2054-44c2-8805-5bb30c6091fa`
+**Webhook N8N**: `https://n8nify.be2web.fr/webhook/690fb674-2054-44c2-8805-5bb30c6091fa`
 
 ### 5.2 Gestion des Fichiers
 
@@ -301,7 +301,7 @@ SMTP_PASSWORD=votre_mot_de_passe
 SMTP_SECURE=true
 
 # Webhook URLs
-N8N_WEBHOOK_URL=https://n8nify.francoform.com/webhook/690fb674-2054-44c2-8805-5bb30c6091fa
+N8N_WEBHOOK_URL=https://n8nify.be2web.fr/webhook/690fb674-2054-44c2-8805-5bb30c6091fa
 ```
 
 ## 12. Maintenance et Évolutions

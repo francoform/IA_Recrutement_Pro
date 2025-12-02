@@ -36,28 +36,28 @@ export function UploadZone() {
   // Vérification des doublons
   const checkForDuplicates = (newFiles: File[], existingFiles: File[], type: keyof FilesByType): string[] => {
     const errors: string[] = []
-    
+
     // Vérifier les doublons dans les nouveaux fichiers
     const newFileNames = newFiles.map(f => f.name.toLowerCase())
     const duplicatesInNew = newFileNames.filter((name, index) => newFileNames.indexOf(name) !== index)
     if (duplicatesInNew.length > 0) {
       errors.push(`Fichiers dupliqués détectés : ${[...new Set(duplicatesInNew)].join(', ')}`)
     }
-    
+
     // Vérifier les doublons avec les fichiers existants
     const existingFileNames = existingFiles.map(f => f.name.toLowerCase())
-    const duplicatesWithExisting = newFiles.filter(newFile => 
+    const duplicatesWithExisting = newFiles.filter(newFile =>
       existingFileNames.includes(newFile.name.toLowerCase())
     )
     if (duplicatesWithExisting.length > 0) {
       errors.push(`Fichiers déjà uploadés : ${duplicatesWithExisting.map(f => f.name).join(', ')}`)
     }
-    
+
     // Limite pour la fiche de poste
     if (type === 'jobDescription' && existingFiles.length > 0) {
       errors.push('Une seule fiche de poste est autorisée')
     }
-    
+
     return errors
   }
 
@@ -66,29 +66,29 @@ export function UploadZone() {
     const errors: string[] = []
     const allowedTypes = ['.pdf', '.doc', '.docx', '.txt']
     const maxSize = 10 * 1024 * 1024 // 10MB
-    
+
     // Vérification de l'extension
     const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase()
     if (!allowedTypes.includes(fileExtension)) {
       errors.push(`${file.name}: Type de fichier non autorisé (${fileExtension})`)
     }
-    
+
     // Vérification de la taille
     if (file.size > maxSize) {
       errors.push(`${file.name}: Fichier trop volumineux (max 10MB)`)
     }
-    
+
     // Vérification du nom de fichier (pas de caractères suspects)
     const suspiciousChars = /[<>:"|?*\\]/
     if (suspiciousChars.test(file.name)) {
       errors.push(`${file.name}: Nom de fichier contient des caractères non autorisés`)
     }
-    
+
     // Vérification basique du contenu pour les fichiers texte
     if (fileExtension === '.txt' && file.size < 50) {
       errors.push(`${file.name}: Fichier texte trop petit, probablement corrompu`)
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors
@@ -98,7 +98,7 @@ export function UploadZone() {
   const validateFiles = (fileList: File[]): { validFiles: File[], allErrors: string[] } => {
     const validFiles: File[] = []
     const allErrors: string[] = []
-    
+
     fileList.forEach(file => {
       const validation = validateFile(file)
       if (validation.isValid) {
@@ -107,28 +107,28 @@ export function UploadZone() {
         allErrors.push(...validation.errors)
       }
     })
-    
+
     return { validFiles, allErrors }
   }
 
   const processFiles = (newFiles: File[], type: keyof FilesByType) => {
     // Vérifier les doublons d'abord
     const duplicateErrors = checkForDuplicates(newFiles, files[type], type)
-    
+
     // Si il y a des doublons, on arrête le processus
     if (duplicateErrors.length > 0) {
       setValidationErrors(duplicateErrors)
       setShowErrorPopup(true)
       return
     }
-    
+
     const { validFiles, allErrors } = validateFiles(newFiles)
-    
+
     if (allErrors.length > 0) {
       setValidationErrors(allErrors)
       setShowErrorPopup(true)
     }
-    
+
     if (validFiles.length > 0) {
       setFiles(prev => ({
         ...prev,
@@ -151,7 +151,7 @@ export function UploadZone() {
   const handleDrop = (e: React.DragEvent, type: keyof FilesByType) => {
     e.preventDefault()
     setDragOverZone(null)
-    
+
     const droppedFiles = Array.from(e.dataTransfer.files)
     processFiles(droppedFiles, type)
   }
@@ -192,48 +192,48 @@ export function UploadZone() {
   }
 
   const canAnalyze = () => {
-    return files.jobDescription.length === 1 && 
-           files.cvs.length > 0 && 
-           files.motivationLetters.length > 0 && 
-           files.cvs.length === files.motivationLetters.length
+    return files.jobDescription.length === 1 &&
+      files.cvs.length > 0 &&
+      files.motivationLetters.length > 0 &&
+      files.cvs.length === files.motivationLetters.length
   }
 
   // Fonction utilitaire pour récupérer le token Supabase depuis les cookies
   const getAuthToken = () => {
     console.log('🔍 [DEBUG] Vérification de la session Supabase...')
     console.log('🍪 Tous les cookies disponibles:', document.cookie)
-    
+
     const cookies = document.cookie.split(';')
     const authCookie = cookies.find(cookie => cookie.trim().startsWith('supabase-session='))
     console.log('🍪 Cookie supabase-session trouvé:', authCookie)
-    
+
     if (!authCookie) {
       console.log('❌ Aucun cookie supabase-session trouvé - session expirée ou perdue')
       return null
     }
-    
+
     const token = decodeURIComponent(authCookie.split('=')[1].trim())
     console.log('🔑 Token Supabase extrait:', token ? `${token.substring(0, 20)}...` : 'null')
-    
+
     return token
   }
 
   const handleSubmit = async () => {
     console.log('🎯 === DÉBUT HANDLESUBMIT ===');
     console.log('🎯 canAnalyze():', canAnalyze());
-    
+
     if (!canAnalyze()) {
       console.log('❌ canAnalyze() retourne false - arrêt');
       return;
     }
-    
+
     try {
       console.log('🔑 === RÉCUPÉRATION TOKEN ===');
       // Récupérer le token d'authentification
       const token = getAuthToken();
       console.log('🔑 Token récupéré:', token ? 'PRÉSENT' : 'ABSENT');
       console.log('🔑 Longueur du token:', token?.length || 0);
-      
+
       if (!token) {
         console.log('❌ Pas de token - affichage vérification email');
         setShowEmailVerification(true);
@@ -242,7 +242,7 @@ export function UploadZone() {
 
       console.log('🚦 === VÉRIFICATION RATE-LIMITING SUPABASE ===');
       console.log('🚦 Appel de /api/analysis/check-limits...');
-      
+
       // Vérifier directement les limites avec le token Supabase
       const limitsResponse = await fetch('/api/analysis/check-limits', {
         method: 'POST',
@@ -251,23 +251,23 @@ export function UploadZone() {
           'Authorization': `Bearer ${token}`,
         },
       })
-      
+
       console.log('🚦 Réponse check-limits reçue:', {
         status: limitsResponse.status,
         statusText: limitsResponse.statusText,
         ok: limitsResponse.ok
       })
-      
+
       const limitsResult = await limitsResponse.json()
       console.log('🚦 Données check-limits parsées:', limitsResult)
-      
+
       // Si le token est invalide, l'API retournera une erreur 401
       if (limitsResponse.status === 401) {
         console.log('❌ Token Supabase invalide (401) - affichage vérification email')
         setShowEmailVerification(true)
         return
       }
-      
+
       if (!limitsResult.allowed) {
         console.log('🚫 Rate limit atteint - affichage popup')
         console.log('🚫 Détails rate limit:', {
@@ -275,39 +275,39 @@ export function UploadZone() {
           max: limitsResult.max,
           type: limitsResult.type
         })
-        
+
         // Rate limit atteint, afficher la popup
         const message = `Vous avez effectué ${limitsResult.current}/${limitsResult.max} analyses autorisées aujourd'hui.\n\nVotre quota sera réinitialisé demain à minuit.`
-        
+
         setRateLimitMessage(message)
         setRateLimitType('daily')
         setShowRateLimitPopup(true)
         return
       }
-      
+
       console.log('✅ Rate limit OK - procéder à l\'analyse');
       console.log('✅ Limites actuelles:', {
         current: limitsResult.current,
         max: limitsResult.max,
         type: limitsResult.type
       });
-      
+
       // Token valide et pas de rate limiting, procéder à l'analyse
       console.log('🚀 Appel de performAnalysis avec le token...');
       await performAnalysis(token);
-      
+
     } catch (error) {
       console.error('💥 === EXCEPTION DANS HANDLESUBMIT ===');
       console.error('💥 Type d\'erreur:', typeof error);
       console.error('💥 Message d\'erreur:', error instanceof Error ? error.message : String(error));
       console.error('💥 Stack trace:', error instanceof Error ? error.stack : 'Pas de stack trace');
       console.error('💥 Erreur complète:', error);
-      
+
       // En cas d'erreur, déclencher la vérification email par sécurité
       console.log('🔄 Affichage vérification email par sécurité');
       setShowEmailVerification(true);
     }
-    
+
     console.log('🎯 === FIN HANDLESUBMIT ===');
   }
 
@@ -315,7 +315,7 @@ export function UploadZone() {
     console.log('🎯 === DÉBUT DE L\'ANALYSE ===');
     console.log('🎯 authToken disponible:', !!authToken);
     console.log('🎯 authToken longueur:', authToken?.length || 0);
-    
+
     setIsUploading(true)
     setShowLoadingPopup(true)
     setAnalysisProgress(0)
@@ -337,13 +337,13 @@ export function UploadZone() {
       sessionStorage.setItem('analysisId', analysisId);
 
       console.log('🚀 Envoi des données vers le proxy API:', {
-         analysisId,
-         files: {
-           jobDescription: files.jobDescription.map(f => f.name),
-           cvs: files.cvs.map(f => f.name),
-           motivationLetters: files.motivationLetters.map(f => f.name)
-         }
-       });
+        analysisId,
+        files: {
+          jobDescription: files.jobDescription.map(f => f.name),
+          cvs: files.cvs.map(f => f.name),
+          motivationLetters: files.motivationLetters.map(f => f.name)
+        }
+      });
 
       // 2) Construire le FormData complet
       const formData = new FormData();
@@ -354,18 +354,18 @@ export function UploadZone() {
 
       console.log('📤 AVANT appel webhook n8n - Début de la requête');
       console.log('📤 FormData préparée, taille approximative:', formData.entries ? Array.from(formData.entries()).length : 'inconnu');
-      
+
       let res;
       try {
         console.log('🌐 Début de l\'appel fetch au webhook n8n...');
-        
+
         // 3) Appeler directement le webhook n8n
-        res = await fetch('https://n8nify.francoform.com/webhook/690fb674-2054-44c2-8805-5bb30c6091fa', {
+        res = await fetch('https://n8nify.be2web.fr/webhook/690fb674-2054-44c2-8805-5bb30c6091fa', {
           method: 'POST',
           body: formData,
           mode: 'cors'
         });
-        
+
         console.log('✅ Fetch terminé avec succès');
         console.log('📡 APRÈS appel webhook n8n - Réponse reçue:', {
           status: res.status,
@@ -373,7 +373,7 @@ export function UploadZone() {
           ok: res.ok,
           headers: Object.fromEntries(res.headers.entries())
         });
-        
+
       } catch (fetchError) {
         console.error('❌ ERREUR lors du fetch webhook n8n:', fetchError);
         console.error('❌ Type d\'erreur:', fetchError instanceof Error ? fetchError.constructor.name : typeof fetchError);
@@ -385,7 +385,7 @@ export function UploadZone() {
       if (!res.ok) {
         console.log('❌ Webhook n8n a échoué - Status non OK');
         console.log('❌ Tentative de lecture du corps de l\'erreur...');
-        
+
         let errorData;
         try {
           errorData = await res.json();
@@ -394,12 +394,12 @@ export function UploadZone() {
           console.error('❌ Impossible de parser le JSON d\'erreur:', jsonError);
           errorData = { error: 'Erreur inconnue' };
         }
-        
+
         throw new Error(errorData.error || `Erreur HTTP du webhook: ${res.status} ${res.statusText}`);
       }
 
       console.log('✅ Webhook n8n réussi - Parsing de la réponse JSON...');
-      
+
       let resultsData;
       try {
         console.log('🔄 Début du parsing JSON de la réponse...');
@@ -416,42 +416,42 @@ export function UploadZone() {
       console.log('📊 Est-ce un array?', Array.isArray(resultsData));
       console.log('📊 Nombre d\'éléments si array:', Array.isArray(resultsData) ? resultsData.length : 'N/A');
       console.log('📊 Clés de l\'objet si objet:', typeof resultsData === 'object' && !Array.isArray(resultsData) ? Object.keys(resultsData) : 'N/A');
-      
+
       console.log('🎯 Finalisation du progrès...');
       // Finaliser le progrès
       clearInterval(progressInterval)
       setAnalysisProgress(100)
       console.log('✅ Progrès finalisé à 100%');
-      
+
       console.log('💾 STOCKAGE - Début du stockage des résultats...');
-      
+
       try {
         // Stocker les résultats JSON dans sessionStorage avec logs détaillés
         console.log('🔄 Conversion des données en JSON...');
         const dataToStore = JSON.stringify(resultsData);
         console.log('✅ JSON stringifié, longueur:', dataToStore.length);
-        
+
         console.log('🔄 Stockage dans sessionStorage...');
         sessionStorage.setItem('analysisResults', dataToStore);
         console.log('✅ Données stockées dans sessionStorage');
-        
+
         // Vérifier que les données ont bien été stockées
         console.log('🔄 Vérification du stockage...');
         const storedData = sessionStorage.getItem('analysisResults');
         console.log('✅ Vérification stockage - données récupérées:', storedData ? 'OK' : 'ERREUR');
         console.log('✅ Longueur des données stockées:', storedData?.length || 0);
-        
+
       } catch (storageError) {
         console.error('❌ ERREUR lors du stockage:', storageError);
         console.error('❌ Type d\'erreur stockage:', storageError instanceof Error ? storageError.constructor.name : typeof storageError);
         console.error('❌ Message d\'erreur stockage:', storageError instanceof Error ? storageError.message : String(storageError));
         // Continuer malgré l'erreur de stockage
       }
-      
+
       console.log('🔢 === DÉBUT INCRÉMENTATION RATE-LIMITING SUPABASE ===');
       console.log('🔢 Tentative d\'incrémentation des compteurs...');
       console.log('🔢 Token Supabase à envoyer:', authToken ? 'PRÉSENT' : 'ABSENT')
-      
+
       // Incrémenter les compteurs de rate-limiting après succès de l'analyse
       try {
         console.log('🔢 Appel de l\'API increment-counters...')
@@ -462,13 +462,13 @@ export function UploadZone() {
           },
           body: JSON.stringify({ token: authToken }),
         })
-        
+
         console.log('🔢 Réponse de l\'API increment-counters:', {
           status: incrementResponse.status,
           statusText: incrementResponse.statusText,
           ok: incrementResponse.ok
         })
-        
+
         if (incrementResponse.ok) {
           const incrementResult = await incrementResponse.json().catch(() => null)
           console.log('✅ Compteurs Supabase incrémentés avec succès')
@@ -486,9 +486,9 @@ export function UploadZone() {
         console.error('❌ Stack trace:', incrementError instanceof Error ? incrementError.stack : 'Pas de stack trace')
         // Ne pas bloquer la suite même si l'incrémentation échoue
       }
-      
+
       console.log('🔢 === FIN INCRÉMENTATION RATE-LIMITING SUPABASE ===');
-      
+
       // Attendre un peu pour montrer 100% puis rediriger
       console.log('🔄 Redirection dans 1.5 secondes...');
       setTimeout(() => {
@@ -500,13 +500,13 @@ export function UploadZone() {
           console.error('❌ ERREUR lors de la redirection:', redirectError);
         }
       }, 1500)
-      
+
     } catch (err) {
       console.error('💥 ERREUR GLOBALE lors de l\'analyse:', err)
       console.error('💥 Stack trace:', err instanceof Error ? err.stack : 'Pas de stack trace')
       clearInterval(progressInterval)
       setShowLoadingPopup(false)
-      
+
       const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
       alert(`Échec de l'analyse: ${errorMessage}\n\nVeuillez réessayer.`);
     } finally {
@@ -515,12 +515,12 @@ export function UploadZone() {
     }
   }
 
-  const FileUploadZone = ({ 
-    type, 
-    title, 
-    description, 
-    icon: Icon, 
-    accept, 
+  const FileUploadZone = ({
+    type,
+    title,
+    description,
+    icon: Icon,
+    accept,
     multiple = true,
     colorScheme
   }: {
@@ -539,34 +539,32 @@ export function UploadZone() {
     }
   }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
-    
+
     const handleBrowseClick = () => {
       if (fileInputRef.current) {
         fileInputRef.current.click();
       }
     };
-    
+
     return (
       <div className="mb-6">
         <h3 className={`text-lg font-medium mb-3 flex items-center ${colorScheme.primary}`}>
           <Icon className={`w-5 h-5 mr-2 ${colorScheme.primary}`} />
           {title}
         </h3>
-        
-        <div 
-          className={`border-2 border-dashed rounded-xl p-6 text-center transition-all duration-300 ${
-            dragOverZone === type
-              ? `${colorScheme.border} ${colorScheme.bg}` 
+
+        <div
+          className={`border-2 border-dashed rounded-xl p-6 text-center transition-all duration-300 ${dragOverZone === type
+              ? `${colorScheme.border} ${colorScheme.bg}`
               : `border-gray-600 ${colorScheme.hover}`
-          }`}
+            }`}
           onDragOver={(e) => handleDragOver(e, type)}
           onDragLeave={handleDragLeave}
           onDrop={(e) => handleDrop(e, type)}
         >
-          <Upload className={`w-8 h-8 mx-auto mb-3 transition-colors duration-300 ${
-            dragOverZone === type ? colorScheme.primary : 'text-gray-400'
-          }`} />
-          
+          <Upload className={`w-8 h-8 mx-auto mb-3 transition-colors duration-300 ${dragOverZone === type ? colorScheme.primary : 'text-gray-400'
+            }`} />
+
           <input
             ref={fileInputRef}
             type="file"
@@ -580,7 +578,7 @@ export function UploadZone() {
             }}
             className="hidden"
           />
-          
+
           <div className="text-sm font-medium mb-2">{description}</div>
           <button
             type="button"
@@ -591,43 +589,43 @@ export function UploadZone() {
           </button>
         </div>
 
-      {files[type].length > 0 && (
-        <div className="mt-4">
-          <div className="space-y-2">
-            {files[type].map((file, index) => (
-              <div key={index} className={`flex items-center ${colorScheme.bg} rounded-lg p-3 group border ${colorScheme.border}`}>
-                <FileText className={`w-4 h-4 ${colorScheme.primary} mr-3 flex-shrink-0`} />
-                <div className="flex-1 min-w-0">
-                  <span className="text-sm block truncate">{file.name}</span>
+        {files[type].length > 0 && (
+          <div className="mt-4">
+            <div className="space-y-2">
+              {files[type].map((file, index) => (
+                <div key={index} className={`flex items-center ${colorScheme.bg} rounded-lg p-3 group border ${colorScheme.border}`}>
+                  <FileText className={`w-4 h-4 ${colorScheme.primary} mr-3 flex-shrink-0`} />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm block truncate">{file.name}</span>
+                  </div>
+                  <span className="text-xs text-gray-400 mx-3 flex-shrink-0">
+                    {(file.size / 1024 / 1024).toFixed(1)} MB
+                  </span>
+                  <button
+                    onClick={() => removeFile(type, index)}
+                    className="text-red-400 hover:text-red-300 hover:bg-red-400/10 p-1 rounded transition-all duration-200 opacity-0 group-hover:opacity-100"
+                    title="Supprimer ce fichier"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
-                <span className="text-xs text-gray-400 mx-3 flex-shrink-0">
-                  {(file.size / 1024 / 1024).toFixed(1)} MB
-                </span>
+              ))}
+            </div>
+
+            {files[type].length > 0 && (
+              <div className="mt-2 text-center">
                 <button
-                  onClick={() => removeFile(type, index)}
-                  className="text-red-400 hover:text-red-300 hover:bg-red-400/10 p-1 rounded transition-all duration-200 opacity-0 group-hover:opacity-100"
-                  title="Supprimer ce fichier"
+                  onClick={() => clearAllFiles(type)}
+                  className="text-red-400 hover:text-red-300 text-xs underline"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  Supprimer tous
                 </button>
               </div>
-            ))}
+            )}
           </div>
-          
-          {files[type].length > 0 && (
-            <div className="mt-2 text-center">
-              <button
-                onClick={() => clearAllFiles(type)}
-                className="text-red-400 hover:text-red-300 text-xs underline"
-              >
-                Supprimer tous
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  )
+        )}
+      </div>
+    )
   }
 
   // Schémas de couleurs pour chaque section
@@ -660,7 +658,7 @@ export function UploadZone() {
       <div className="max-w-4xl mx-auto px-1 md:px-0">
         <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-4 md:p-8 border border-white/10 mx-1 md:mx-0">
           <h2 className="text-2xl font-semibold mb-6 text-center">Uploadez vos fichiers de recrutement</h2>
-          
+
           {/* Instructions */}
           <div className="bg-blue-900/20 border border-blue-500/30 rounded-xl p-4 mb-8">
             <h3 className="font-medium text-blue-200 mb-2">📋 Instructions importantes :</h3>
@@ -719,8 +717,8 @@ export function UploadZone() {
             <div className="text-center mb-4">
               <div className="text-lg font-medium">{getValidationMessage()}</div>
               <div className="text-sm text-gray-400 mt-1">
-                Fiche de poste: {files.jobDescription.length} | 
-                CV: {files.cvs.length} | 
+                Fiche de poste: {files.jobDescription.length} |
+                CV: {files.cvs.length} |
                 Lettres: {files.motivationLetters.length}
               </div>
             </div>
@@ -765,21 +763,21 @@ export function UploadZone() {
                   <Zap className="w-8 h-8 text-cyan-400 animate-bounce" />
                 </div>
               </div>
-              
+
               {/* Titre */}
               <h3 className="text-xl font-semibold text-white mb-2">
                 Analyse en cours...
               </h3>
-              
+
               {/* Description */}
               <p className="text-slate-300 mb-6 text-sm">
                 Notre IA analyse vos candidatures.
                 <br />
                 Cela peut prendre quelques minutes.
               </p>
-              
 
-              
+
+
               {/* Barre de progression */}
               <div className="mb-6">
                 <div className="flex justify-between text-xs text-slate-400 mb-2">
@@ -787,49 +785,41 @@ export function UploadZone() {
                   <span>{Math.round(analysisProgress)}%</span>
                 </div>
                 <div className="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-1000 ease-out"
                     style={{ width: `${analysisProgress}%` }}
                   ></div>
                 </div>
               </div>
-              
+
               {/* Étapes d'analyse */}
               <div className="space-y-2 text-left">
-                <div className={`flex items-center text-sm ${
-                  analysisProgress > 20 ? 'text-green-400' : 'text-slate-400'
-                }`}>
-                  <CheckCircle className={`w-4 h-4 mr-2 ${
-                    analysisProgress > 20 ? 'text-green-400' : 'text-slate-600'
-                  }`} />
+                <div className={`flex items-center text-sm ${analysisProgress > 20 ? 'text-green-400' : 'text-slate-400'
+                  }`}>
+                  <CheckCircle className={`w-4 h-4 mr-2 ${analysisProgress > 20 ? 'text-green-400' : 'text-slate-600'
+                    }`} />
                   Lecture des fichiers
                 </div>
-                <div className={`flex items-center text-sm ${
-                  analysisProgress > 50 ? 'text-green-400' : 'text-slate-400'
-                }`}>
-                  <CheckCircle className={`w-4 h-4 mr-2 ${
-                    analysisProgress > 50 ? 'text-green-400' : 'text-slate-600'
-                  }`} />
+                <div className={`flex items-center text-sm ${analysisProgress > 50 ? 'text-green-400' : 'text-slate-400'
+                  }`}>
+                  <CheckCircle className={`w-4 h-4 mr-2 ${analysisProgress > 50 ? 'text-green-400' : 'text-slate-600'
+                    }`} />
                   Extraction des compétences
                 </div>
-                <div className={`flex items-center text-sm ${
-                  analysisProgress > 80 ? 'text-green-400' : 'text-slate-400'
-                }`}>
-                  <CheckCircle className={`w-4 h-4 mr-2 ${
-                    analysisProgress > 80 ? 'text-green-400' : 'text-slate-600'
-                  }`} />
+                <div className={`flex items-center text-sm ${analysisProgress > 80 ? 'text-green-400' : 'text-slate-400'
+                  }`}>
+                  <CheckCircle className={`w-4 h-4 mr-2 ${analysisProgress > 80 ? 'text-green-400' : 'text-slate-600'
+                    }`} />
                   Calcul des scores
                 </div>
-                <div className={`flex items-center text-sm ${
-                  analysisProgress >= 100 ? 'text-green-400' : 'text-slate-400'
-                }`}>
-                  <CheckCircle className={`w-4 h-4 mr-2 ${
-                    analysisProgress >= 100 ? 'text-green-400' : 'text-slate-600'
-                  }`} />
+                <div className={`flex items-center text-sm ${analysisProgress >= 100 ? 'text-green-400' : 'text-slate-400'
+                  }`}>
+                  <CheckCircle className={`w-4 h-4 mr-2 ${analysisProgress >= 100 ? 'text-green-400' : 'text-slate-600'
+                    }`} />
                   Génération du rapport
                 </div>
               </div>
-              
+
               {/* Message de patience */}
               <div className="mt-6 p-3 bg-blue-900/20 border border-blue-500/30 rounded-lg">
                 <div className="flex items-center justify-center text-blue-200 text-xs">
