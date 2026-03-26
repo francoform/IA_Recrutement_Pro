@@ -552,7 +552,7 @@ export default function AboutPage() {
                   asChild
                   className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 text-white border-0 px-8 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105"
                 >
-                  <a href="https://be2web-agence.francoform.com/" target="_blank" rel="noopener noreferrer">
+                  <a href="https://be2web.fr" target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="mr-2 h-4 w-4" />
                     Découvrir be2web
                   </a>
@@ -748,7 +748,7 @@ export default function AboutPage() {
           <div className="mt-16 pt-8 border-t border-white/10">
             <div className="text-center text-zinc-400">
               <a 
-                href="https://be2web-agence.francoform.com/" 
+                href="https://be2web.fr" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm hover:text-white transition-colors duration-300 hover:underline"

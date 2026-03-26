@@ -203,12 +203,12 @@ export default function ContactPopup({ isOpen, onClose }: ContactPopupProps) {
                   contact-be2web@francoform.com
                 </a>
                 <a 
-                  href="https://be2web-agence.francoform.com/"
+                  href="https://be2web.fr"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-cyan-400 hover:text-cyan-300 transition-colors text-sm"
                 >
-                  be2web-agence.francoform.com
+                  be2web.fr
                 </a>
               </div>
             </div>

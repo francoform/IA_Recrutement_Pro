@@ -22,7 +22,7 @@ export function Header() {
                 width={24} 
                 height={24} 
                 className="opacity-80 hover:opacity-100 transition-opacity cursor-pointer"
-                onClick={() => window.open('https://be2web-agence.francoform.com/', '_blank')}
+                onClick={() => window.open('https://be2web.fr', '_blank')}
               />
             </div>
           </div>
