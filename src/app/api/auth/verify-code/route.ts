@@ -14,15 +14,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Logs de débogage
-    console.log('🔍 [SUPABASE-AUTH] Vérification du code:', { email, code })
-    
     // Vérifier le code avec Supabase
     const verification = await AuthService.verifyCode(email, code)
-    console.log('📊 [SUPABASE-AUTH] Résultat de vérification:', verification)
-    
+
     if (!verification.success) {
-      console.log('❌ [SUPABASE-AUTH] Échec de vérification:', verification.error)
       return NextResponse.json(
         { error: verification.error || 'Code incorrect ou expiré' },
         { status: 400 }
@@ -31,7 +26,6 @@ export async function POST(request: NextRequest) {
 
     // Créer un token de session
     const sessionToken = await AuthService.createSessionToken(email)
-    console.log('🔑 [SUPABASE-AUTH] Token de session créé')
 
     // Récupérer les données utilisateur
     const { data: user } = await supabase
@@ -42,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     // Créer la réponse avec le cookie sécurisé
     const response = NextResponse.json(
-      { 
+      {
         message: 'Vérification réussie',
         verified: true,
         user: {
@@ -56,18 +50,17 @@ export async function POST(request: NextRequest) {
 
     // Définir le cookie accessible côté client (24h)
     response.cookies.set('supabase-session', sessionToken, {
-      httpOnly: false, // Permet l'accès côté client
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 24 * 60 * 60, // 24h en secondes
+      maxAge: 24 * 60 * 60,
       path: '/'
     })
 
-    console.log('✅ [SUPABASE-AUTH] Vérification réussie pour:', email)
     return response
 
   } catch (error) {
-    console.error('❌ [SUPABASE-AUTH] Erreur lors de la vérification:', error)
+    console.error('Erreur vérification code:', error)
     return NextResponse.json(
       { error: 'Erreur lors de la vérification' },
       { status: 500 }

@@ -196,50 +196,34 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
       
       // Lire directement les résultats depuis sessionStorage
       const analysisResults = sessionStorage.getItem('analysisResults')
-      console.log('🔍 [DEBUG] Données brutes du sessionStorage:', analysisResults)
-      console.log('🔍 [DEBUG] Type:', typeof analysisResults)
-      console.log('🔍 [DEBUG] Longueur:', analysisResults?.length)
-      
+
       if (!analysisResults) {
         throw new Error('Résultats d\'analyse manquants')
       }
       
       const webhookData = JSON.parse(analysisResults)
-      console.log('📊 [DEBUG] Données parsées du webhook:', webhookData)
-      console.log('📊 [DEBUG] Type des données:', typeof webhookData)
-      console.log('📊 [DEBUG] Est-ce un array?', Array.isArray(webhookData))
-      
+
       // Vérifier si webhookData est un array ou un objet
       let candidatesArray: Record<string, unknown>[] = []
       
       if (Array.isArray(webhookData)) {
         candidatesArray = webhookData
-        console.log('✅ [DEBUG] Données directement en array, nombre de candidats:', candidatesArray.length)
-        
+
         // Vérifier que le premier élément a les propriétés attendues d'un candidat
         if (candidatesArray.length > 0) {
           const firstCandidate = candidatesArray[0]
-          console.log('🔍 [DEBUG] Premier candidat:', firstCandidate)
-          console.log('🔍 [DEBUG] Clés du premier candidat:', Object.keys(firstCandidate || {}))
-          const hasExpectedProps = firstCandidate && 
-            typeof firstCandidate === 'object' && 
+          const hasExpectedProps = firstCandidate &&
+            typeof firstCandidate === 'object' &&
             ('full-name' in firstCandidate || 'email' in firstCandidate || 'final-score' in firstCandidate)
-          
-          if (hasExpectedProps) {
-            console.log('✅ [DEBUG] Array de candidats valide détecté avec propriétés attendues')
-          } else {
-            console.log('⚠️ [DEBUG] Array détecté mais structure de candidat non reconnue, recherche dans l\'objet...')
+
+          if (!hasExpectedProps) {
             candidatesArray = [] // Reset pour chercher ailleurs
           }
         }
       }
       
       if ((!Array.isArray(candidatesArray) || candidatesArray.length === 0) && webhookData && typeof webhookData === 'object') {
-        console.log('🔍 [DEBUG] Recherche de candidats dans l\'objet...')
-        console.log('🔍 [DEBUG] Propriétés disponibles:', Object.keys(webhookData))
-        console.log('🔍 [DEBUG] Structure complète de l\'objet:', JSON.stringify(webhookData, null, 2))
-        
-        // NOUVEAU: Vérifier si webhookData est un objet candidat unique
+        // Vérifier si webhookData est un objet candidat unique
         if ((!Array.isArray(candidatesArray) || candidatesArray.length === 0) && 
             webhookData && 
             typeof webhookData === 'object' && 
@@ -249,19 +233,14 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
           const hasExpectedProps = ('full-name' in webhookData || 'email' in webhookData || 'final-score' in webhookData)
           
           if (hasExpectedProps) {
-            console.log('✅ [DEBUG] Objet candidat unique détecté, conversion en array')
             candidatesArray = [webhookData as Record<string, unknown>]
-            console.log('✅ [DEBUG] Candidat unique ajouté à l\'array:', candidatesArray.length)
           } else {
-            console.log('🔍 [DEBUG] Objet détecté mais pas de propriétés candidat, recherche dans les propriétés...')
-            
             // Essayer différentes propriétés possibles pour les candidats
             const possibleKeys = ['candidates', 'results', 'data', 'items', 'list', 'output', 'response']
             
             for (const key of possibleKeys) {
               if (webhookData[key] && Array.isArray(webhookData[key])) {
                 candidatesArray = webhookData[key] as Record<string, unknown>[]
-                console.log(`✅ [DEBUG] Candidats trouvés dans la propriété '${key}':`, candidatesArray.length)
                 break
               }
             }
@@ -270,18 +249,14 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
         
         // Si aucune propriété standard trouvée, chercher récursivement dans l'objet
         if (!Array.isArray(candidatesArray) || candidatesArray.length === 0) {
-          console.log('🔍 [DEBUG] Recherche récursive d\'arrays dans l\'objet...')
-          
-          const findArraysRecursively = (obj: unknown, path = ''): unknown[] => {
+          const findArraysRecursively = (obj: unknown): unknown[] => {
              const arrays: unknown[] = []
-            
+
             if (Array.isArray(obj)) {
-              console.log(`🔍 [DEBUG] Array trouvé à ${path}:`, obj.length, 'éléments')
               arrays.push(obj)
             } else if (obj && typeof obj === 'object') {
-              for (const [key, value] of Object.entries(obj)) {
-                const newPath = path ? `${path}.${key}` : key
-                arrays.push(...findArraysRecursively(value, newPath))
+              for (const [, value] of Object.entries(obj)) {
+                arrays.push(...findArraysRecursively(value))
               }
             }
             
@@ -289,52 +264,35 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
           }
           
           const foundArrays = findArraysRecursively(webhookData)
-          console.log('🔍 [DEBUG] Arrays trouvés:', foundArrays.length)
-          
+
           // Prendre le premier array non-vide qui contient des objets
            for (const arr of foundArrays) {
              if (Array.isArray(arr) && arr.length > 0 && typeof arr[0] === 'object' && arr[0] !== null) {
                candidatesArray = arr as Record<string, unknown>[]
-               console.log('✅ [DEBUG] Array de candidats sélectionné:', candidatesArray.length, 'éléments')
-               console.log('🔍 [DEBUG] Premier élément:', JSON.stringify(arr[0], null, 2))
                break
              }
            }
         }
       }
       
-      console.log('📊 [DEBUG] Array final de candidats:', candidatesArray)
-      console.log('📊 [DEBUG] Nombre de candidats:', candidatesArray?.length || 0)
-      
       if (!Array.isArray(candidatesArray) || candidatesArray.length === 0) {
-        console.log('❌ [DEBUG] ERREUR: Aucun candidat trouvé')
         throw new Error('Aucun candidat trouvé dans les résultats')
       }
       
       // Limiter le nombre de candidats à 10 maximum
       const limitedCandidatesArray = candidatesArray.slice(0, 10)
-      console.log(`🔄 [DEBUG] Limitation à 10 candidats: ${candidatesArray.length} -> ${limitedCandidatesArray.length}`)
-      
+
       // Mapper les données du webhook vers l'interface Candidate et ajouter les couleurs
-      console.log('🔄 [DEBUG] Début du mapping des candidats...')
-      const processedData = limitedCandidatesArray.map((webhookCandidate: Record<string, unknown>, idx: number) => {
-        console.log(`🔄 [DEBUG] Mapping candidat ${idx + 1}:`, webhookCandidate)
-        const mapped = {
-          ...mapWebhookToCandidate(webhookCandidate),
-          color: candidateColors[idx % candidateColors.length]
-        }
-        console.log(`🔄 [DEBUG] Candidat mappé:`, mapped)
-        return mapped
-      })
-      
-      console.log('✅ [DEBUG] Tous les candidats mappés:', processedData)
+      const processedData = limitedCandidatesArray.map((webhookCandidate: Record<string, unknown>, idx: number) => ({
+        ...mapWebhookToCandidate(webhookCandidate),
+        color: candidateColors[idx % candidateColors.length]
+      }))
       setData(processedData)
       setLoading(false)
       
     } catch (err) {
-      console.error('❌ [DEBUG] Erreur lors du chargement des résultats:', err)
-      console.error('❌ [DEBUG] Stack trace:', err instanceof Error ? err.stack : 'Pas de stack trace')
-      
+      console.error('Erreur chargement résultats:', err)
+
       // EN CAS D'ERREUR, UTILISER DES DONNÉES DE FALLBACK GÉNÉRIQUES
       const fallbackData = [
         {
@@ -425,7 +383,6 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
     setDocumentPopup({ isOpen: false, type: null, candidate: null, content: '' });
 
   if (loading) {
-    console.log('🔄 [DEBUG] Affichage du loader - loading est true')
     return (
       <main className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
         <div className="text-center max-w-md">
@@ -443,7 +400,6 @@ const sendEmailViaSMTP = async (candidate: Candidate, form: typeof emailForm) =>
   }
 
   if (error) {
-    console.log('❌ [DEBUG] Affichage de l\'erreur:', error)
     return (
       <main className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
         <div className="text-center max-w-md">

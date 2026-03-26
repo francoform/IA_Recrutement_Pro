@@ -17,7 +17,7 @@ const cache: DisposableEmailCache = {
 // Configuration
 const CONFIG = {
   // URL de la liste disposable/disposable (domains.txt)
-  DOMAINS_URL: 'https://raw.githubusercontent.com/disposable/disposable/master/domains.txt',
+  DOMAINS_URL: 'https://raw.githubusercontent.com/disposable-email-domains/disposable-email-domains/main/disposable_email_blocklist.conf',
   // Durée de cache : 24 heures
   CACHE_DURATION: 24 * 60 * 60 * 1000,
   // Timeout pour la requête HTTP

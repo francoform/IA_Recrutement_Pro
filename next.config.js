@@ -3,7 +3,7 @@ const path = require('path');
 
 const nextConfig = {
   images: {
-    domains: ['localhost'],
+    domains: ['localhost', 'ia-recrutement-pro.francoform.com'],
   },
   serverExternalPackages: ['@supabase/supabase-js', '@supabase/realtime-js'],
   webpack: (config) => {

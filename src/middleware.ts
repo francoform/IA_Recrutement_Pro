@@ -48,41 +48,32 @@ export async function middleware(request: NextRequest) {
 
   // Récupérer le token d'authentification depuis le cookie
   const cookieHeader = request.headers.get('cookie')
-  console.log('🍪 [MIDDLEWARE] Cookie header:', cookieHeader)
   let token = null
-  
+
   if (cookieHeader) {
     const cookies = cookieHeader.split(';')
-    console.log('🍪 [MIDDLEWARE] Cookies trouvés:', cookies.length)
     const authCookie = cookies.find(cookie => cookie.trim().startsWith('supabase-session='))
-    console.log('🍪 [MIDDLEWARE] Cookie supabase-session:', authCookie ? 'TROUVÉ' : 'NON TROUVÉ')
-    
+
     if (authCookie) {
       const rawToken = authCookie.split('=')[1].trim()
       token = decodeURIComponent(rawToken)
-      console.log('🔑 [MIDDLEWARE] Token extrait:', token ? `${token.substring(0, 20)}...` : 'null')
     }
   }
-  
+
   if (!token) {
-    console.log('❌ [MIDDLEWARE] Aucun token trouvé')
     logAccess(ip, pathname, 'NO_TOKEN')
     return NextResponse.redirect(new URL('/?error=auth-required', request.url))
   }
-  
-  console.log('✅ [MIDDLEWARE] Token trouvé, vérification avec AuthService...')
 
   // Vérifier la validité du token avec AuthService
   const tokenVerification = await AuthService.verifySessionToken(token)
   
   if (!tokenVerification.valid || !tokenVerification.email) {
-    console.log('❌ [MIDDLEWARE] Token invalide ou email manquant')
     logAccess(ip, pathname, 'INVALID_TOKEN')
     return NextResponse.redirect(new URL('/?error=session-expired', request.url))
   }
 
   const userEmail = tokenVerification.email
-  console.log('✅ [MIDDLEWARE] Token valide pour:', userEmail)
 
   // Vérifier si l'utilisateur est vérifié
   const { data: userData } = await supabase
@@ -92,12 +83,9 @@ export async function middleware(request: NextRequest) {
     .single()
 
   if (!userData?.verified) {
-    console.log('❌ [MIDDLEWARE] Utilisateur non vérifié:', userEmail)
     logAccess(ip, pathname, 'NOT_VERIFIED', userEmail)
     return NextResponse.redirect(new URL('/?error=not-verified', request.url))
   }
-
-  console.log('✅ [MIDDLEWARE] Utilisateur vérifié:', userEmail)
   
   // Vérifier les limites de rate limiting avec Supabase
   const now = new Date()

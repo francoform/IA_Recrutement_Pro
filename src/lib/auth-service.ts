@@ -20,8 +20,7 @@ export class AuthService {
   // Créer ou récupérer un utilisateur avec code de vérification
   static async getOrCreateUser(email: string): Promise<AuthResult> {
     try {
-      console.log('🔍 Recherche utilisateur:', email)
-      
+            
       // Vérifier si l'utilisateur existe déjà
       const { data: existingUser, error: fetchError } = await supabase
         .from('users')
@@ -30,8 +29,6 @@ export class AuthService {
         .single()
       
       if (existingUser && !fetchError) {
-        console.log('👤 Utilisateur existant trouvé:', existingUser.id)
-        
         // Générer un nouveau code de vérification
         const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
         const now = new Date().toISOString()
@@ -49,7 +46,7 @@ export class AuthService {
           .single()
         
         if (updateError) {
-          console.error('❌ Erreur mise à jour utilisateur:', updateError)
+          console.error('Erreur mise à jour utilisateur:', updateError)
           return { success: false, error: 'Erreur lors de la mise à jour' }
         }
         
@@ -57,7 +54,6 @@ export class AuthService {
       }
       
       // Créer un nouvel utilisateur
-      console.log('➕ Création nouvel utilisateur')
       const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
       
       const now = new Date().toISOString()
@@ -77,11 +73,10 @@ export class AuthService {
         return { success: false, error: 'Erreur lors de la création' }
       }
       
-      console.log('✅ Utilisateur créé:', newUser.id)
       return { success: true, user: newUser }
       
     } catch (error) {
-      console.error('❌ Erreur AuthService.getOrCreateUser:', error)
+      console.error('Erreur AuthService.getOrCreateUser:', error)
       return { success: false, error: 'Erreur interne' }
     }
   }
@@ -89,8 +84,6 @@ export class AuthService {
   // Vérifier un code de vérification
   static async verifyCode(email: string, code: string): Promise<VerificationResult> {
     try {
-      console.log('🔍 Vérification code:', { email, code })
-      
       // Récupérer l'utilisateur avec le code
       const { data: user, error: fetchError } = await supabase
         .from('users')
@@ -100,7 +93,6 @@ export class AuthService {
         .single()
       
       if (fetchError || !user) {
-        console.log('❌ Code invalide ou utilisateur non trouvé')
         return {
           success: false,
           verified: false,
@@ -116,18 +108,8 @@ export class AuthService {
       const diffMinutes = (now.getTime() - codeGeneratedAt.getTime()) / (1000 * 60)
       const expirationThreshold = 10
       
-      console.log('🔍 [DEBUG] Vérification expiration du code:')
-      console.log('📅 Date actuelle:', now.toISOString())
-      console.log('📅 code_generated_at depuis DB:', user.code_generated_at)
-      console.log('📅 created_at en fallback:', user.created_at)
-      console.log('📅 Date utilisée pour calcul:', codeGeneratedAt.toISOString())
-      console.log('⏱️ Différence en minutes:', diffMinutes.toFixed(2))
-      console.log('⏱️ Seuil d\'expiration:', expirationThreshold, 'minutes')
-      console.log('✅ Code valide?', diffMinutes <= expirationThreshold)
-      
       // Vérifier l'expiration (10 minutes)
       if (diffMinutes > expirationThreshold) {
-        console.log('⏰ Code expiré - différence:', diffMinutes.toFixed(2), 'minutes')
         return {
           success: false,
           verified: false,
@@ -158,7 +140,6 @@ export class AuthService {
         }
       }
       
-      console.log('✅ Code vérifié avec succès')
       return {
         success: true,
         verified: true,
@@ -167,7 +148,7 @@ export class AuthService {
       }
       
     } catch (error) {
-      console.error('❌ Erreur AuthService.verifyCode:', error)
+      console.error('Erreur AuthService.verifyCode:', error)
       return {
         success: false,
         verified: false,
@@ -197,14 +178,14 @@ export class AuthService {
         .single()
       
       if (error) {
-        console.error('❌ Erreur génération nouveau code:', error)
+        console.error('Erreur génération nouveau code:', error)
         return { success: false, error: 'Erreur lors de la génération' }
       }
       
       return { success: true, user }
       
     } catch (error) {
-      console.error('❌ Erreur AuthService.generateNewCode:', error)
+      console.error('Erreur AuthService.generateNewCode:', error)
       return { success: false, error: 'Erreur interne' }
     }
   }
@@ -235,7 +216,6 @@ export class AuthService {
       
       // Vérifier que le token a une longueur valide pour base64
       if (cleanToken.length % 4 !== 0) {
-        console.error('❌ Token invalide: longueur incorrecte')
         return {
           valid: false,
           email: null,
@@ -265,7 +245,7 @@ export class AuthService {
       }
       
     } catch (error) {
-      console.error('❌ Erreur vérification token:', error)
+      console.error('Erreur vérification token:', error)
       return {
         valid: false,
         email: null,

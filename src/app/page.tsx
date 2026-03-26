@@ -23,20 +23,13 @@ function HomePageContent() {
   } | null>(null)
 
   useEffect(() => {
-    console.log('🏠 [DEBUG] Page d\'accueil chargée')
-    console.log('🍪 Cookies disponibles au chargement:', document.cookie)
-    console.log('📋 localStorage gdpr-accepted:', localStorage.getItem('gdpr-accepted'))
-    
     // Nettoyer les caches côté client au démarrage pour un test propre
     const shouldClearCache = new URLSearchParams(window.location.search).get('clear-cache');
     if (shouldClearCache === 'true') {
-      console.log('🧹 Nettoyage des caches demandé')
       clearAllClientCaches();
-      // Supprimer le paramètre de l'URL
       const newUrl = new URL(window.location.href);
       newUrl.searchParams.delete('clear-cache');
       window.history.replaceState({}, '', newUrl.toString());
-      console.log('🧹 Caches nettoyés')
     }
     
     // La vérification RGPD est maintenant intégrée dans la popup de vérification email
@@ -87,61 +80,33 @@ function HomePageContent() {
 
   // Fonction utilitaire pour récupérer le token depuis les cookies
   const getAuthToken = () => {
-    console.log('🔍 [DEBUG] Récupération du token d\'authentification...')
-    console.log('🍪 Tous les cookies disponibles:', document.cookie)
-    
     const cookies = document.cookie.split(';')
     const authCookie = cookies.find(cookie => cookie.trim().startsWith('supabase-session='))
-    console.log('🍪 Cookie supabase-session trouvé:', authCookie)
-    
-    if (!authCookie) {
-      console.log('❌ Aucun cookie supabase-session trouvé')
-      return null
-    }
-    
-    const rawToken = authCookie.split('=')[1].trim()
-    const token = decodeURIComponent(rawToken)
-    console.log('🔑 Token brut:', rawToken ? `${rawToken.substring(0, 20)}...` : 'null')
-    console.log('🔑 Token décodé:', token ? `${token.substring(0, 20)}...` : 'null')
-    return token
+
+    if (!authCookie) return null
+
+    return decodeURIComponent(authCookie.split('=')[1].trim())
   }
 
   const handleStartAnalysis = async () => {
-    console.log('🚀 [DEBUG] ===== DÉBUT handleStartAnalysis =====')
-    console.log('🚀 [DEBUG] Clic sur "Commencer l\'analyse"')
-    console.log('🍪 Cookies avant vérification:', document.cookie)
-    
-    // Récupérer le token d'authentification
     const token = getAuthToken()
-    
-    // Si aucun token n'est présent, afficher directement la popup d'authentification
+
     if (!token) {
-      console.log('🔐 Aucun token présent, affichage popup d\'authentification')
       setShowAuthPopup(true);
       return;
     }
-    
+
     try {
-      // Vérifier les limites de débit avec le token
-      console.log('📡 Vérification des limites de débit...')
-      
-      const headers: HeadersInit = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-      
-      console.log('🔑 Token ajouté à l\'en-tête Authorization')
-      
       const checkResponse = await fetch('/api/analysis/check-limits', {
         method: 'POST',
-        headers,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
       });
-      
-      console.log('📡 Réponse API check-limits:', checkResponse.status, checkResponse.statusText)
-      
+
       if (checkResponse.status === 429) {
         const limitData = await checkResponse.json();
-        console.log('⏰ Limite de débit atteinte, affichage popup')
         setRateLimitData({
           type: limitData.type || 'email',
           current: limitData.current || 0,
@@ -151,26 +116,21 @@ function HomePageContent() {
         setShowRateLimitPopup(true);
         return;
       }
-      
+
       if (checkResponse.status === 401) {
-        // Token invalide, afficher la popup d'authentification
-        console.log('🔐 Token invalide, affichage popup d\'authentification')
         setShowAuthPopup(true);
         return;
       }
-      
+
       const data = await checkResponse.json();
-      
+
       if (data.allowed) {
-        console.log('✅ Limites OK, redirection vers /services/ia')
         router.push('/services/ia');
       } else {
-        console.log('🔐 Limites non respectées, affichage popup d\'authentification')
         setShowAuthPopup(true);
       }
     } catch (error) {
-      console.error('❌ Erreur lors de la vérification des limites:', error)
-      console.log('🔐 Erreur réseau, affichage popup d\'authentification par sécurité')
+      console.error('Erreur vérification limites:', error)
       setShowAuthPopup(true);
     }
   }

@@ -52,11 +52,8 @@ export class RateLimitService {
   // Vérifier les limites sans incrémenter
   static async checkLimits(userId: string, email: string): Promise<RateLimitResult> {
     try {
-      console.log('🔍 [RATE-LIMIT] Vérification des limites pour utilisateur:', userId, 'Email:', email)
-      
       // Exemption pour les emails en liste blanche
       if (this.isEmailWhitelisted(email)) {
-        console.log('✅ [RATE-LIMIT] Email en liste blanche, exemption accordée')
         return { 
           allowed: true, 
           remaining: 999, 
@@ -98,13 +95,13 @@ export class RateLimitService {
           .single()
         
         if (createError) {
-          console.error('❌ Erreur création rate limit:', createError)
+          console.error('Erreur création rate limit:', createError)
           return { allowed: false, error: 'Erreur de création des limites' }
         }
         
         rateLimit = newRateLimit
       } else if (fetchError) {
-        console.error('❌ Erreur récupération rate limit:', fetchError)
+        console.error('Erreur récupération rate limit:', fetchError)
         return { allowed: false, error: 'Erreur de récupération des limites' }
       }
       
@@ -129,7 +126,7 @@ export class RateLimitService {
           .single()
         
         if (resetError) {
-          console.error('❌ Erreur réinitialisation rate limit:', resetError)
+          console.error('Erreur réinitialisation rate limit:', resetError)
           return { allowed: false, error: 'Erreur de réinitialisation' }
         }
         
@@ -153,8 +150,6 @@ export class RateLimitService {
       tomorrow.setHours(0, 0, 0, 0)
       const resetTime = tomorrow.getTime()
       
-      console.log(`🔍 [RATE-LIMIT] Limite quotidienne: ${rateLimit.daily_count}/${LIMITS.DAILY_LIMIT}, Autorisé: ${allowed}`)
-      
       return {
         allowed,
         resetTime,
@@ -165,7 +160,7 @@ export class RateLimitService {
       }
       
     } catch (error) {
-      console.error('❌ Erreur RateLimitService.checkLimits:', error)
+      console.error('Erreur RateLimitService.checkLimits:', error)
       return { allowed: false, error: 'Erreur interne' }
     }
   }
@@ -173,11 +168,8 @@ export class RateLimitService {
   // Incrémenter les compteurs après une analyse réussie
   static async incrementCounters(userId: string, email: string): Promise<boolean> {
     try {
-      console.log('📈 [RATE-LIMIT] Incrémentation des compteurs pour utilisateur:', userId)
-      
       // Exemption pour les emails en liste blanche
       if (this.isEmailWhitelisted(email)) {
-        console.log('✅ [RATE-LIMIT] Email en liste blanche, pas d\'incrémentation')
         return true
       }
       
@@ -189,7 +181,7 @@ export class RateLimitService {
         .single()
       
       if (fetchError) {
-        console.error('❌ Erreur récupération compteur actuel:', fetchError)
+        console.error('Erreur récupération compteur actuel:', fetchError)
         return false
       }
       
@@ -205,15 +197,14 @@ export class RateLimitService {
         .single()
       
       if (updateError) {
-        console.error('❌ Erreur incrémentation compteurs:', updateError)
+        console.error('Erreur incrémentation compteurs:', updateError)
         return false
       }
       
-      console.log('✅ [RATE-LIMIT] Compteurs incrémentés avec succès')
       return true
       
     } catch (error) {
-      console.error('❌ Erreur RateLimitService.incrementCounters:', error)
+      console.error('Erreur RateLimitService.incrementCounters:', error)
       return false
     }
   }
@@ -228,7 +219,7 @@ export class RateLimitService {
         .single()
       
       if (error || !rateLimit) {
-        console.error('❌ Erreur récupération stats utilisateur:', error)
+        console.error('Erreur récupération stats utilisateur:', error)
         return null
       }
       
@@ -268,15 +259,14 @@ export class RateLimitService {
         .eq('user_id', userId)
       
       if (error) {
-        console.error('❌ Erreur réinitialisation compteurs utilisateur:', error)
+        console.error('Erreur réinitialisation compteurs utilisateur:', error)
         return false
       }
       
-      console.log('✅ Compteurs utilisateur réinitialisés')
       return true
       
     } catch (error) {
-      console.error('❌ Erreur RateLimitService.resetUserCounters:', error)
+      console.error('Erreur RateLimitService.resetUserCounters:', error)
       return false
     }
   }
@@ -296,7 +286,7 @@ export class RateLimitService {
         .select('*', { count: 'exact', head: true })
       
       if (usersError) {
-        console.error('❌ Erreur comptage utilisateurs:', usersError)
+        console.error('Erreur comptage utilisateurs:', usersError)
         return null
       }
       
@@ -307,7 +297,7 @@ export class RateLimitService {
         .gte('last_analysis', today)
       
       if (activeError) {
-        console.error('❌ Erreur comptage utilisateurs actifs:', activeError)
+        console.error('Erreur comptage utilisateurs actifs:', activeError)
         return null
       }
       
@@ -318,7 +308,7 @@ export class RateLimitService {
         .gte('last_reset', today)
       
       if (statsError) {
-        console.error('❌ Erreur récupération stats du jour:', statsError)
+        console.error('Erreur récupération stats du jour:', statsError)
         return null
       }
       
@@ -331,7 +321,7 @@ export class RateLimitService {
       }
       
     } catch (error) {
-      console.error('❌ Erreur RateLimitService.getGlobalStats:', error)
+      console.error('Erreur RateLimitService.getGlobalStats:', error)
       return null
     }
   }

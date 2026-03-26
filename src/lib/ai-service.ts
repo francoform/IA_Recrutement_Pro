@@ -14,7 +14,12 @@ export async function analyzeFiles(files: File[]) {
 
   try {
     // Envoyer au webhook n8n POUR L'UPLOAD (différent de celui des résultats)
-    const response = await fetch('https://n8nify.be2web.fr/webhook/690fb674-2054-44c2-8805-5bb30c6091fa', {
+    const webhookUrl = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL
+    if (!webhookUrl) {
+      throw new Error('NEXT_PUBLIC_N8N_WEBHOOK_URL non configurée')
+    }
+
+    const response = await fetch(webhookUrl, {
       method: 'POST',
       body: formData,
     })
